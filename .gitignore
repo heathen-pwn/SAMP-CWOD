@@ -1,0 +1,4 @@
+gamemodes/mywork.amx
+filterscripts/*.amx
+scriptfiles/*
+server_log.txt
