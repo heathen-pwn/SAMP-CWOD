@@ -409,6 +409,7 @@ static Menu:house_tenants;
 static Menu:house_mailbox;
 
 new zones[MAX_ZONES];
+// x, y, size
 new Float:zones_points_0[] = 
 {
 	2354.0, -649.0, 250.0
@@ -2953,7 +2954,7 @@ CMD:detonate(playerid,params[])
 				}
 				if(IsPlayerInRangeOfPoint(i, 100, IED[id][ix], IED[id][iy], IED[id][iz]) && IED[id][ivw] == GetPlayerVirtualWorld(i))
 				{
-					MSG(playerid,RP,"*** BOOM! Explosion is heard in the distance.");
+					MSG(playerid,RP,"*** BOOM! An explosion is heard.");
 				}
 			}
 			for(new i = 1; i < MAX_VEHICLES; i++)
@@ -6431,6 +6432,45 @@ Dialog:dFrisk(playerid, response, listitem, inputtext[])
 				MSG(frisker, GRAD2, large_string);
 			}
 		}
+		MSG(frisker,GOLD,"[Drugs]");
+		format(large_string,sizeof large_string,"SELECT drug,pure,amount FROM drugs WHERE userid = %d",User[playerid][UserID]);
+		new DBResult: Result = db_query(Database, large_string);
+		large_string[0] = EOS;
+		do
+		{
+			if(db_num_rows(Result))
+			{
+				new type = db_get_field_assoc_int(Result,"drug");
+				new drug[16];
+				switch(type)
+				{
+				    case 1: drug = "Marijuana";
+				    case 2: drug = "Heroin";
+				    case 3: drug = "Cocaine";
+					case 4: drug = "Ecstasy";
+					case 5: drug = "Methamphetamine";
+					case 6: drug = "Plant";
+				}
+				new purity = db_get_field_assoc_int(Result,"pure");
+				new amount = db_get_field_assoc_int(Result,"amount");
+				new pure[24];
+				switch(purity)
+				{
+				    case 25: pure = "Low";
+				    case 50: pure = "Medium";
+				    case 75: pure = "High";
+				    case 90: pure = "Pure";
+				}
+
+	            if(type != 6) format(large_string,sizeof large_string,"Drug: %s (%d); Purity: %s",drug,amount,pure);
+				else format(large_string, 124,"Drug: %s (%d)",drug,amount,pure);
+				MSG(frisker, GRAD2, large_string);
+			} else {
+				break;
+			}
+		}
+		while(db_next_row(Result));
+		db_free_result(Result);
 		MSG(frisker,GRAD2,"----------------------------------------------------");
 		return DeletePVar(playerid, "p_dFrisker");	
 	}
@@ -14118,7 +14158,7 @@ CMD:takedrug(playerid,params[])
 			drug[24],
 			amount,
 			pure;
-		if(sscanf(params,"us[24]dd",target,drug,amount,pure)) return MSG(playerid,GOLD,"SYNTAX:"GR" /givedrug [playerid/PartOfName] [drug] [amount] [purity (25/50/75)");
+		if(sscanf(params,"us[24]dd",target,drug,amount,pure)) return MSG(playerid,GOLD,"SYNTAX:"GR" /takedrug [playerid/PartOfName] [drug] [amount] [purity (25/50/75)");
 		if(!User[target][Logged]) return MSG(playerid,GOLD,"ERROR:"GR" Specified player isn't logged on.");
 		TakePlayerDrug(target, drug, pure, amount);
 
@@ -20988,7 +21028,8 @@ public OnGameModeInit()
 	TextDrawBoxColor(inventory_box, 94);
 	TextDrawUseBox(inventory_box, 1);
 	TextDrawSetProportional(inventory_box, 1);
-	/*TextDrawShowForPlayer(playerid, csback);
+	/*
+	TextDrawShowForPlayer(playerid, csback);
 	TextDrawShowForPlayer(playerid, cshead);
 	TextDrawShowForPlayer(playerid, csheadsec);
 	PlayerTextDrawShow(playerid, csname[playerid]);
@@ -39210,141 +39251,141 @@ stock SetupPlayer(playerid)
 	//TextDrawShowForPlayer(playerid, weathertext);
 	//TextDrawShowForPlayer(playerid, temperaturetext);*/
 	/*---------------------------------------------------------------*/
-	/*InventoryBox[0][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 214.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[0][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[0][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[0][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[0][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[0][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[0][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[0][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[0][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[0][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[0][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[0][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[0][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[0][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[0][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[0][playerid], 1, 1);
+	/*InventoryBox_Deprecated[0][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 214.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[0][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[0][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[0][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[0][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[0][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[0][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[0][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[0][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[0][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[0][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[0][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[0][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[0][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[0][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[0][playerid], 1, 1);
 
-	InventoryBox[1][playerid] = CreatePlayerTextDraw(playerid, 564.000000, 214.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[1][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[1][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[1][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[1][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[1][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[1][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[1][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[1][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[1][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[1][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[1][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[1][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[1][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[1][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[1][playerid], 1, 1);
+	InventoryBox_Deprecated[1][playerid] = CreatePlayerTextDraw(playerid, 564.000000, 214.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[1][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[1][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[1][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[1][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[1][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[1][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[1][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[1][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[1][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[1][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[1][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[1][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[1][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[1][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[1][playerid], 1, 1);
 
-	InventoryBox[2][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 265.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[2][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[2][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[2][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[2][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[2][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[2][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[2][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[2][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[2][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[2][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[2][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[2][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[2][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[2][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[2][playerid], 1, 1);
+	InventoryBox_Deprecated[2][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 265.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[2][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[2][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[2][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[2][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[2][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[2][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[2][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[2][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[2][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[2][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[2][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[2][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[2][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[2][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[2][playerid], 1, 1);
 
-	InventoryBox[3][playerid] = CreatePlayerTextDraw(playerid, 564.000000, 265.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[3][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[3][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[3][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[3][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[3][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[3][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[3][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[3][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[3][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[3][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[3][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[3][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[3][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[3][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[3][playerid], 1, 1);
+	InventoryBox_Deprecated[3][playerid] = CreatePlayerTextDraw(playerid, 564.000000, 265.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[3][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[3][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[3][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[3][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[3][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[3][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[3][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[3][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[3][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[3][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[3][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[3][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[3][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[3][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[3][playerid], 1, 1);
 
-	InventoryBox[4][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 316.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[4][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[4][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[4][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[4][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[4][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[4][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[4][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[4][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[4][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[4][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[4][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[4][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[4][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[4][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[4][playerid], 1, 1);
+	InventoryBox_Deprecated[4][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 316.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[4][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[4][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[4][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[4][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[4][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[4][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[4][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[4][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[4][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[4][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[4][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[4][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[4][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[4][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[4][playerid], 1, 1);
 
-	InventoryBox[5][playerid] = CreatePlayerTextDraw(playerid, 565.000000, 316.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[5][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[5][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[5][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[5][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[5][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[5][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[5][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[5][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[5][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[5][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[5][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[5][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[5][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[5][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[5][playerid], 1, 1);
+	InventoryBox_Deprecated[5][playerid] = CreatePlayerTextDraw(playerid, 565.000000, 316.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[5][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[5][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[5][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[5][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[5][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[5][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[5][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[5][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[5][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[5][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[5][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[5][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[5][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[5][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[5][playerid], 1, 1);
 
-	InventoryBox[6][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 367.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[6][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[6][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[6][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[6][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[6][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[6][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[6][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[6][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[6][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[6][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[6][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[6][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[6][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[6][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[6][playerid], 1, 1);
+	InventoryBox_Deprecated[6][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 367.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[6][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[6][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[6][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[6][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[6][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[6][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[6][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[6][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[6][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[6][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[6][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[6][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[6][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[6][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[6][playerid], 1, 1);
 
-	InventoryBox[7][playerid] = CreatePlayerTextDraw(playerid, 565.000000, 367.000000, "Preview_Model");
-	PlayerTextDrawFont(playerid, InventoryBox[7][playerid], 5);
-	PlayerTextDrawLetterSize(playerid, InventoryBox[7][playerid], 0.600000, 2.000000);
-	PlayerTextDrawTextSize(playerid, InventoryBox[7][playerid], 64.000000, 46.000000);
-	PlayerTextDrawSetOutline(playerid, InventoryBox[7][playerid], 0);
-	PlayerTextDrawSetShadow(playerid, InventoryBox[7][playerid], 0);
-	PlayerTextDrawAlignment(playerid, InventoryBox[7][playerid], 1);
-	PlayerTextDrawColor(playerid, InventoryBox[7][playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, InventoryBox[7][playerid], 125);
-	PlayerTextDrawBoxColor(playerid, InventoryBox[7][playerid], 255);
-	PlayerTextDrawUseBox(playerid, InventoryBox[7][playerid], 0);
-	PlayerTextDrawSetProportional(playerid, InventoryBox[7][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, InventoryBox[7][playerid], 0);
-	PlayerTextDrawSetPreviewModel(playerid, InventoryBox[7][playerid], 0);
-	PlayerTextDrawSetPreviewRot(playerid, InventoryBox[7][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
-	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox[7][playerid], 1, 1);*/
+	InventoryBox_Deprecated[7][playerid] = CreatePlayerTextDraw(playerid, 565.000000, 367.000000, "Preview_Model");
+	PlayerTextDrawFont(playerid, InventoryBox_Deprecated[7][playerid], 5);
+	PlayerTextDrawLetterSize(playerid, InventoryBox_Deprecated[7][playerid], 0.600000, 2.000000);
+	PlayerTextDrawTextSize(playerid, InventoryBox_Deprecated[7][playerid], 64.000000, 46.000000);
+	PlayerTextDrawSetOutline(playerid, InventoryBox_Deprecated[7][playerid], 0);
+	PlayerTextDrawSetShadow(playerid, InventoryBox_Deprecated[7][playerid], 0);
+	PlayerTextDrawAlignment(playerid, InventoryBox_Deprecated[7][playerid], 1);
+	PlayerTextDrawColor(playerid, InventoryBox_Deprecated[7][playerid], -1);
+	PlayerTextDrawBackgroundColor(playerid, InventoryBox_Deprecated[7][playerid], 125);
+	PlayerTextDrawBoxColor(playerid, InventoryBox_Deprecated[7][playerid], 255);
+	PlayerTextDrawUseBox(playerid, InventoryBox_Deprecated[7][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, InventoryBox_Deprecated[7][playerid], 1);
+	PlayerTextDrawSetSelectable(playerid, InventoryBox_Deprecated[7][playerid], 0);
+	PlayerTextDrawSetPreviewModel(playerid, InventoryBox_Deprecated[7][playerid], 0);
+	PlayerTextDrawSetPreviewRot(playerid, InventoryBox_Deprecated[7][playerid], -10.000000, 0.000000, -20.000000, 1.000000);
+	PlayerTextDrawSetPreviewVehCol(playerid, InventoryBox_Deprecated[7][playerid], 1, 1);*/
 
 	/*---------------------------------------------------------------*/
 	ApplyAnimation(playerid, "WUZI", "null", 0.0, 0, 0, 0, 0, 0, 0);
