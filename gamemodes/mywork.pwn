@@ -119,6 +119,44 @@ stock GetXYZInFrontOfPlayer(playerid, &Float:x, &Float:y, &Float:z, Float:distan
 /gotopos 1297.10 1292.65 11.08 4 0
 /gotopos 1327.82 1783.87 10.91 3 0
 /gotopos 1899.548339 -2427.645019 12.479107 1 1
+
+Electronics Store
+/gotopos 1338.650146 1843.355468 11.740307 1 0
+Bank
+/gotopos 1327.640869 1791.359741 10.610309 2 0
+Trailer (House)
+/gotopos 2510.912597 -1722.675292 778.477050 1 0
+Fort Carson SD
+/gotopos 1305.316040 1365.313964 12.510304 4 0
+Fort Carson Bar
+/gotopos 1905.099975 -2419.050048 14.395051 2 0 can't be set as interior
+/gotopos 1899.548339 -2427.645019 13.479107 1 1this one actually works
+Butchery
+/gotopos -1680.805908 -219.733433 13.538437 0 0 
+Club
+/gotopos 1514.024780 1172.315747 9.730303 0 0
+Cool Apartment
+/gotopos 1535.14 -1104.58 181.92 0 0
+DMV
+/gotopos -1540.512817 -247.642303 13.742191 0 0
+Fire Station
+/gotopos 1585.83 1479.84 10.91 0 0
+House
+/gotopos -1677.017211 -396.869873 14.168438 0 0
+Bullshit interior
+/gotopos 1436.535767 1581.725586 9.752980 0 0
+Messy Office
+/gotopos 1443.36 1588.05 14.27 0 0
+Drug House
+/gotopos 1449.13 1224.43 14.43 1 0
+Hotel Room
+/gotopos -1251.71 -63.16 14.28 1 0
+Shitty Apartment
+/gotopos -1259.14 -19.63 14.29 1 0
+Police Station
+/gotopos 1297.10 1292.65 11.08 4 0
+Garage
+/gotopos 1327.82 1783.87 10.91 3 0 
 */
 
 #include <a_samp>
@@ -142,23 +180,23 @@ stock GetXYZInFrontOfPlayer(playerid, &Float:x, &Float:y, &Float:z, Float:distan
 #define SET_DISTANCE 2500
 #define MSG SendClientMessage
 #define MAX_ZONES 1
-#define MAX_BUSINESS 100
-#define MAX_HOUSE 750
+#define MAX_BUSINESS 50
+#define MAX_HOUSE 150
 #define MAX_GARAGES 301
 #define MAX_PROPS 501
-#define MAX_DOORS 500
+#define MAX_DOORS 250
 #define MAX_OBJ 1000
 #define MAX_PLANTS 100
-#define MAX_IEDS 100
+#define MAX_IEDS 50
 #define MAX_LABELS 500
 #define MAX_FACTIONS 25 // 5 faction slots
-#define MAX_CORPSE 100
+#define MAX_CORPSE 50
 #define MAX_DROPPED_WEAPONS 500
 #define MAX_ATTACHMENTS 3 // +3 if donator
 #define DEFAULT_TRUNK_SLOTS 20
 #define MAX_TRAIT_NAME 48
 #define ROLEPLAY_ITEM -1
-#define MAX_TREES 300
+#define MAX_TREES 150
 
 #define CUSTOM_SKIN_START 20001
 #define CUSTOM_SKIN_END 20060
