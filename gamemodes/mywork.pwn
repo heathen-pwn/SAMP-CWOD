@@ -180,23 +180,23 @@ Garage
 #define SET_DISTANCE 2500
 #define MSG SendClientMessage
 #define MAX_ZONES 1
-#define MAX_BUSINESS 50
-#define MAX_HOUSE 150
+#define MAX_BUSINESS 100
+#define MAX_HOUSE 750
 #define MAX_GARAGES 301
 #define MAX_PROPS 501
-#define MAX_DOORS 250
+#define MAX_DOORS 500
 #define MAX_OBJ 1000
 #define MAX_PLANTS 100
-#define MAX_IEDS 50
+#define MAX_IEDS 100
 #define MAX_LABELS 500
 #define MAX_FACTIONS 25 // 5 faction slots
-#define MAX_CORPSE 50
+#define MAX_CORPSE 100
 #define MAX_DROPPED_WEAPONS 500
 #define MAX_ATTACHMENTS 3 // +3 if donator
 #define DEFAULT_TRUNK_SLOTS 20
 #define MAX_TRAIT_NAME 48
 #define ROLEPLAY_ITEM -1
-#define MAX_TREES 150
+#define MAX_TREES 300
 
 #define CUSTOM_SKIN_START 20001
 #define CUSTOM_SKIN_END 20060
