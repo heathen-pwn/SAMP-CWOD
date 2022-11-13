@@ -14652,8 +14652,8 @@ CMD:usedrug(playerid,params[])
 		TakePlayerDrug(playerid, drug, pureness, 1);
 		gIncreaseHP(playerid, hp);
 		PlayerActionMessageBubble(playerid,"uses their Marijuana.");
-		TextDrawShowForPlayer(playerid,gGreenScreen);
-		SetTimerEx("OnGreenFade",time*1000,0,"d",playerid);
+		// TextDrawShowForPlayer(playerid,gGreenScreen);
+		// SetTimerEx("OnGreenFade",time*1000,0,"d",playerid);
 		//SetPlayerWeather(playerid,171);
         return 1;
 	}
