@@ -5,3 +5,4 @@ scriptfiles/Logs/*.log
 scriptfiles/Logs/*.txt
 server_log.txt
 include/pawn.ico
+new_customints.txt
