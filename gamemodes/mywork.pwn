@@ -173,7 +173,7 @@ Garage
 #undef MAX_VEHICLES
 // Main Server Definitions
 #define SERVERNAME "Dillimore Stories"
-#define GAMEMODENAME "DS:RP v1.0.4"
+#define GAMEMODENAME "DS:RP v1.0.5"
 #define MAX_PLAYERS 30
 #define MAX_VEHICLES 1000
 #define MAX_MASK_USAGE 5
@@ -324,6 +324,8 @@ Garage
 // RELEASED(keys)
 #define RELEASED(%0) \
 	(((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
+#define ADMINLVL_STORYTELLER -1
+#define IsStoryteller(%0) (User[%0][Useradmin] == ADMINLVL_STORYTELLER)
 /*--------------------------------------------------------------*/
 // Main variables
 new Iterator:Houses<MAX_HOUSE>;
@@ -1948,7 +1950,7 @@ stock LoadObjectsMaterial()
 }
 CMD:ogoto(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 1)
+	if(User[playerid][Useradmin] >= 1 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /ogoto [objectid]");
@@ -1961,7 +1963,7 @@ CMD:ogoto(playerid,params[])
 }
 CMD:maphelp(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 		MSG(playerid,GOLD,"[Map]"GR" /oc /om /ocp /os /oedit /ogoto /od /odall /rotate /getrot /odisplay /doff /export /cweather /ctime /changemat");
 		return 1;
@@ -1969,7 +1971,7 @@ CMD:maphelp(playerid,params[])
 }
 CMD:doff(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
         new id;
 		if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /doff [objectid]");
@@ -1982,7 +1984,7 @@ CMD:doff(playerid,params[])
 }
 CMD:od(playerid,params[])
 {
-    if(User[playerid][Useradmin] >= 1)
+    if(User[playerid][Useradmin] >= 1 || IsStoryteller(playerid))
     {
         new id;
 		if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /od [objectid]");
@@ -2004,7 +2006,7 @@ CMD:od(playerid,params[])
 }
 CMD:odall(playerid,params[])
 {
-    if(User[playerid][Useradmin] >= 1)
+    if(User[playerid][Useradmin] >= 3)
     {
         new range;
 		if(sscanf(params,"i",range)) return MSG(playerid,GOLD,"SYNTAX:"GR" /odall [range]");
@@ -2068,7 +2070,7 @@ stock SaveMaterial(objectid,index)
 }
 CMD:om(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
         new id,
 			index,
@@ -2197,7 +2199,7 @@ CMD:ctime(playerid,params[])
 }
 CMD:odisplay(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 		new range,option[6];
 		sscanf(params,"is[6]",range,option);
@@ -2236,7 +2238,7 @@ CMD:odisplay(playerid,params[])
 
 CMD:rotate(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 		new id,Float:x = -1,Float:y = -1,Float:z = -1;
 		sscanf(params,"ifff",id,x,y,z);
@@ -2261,7 +2263,7 @@ CMD:rotate(playerid,params[])
 }
 CMD:getrot(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 		new id,
 			Float:x,
@@ -2278,7 +2280,7 @@ CMD:getrot(playerid,params[])
 
 CMD:oc(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 			new Float:x,
 				Float:y,
@@ -2315,7 +2317,7 @@ CMD:oc(playerid,params[])
 }
 CMD:ocp(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 			new Float:x,
 				Float:y,
@@ -2368,7 +2370,7 @@ CMD:ocp(playerid,params[])
 }
 CMD:oedit(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
         new id;
 		if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /oedit [objectid]");
@@ -2381,7 +2383,7 @@ CMD:oedit(playerid,params[])
 }
 CMD:os(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 		SelectObject(playerid);
 		User[playerid][editing] = 2;
@@ -7978,7 +7980,7 @@ CMD:linkproptofaction(playerid,params[])
 }
 CMD:pcreate(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3)
+	if(User[playerid][Useradmin] >= 3 || IsStoryteller(playerid))
 	{
 	    new Float:x,
 	        Float:y,
@@ -8096,7 +8098,7 @@ CMD:pgoto(playerid,params[])
 }
 CMD:psetint(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3)
+	if(User[playerid][Useradmin] >= 3 || IsStoryteller(playerid))
 	{
 	    new id,Float:x,Float:y,Float:z;
 	    if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /psetint [property id]");
@@ -8122,7 +8124,7 @@ CMD:psetint(playerid,params[])
 }
 CMD:psetvw(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3)
+	if(User[playerid][Useradmin] >= 3 || IsStoryteller(playerid))
 	{
 	    new id,vw;
 	    if(sscanf(params,"ii",id,vw)) return MSG(playerid,GOLD,"SYNTAX:"GR" /psetvw [property id] [vw]");
@@ -17672,7 +17674,7 @@ Dialog:dPlayerLabelCreate(playerid, response, listitem, inputtext[])
 // ---
 CMD:gotolabel(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /gotolabel [labeid]");
@@ -17824,7 +17826,7 @@ CMD:dmylabels(playerid, params[])
 
 CMD:rnpcstat(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new npc,
 			stat[MAX_TRAIT_NAME];
@@ -17902,7 +17904,7 @@ stock GetNPCTraitValue(npcid, traitname[MAX_TRAIT_NAME])
 }
 CMD:npcroll(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new npc, trait[MAX_TRAIT_NAME], sectrait[MAX_TRAIT_NAME], difficulty = 6;
 		if(isnull(params)) return MSG(playerid, GOLD, "SYNTAX:"GR" /npcroll [npcid] [trait] [trait] [difficulty]");
@@ -17993,7 +17995,7 @@ CMD:npcroll(playerid, params[])
 }
 CMD:npcstat(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new npc,
 			stat[MAX_TRAIT_NAME],
@@ -18043,7 +18045,7 @@ CMD:npcstat(playerid, params[])
 }
 CMD:npcanim(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new npc,
 			animlib[24],
@@ -18065,7 +18067,7 @@ CMD:npcanim(playerid, params[])
 //native SetDynamicActorPos(STREAMER_TAG_ACTOR actorid, Float:x, Float:y, Float:z);
 CMD:cnpc(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new skin, name[MAX_PLAYER_NAME];
 		if(sscanf(params,"is[24]", skin, name))
@@ -18142,7 +18144,7 @@ CMD:cnpc(playerid, params[])
 
 CMD:getherenpc(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /getherenpc [npcid]");
@@ -18197,7 +18199,7 @@ CMD:getherenpc(playerid,params[])
 }
 CMD:gotonpc(playerid,params[])
 {
-	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] >= 3 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"i",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /gotonpc [npcid]");
@@ -18211,7 +18213,7 @@ CMD:gotonpc(playerid,params[])
 }
 CMD:dnpc(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new npcid;
 		if(sscanf(params,"i", npcid))
@@ -37269,7 +37271,7 @@ public WeatherTimer()
 }
 CMD:changemat(playerid,params[])
 {
-	if(User[playerid][Useradmin])
+	if(User[playerid][Useradmin] > 3)
 	{
 		new obj, index, color[11];
 		if(sscanf(params,"iis[11]",obj,index,color)) return MSG(playerid,GOLD,"SYNTAX:"GR" /changemat [dynamicobjectid] [index] [materialcolor]; this CMD is for debugging only");
@@ -38464,7 +38466,7 @@ CMD:sethealthlevel(playerid, params[])
 	return cmd_sethl(playerid, params);
 CMD:sethl(playerid,params[])
 {
-	if(User[playerid][Useradmin] < 3)
+	if(User[playerid][Useradmin] < 3 || !IsStoryteller(playerid))
 		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	if(isnull(params))
 	{
@@ -38502,7 +38504,7 @@ CMD:sethl(playerid,params[])
 
 CMD:sethp(playerid,params[])
 {
-	if(User[playerid][Useradmin] < 3)
+	if(User[playerid][Useradmin] < 3 || IsStoryteller(playerid))
 		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	if(isnull(params))
 		return MSG(playerid, GOLD, "SYNTAX:"GR" /sethp [playerid/partofname] [health]");
@@ -41169,6 +41171,12 @@ stock SetupPlayer(playerid)
 	RemoveBuildingForPlayer(playerid, 3425, -466.429, 2190.270, 55.992, 0.250);
 	RemoveBuildingForPlayer(playerid, 16689, -367.828, 2248.879, 44.406, 0.250);
 	RemoveBuildingForPlayer(playerid, 16690, -358.937, 2217.699, 46.000, 0.250);
+	// DSRP Mephisto Park Remove Building
+	RemoveBuildingForPlayer(playerid, 13242, 701.7109, -565.1328, 15.3359, 0.25);
+	RemoveBuildingForPlayer(playerid, 1688, 705.3438, -576.1406, 21.3281, 0.25);
+	RemoveBuildingForPlayer(playerid, 1690, 694.6406, -571.4922, 21.0078, 0.25);
+	RemoveBuildingForPlayer(playerid, 12863, 701.7109, -565.1328, 15.3359, 0.25);
+	RemoveBuildingForPlayer(playerid, 1690, 702.5313, -546.6094, 21.0078, 0.25);
 	return 1;
 }
 CMD:passmatch(playerid,params[])
@@ -58119,7 +58127,7 @@ public OnPlayerText(playerid, text[])
 	if(User[playerid][specing] > -1) return 0;
 	new string[130];
 	// npc chatting
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1)
+	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		//strfind(const string[], const sub[], bool:ignorecase=false, pos=0)
 		new npc_chat = strfind(text, "n<", false); 
@@ -62438,7 +62446,7 @@ CMD:jetpack(playerid,params[])
 }
 CMD:goto(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"u",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /goto [playerid/PartOfName]");
@@ -62554,7 +62562,7 @@ CMD:spec(playerid, params[])
 }
 CMD:gethere(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 1)
+	if(User[playerid][Useradmin] > 1 || IsStoryteller(playerid))
 	{
 	    new id;
 	    if(sscanf(params,"u",id)) return MSG(playerid,GOLD,"SYNTAX:"GR" /gethere [playerid/PartOfName]");
@@ -63498,8 +63506,8 @@ CMD:makeadmin(playerid,params[])
 	    if(sscanf(params,"uis[24]",id,level,rank)) return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname] [AdminLevel] [rankname]");
 		User[id][Useradmin] = level;
 		format(User[id][pAdminRank], 24, "%s", rank);
-		if(level > 0) SFM(id,GRAD2,"SERVER: You are now a %s.", rank);
-		else MSG(id, GRAD2, "SERVER: You have been expelled from the staff team.");
+		if(level != 0) SFM(id,GRAD2,"SERVER: You are now a %s.", rank);
+		else if(level == 0) MSG(id, GRAD2, "SERVER: You have been expelled from the staff team.");
 	    new query[95];
 	    format(query,sizeof(query),"UPDATE users SET admin = %i,adminrank = '%s' WHERE userid = %i",level,rank,User[id][UserID]);
 	    db_query(Database,query);
@@ -64971,7 +64979,7 @@ stock Staff(color,string[]) // colored
 {
 	foreach(Player,i)
 	{
-	    if(User[i][Useradmin] != 0)
+	    if(User[i][Useradmin] != 0 && !IsStoryteller(i))
 	    {
 	        MSG(i,color,string);
 	    }
