@@ -201,7 +201,7 @@ Garage
 #define CUSTOM_SKIN_START 20001
 #define CUSTOM_SKIN_END 20060
 #define CUSTOM_POLICESKIN_START 20900
-#define CUSTOM_POLICESKIN_END 20922
+#define CUSTOM_POLICESKIN_END 20921
 #define ANIMAL_SKIN_START 21003
 #define ANIMAL_SKIN_END 21018
 #define BIRD_SKIN_START 21019
@@ -18364,7 +18364,7 @@ CMD:rentvehicle(playerid,params[])
         if(V[id][vrent] == 0)
             return MSG(playerid,GOLD,"ERROR:"GR" This isn't a rentable vehicle.");
 		User[playerid][vrented] = id;
-		SFM(playerid,GREEN,"Info:"GR" You have rented the %s for "G"$%d"GR". Type (/v engine) or simply press ~k~~CONVERSATION_NO~ to turn it on/off. ",GetVehicleName(GetVehicleModel(id)),V[id][vrent]);
+		SFM(playerid,GREEN,"Info:"GR" You have rented the %s for "G"$%d"GR". Type (/v engine) or simply press ~k~~CONVERSATION_NO~ to turn it on/off. Type (/unrentvehicle) to unrent it.",GetVehicleName(GetVehicleModel(id)),V[id][vrent]);
 		GiveMoney(playerid,-V[id][vrent]);
 		if(GetVehicleType(id) == BIKE)
 		{
@@ -18390,6 +18390,9 @@ CMD:unrentvehicle(playerid,params[])
 		User[playerid][vrented] = 0;
 		V[id][claimed] = false;
 		SFM(playerid,GREEN,"Info:"GR" You have stopped renting the %s.",GetVehicleName(GetVehicleModel(id)));
+		new Float:x, Float;y, Float:z;
+		GetPlayerPos(playerid, x, y, z);
+		SetPlayerPos(playerid, x+1, y, z);
 		RespawnVehicle(id);
 		SetVehiclePos(id, V[id][vx], V[id][vy], V[id][vz]);
 	    return 1;
