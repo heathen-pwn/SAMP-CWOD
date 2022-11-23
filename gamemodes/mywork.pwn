@@ -200,6 +200,8 @@ Garage
 
 #define CUSTOM_SKIN_START 20001
 #define CUSTOM_SKIN_END 20060
+#define CUSTOM_POLICESKIN_START 20900
+#define CUSTOM_POLICESKIN_END 20922
 #define ANIMAL_SKIN_START 21003
 #define ANIMAL_SKIN_END 21018
 #define BIRD_SKIN_START 21019
@@ -6829,7 +6831,10 @@ Dialog:DialogKiosk(playerid, response, listitem, inputtext[])
 			        return MSG(playerid,GOLD,"ERROR:"GR" You need to be on duty to access the armory.");
 				Dialog_Show(playerid,DialogKioskWep,DIALOG_STYLE_LIST,"Kiosk > Armory",ARMORY_WEAPON_LIST,"Choose","Cancel");
 			}
-		    case 2: Dialog_Show(playerid,DialogKioskUniform,DIALOG_STYLE_INPUT,"Kiosk > Uniform","Input the ID of the skin:\nCustom PD models are from 20900 to 20915.","Choose","Cancel");
+		    case 2: {
+				format(large_string, 256, "Input the ID of the skin:\nCustom PD models are from %d to %d.", CUSTOM_POLICESKIN_START, CUSTOM_POLICESKIN_START);
+				Dialog_Show(playerid,DialogKioskUniform,DIALOG_STYLE_INPUT,"Kiosk > Uniform",large_string,"Choose","Cancel");
+			}
 		}
 	}
 	return 1;
