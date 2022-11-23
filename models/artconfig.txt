@@ -1,3 +1,8 @@
+// 20000 - normal skin ids
+// 20900 - uniforms
+// 21000 - animal forms (with goatty's custom skin)
+// <= -1000 - objects 
+
 AddCharModel(93, 20001, skin01.dff, skin01.txd);
 AddCharModel(1, 20002, skin02.dff, skin02.txd);
 AddCharModel(1, 20003, skin03.dff, skin03.txd);
@@ -58,6 +63,56 @@ AddCharModel(93, 20057, skin53.dff, skin53.txd);
 AddCharModel(93, 20058, skin54.dff, skin54.txd);
 AddCharModel(93, 20059, skin55.dff, skin55.txd);
 AddCharModel(1, 20060, skin56.dff, skin56.txd);
+// DSRP
+// AddCharModel(1, 20061, dsrp_54.dff, dsrp_54.txd);
+// AddCharModel(1, 20062, dsrp_55.dff, dsrp_55.txd);
+// AddCharModel(1, 20063, dsrp_56.dff, dsrp_56.txd);
+// AddCharModel(1, 20064, dsrp_57.dff, dsrp_57.txd);
+// AddCharModel(1, 20065, dsrp_58.dff, dsrp_58.txd);
+// AddCharModel(1, 20066, dsrp_59.dff, dsrp_59.txd);
+// AddCharModel(1, 20067, dsrp_60.dff, dsrp_60.txd);
+// AddCharModel(1, 20068, dsrp_61.dff, dsrp_61.txd);
+// AddCharModel(1, 20069, dsrp_62.dff, dsrp_62.txd);
+// AddCharModel(1, 20071, dsrp_63.dff, dsrp_63.txd);
+// AddCharModel(1, 20072, dsrp_64.dff, dsrp_64.txd);
+// AddCharModel(1, 20073, dsrp_65.dff, dsrp_65.txd);
+// AddCharModel(1, 20074, dsrp_66.dff, dsrp_66.txd);
+// AddCharModel(1, 20075, dsrp_67.dff, dsrp_67.txd);
+// AddCharModel(1, 20076, dsrp_68.dff, dsrp_68.txd);
+// AddCharModel(1, 20077, dsrp_69.dff, dsrp_69.txd);
+// AddCharModel(1, 20078, dsrp_70.dff, dsrp_70.txd);
+// AddCharModel(1, 20079, dsrp_71.dff, dsrp_71.txd);
+// AddCharModel(1, 20080, dsrp_72.dff, dsrp_72.txd);
+// AddCharModel(1, 20081, dsrp_73.dff, dsrp_73.txd);
+// AddCharModel(1, 20082, dsrp_74.dff, dsrp_74.txd);
+// AddCharModel(1, 20083, dsrp_75.dff, dsrp_75.txd);
+// AddCharModel(1, 20084, dsrp_76.dff, dsrp_76.txd);
+// AddCharModel(1, 20085, dsrp_77.dff, dsrp_77.txd);
+// AddCharModel(1, 20086, dsrp_78.dff, dsrp_78.txd);
+// AddCharModel(1, 20087, dsrp_79.dff, dsrp_79.txd);
+// AddCharModel(1, 20088, dsrp_80.dff, dsrp_80.txd);
+// AddCharModel(1, 20089, dsrp_81.dff, dsrp_81.txd);
+// AddCharModel(1, 20090, dsrp_82.dff, dsrp_82.txd);
+// AddCharModel(1, 20091, dsrp_83.dff, dsrp_83.txd);
+// AddCharModel(1, 20092, dsrp_84.dff, dsrp_84.txd);
+// AddCharModel(1, 20093, dsrp_85.dff, dsrp_85.txd);
+// AddCharModel(1, 20094, dsrp_86.dff, dsrp_86.txd);
+// AddCharModel(1, 20095, dsrp_87.dff, dsrp_87.txd);
+// AddCharModel(1, 20096, dsrp_88.dff, dsrp_88.txd);
+// AddCharModel(1, 20097, dsrp_89.dff, dsrp_89.txd);
+// AddCharModel(1, 20098, dsrp_90.dff, dsrp_90.txd);
+// AddCharModel(1, 20099, dsrp_101.dff, dsrp_101.txd);
+// AddCharModel(1, 20100, dsrp_102.dff, dsrp_102.txd);
+// AddCharModel(1, 20101, dsrp_103.dff, dsrp_103.txd);
+// AddCharModel(1, 20102, dsrp_104.dff, dsrp_104.txd);
+// AddCharModel(1, 20103, dsrp_105.dff, dsrp_105.txd);
+// AddCharModel(1, 20104, dsrp_106.dff, dsrp_106.txd);
+// AddCharModel(1, 20105, dsrp_107.dff, dsrp_107.txd);
+// AddCharModel(1, 20061, beta_dsrp1.dff, beta_dsrp1.txd);
+// AddCharModel(1, 20062, beta_dsrp2.dff, beta_dsrp2.txd);
+// AddCharModel(1, 20063, beta_dsrp3.dff, beta_dsrp3.txd);
+// AddCharModel(1, 20063, beta_dsrp4.dff, beta_dsrp4.txd);
+// AddCharModel(1, 20064, beta_dsrp5.dff, beta_dsrp5.txd);
 // Uniforms
 AddCharModel(1, 20900, pd01.dff, pd01.txd);
 AddCharModel(1, 20901, pd02.dff, pd02.txd);
@@ -75,6 +130,17 @@ AddCharModel(1, 20912, deputy3.dff, deputy3.txd);
 AddCharModel(1, 20913, deputy4.dff, deputy4.txd);
 AddCharModel(1, 20914, deputy5.dff, deputy5.txd);
 AddCharModel(1, 20915, deputy6.dff, deputy6.txd);
+
+// DSRP Uniforms
+AddCharModel(1, 20916, deputy7.dff, deputy7.txd);
+AddCharModel(1, 20917, deputy8.dff, deputy8.txd);
+AddCharModel(1, 20918, deputy9.dff, deputy9.txd);
+AddCharModel(1, 20919, deputy10.dff, deputy10.txd);
+AddCharModel(1, 20920, deputy11.dff, deputy11.txd);
+//AddCharModel(1, 20921, femaledeputy1.dff, femaledeputy1.txd);
+AddCharModel(1, 20921, femaledeputy2.dff, femaledeputy2.txd);
+AddCharModel(1, 20922, mephuniform.dff, mephuniform.txd);
+
 // Features & Forms
 AddCharModel(1, 21001, invisible.dff, invisible.txd);
 AddCharModel(1, 21002, goattyskin.dff, goattyskin.txd);
