@@ -139,7 +139,6 @@ AddCharModel(1, 20919, deputy10.dff, deputy10.txd);
 AddCharModel(1, 20920, deputy11.dff, deputy11.txd);
 //AddCharModel(1, 20921, femaledeputy1.dff, femaledeputy1.txd);
 AddCharModel(1, 20921, femaledeputy2.dff, femaledeputy2.txd);
-AddCharModel(1, 20922, mephuniform.dff, mephuniform.txd);
 
 // Features & Forms
 AddCharModel(1, 21001, invisible.dff, invisible.txd);
@@ -171,6 +170,8 @@ AddCharModel(1, 22002, NastasT.dff, NastasT.txd);
 AddCharModel(1, 22003, kaden.dff, kaden.txd);
 AddCharModel(1, 22004, kadenobfuscated.dff, kadenobfuscated.txd);
 AddCharModel(1, 22005, Clairered.dff, Clairered.txd);
+AddCharModel(1, 22006, mephuniform.dff, mephuniform.txd);
+
 
 
 // Objects
