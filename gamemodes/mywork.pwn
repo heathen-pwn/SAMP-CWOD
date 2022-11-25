@@ -18364,7 +18364,8 @@ CMD:rentvehicle(playerid,params[])
         if(V[id][vrent] == 0)
             return MSG(playerid,GOLD,"ERROR:"GR" This isn't a rentable vehicle.");
 		User[playerid][vrented] = id;
-		SFM(playerid,GREEN,"Info:"GR" You have rented the %s for "G"$%d"GR". Type (/v engine) or simply press ~k~~CONVERSATION_NO~ to turn it on/off. Type (/unrentvehicle) to unrent it.",GetVehicleName(GetVehicleModel(id)),V[id][vrent]);
+		SFM(playerid,GREEN,"Info:"GR" You have rented the %s for "G"$%d"GR". Type (/v engine) or simply press ~k~~CONVERSATION_NO~ to turn it on/off.",GetVehicleName(GetVehicleModel(id)),V[id][vrent]);
+		MSG(playerid, GREEN, "Info: Type (/unrentvehicle) to unrent it.");
 		GiveMoney(playerid,-V[id][vrent]);
 		if(GetVehicleType(id) == BIKE)
 		{
@@ -43363,7 +43364,7 @@ stock UpgradeTrait(playerid, trait[])
 		{
 			cost = 10;
 		}
-		if(value == 0 && cost == 3 && User[playerid][Userrace] != 6) // if its a Realm
+		if(value == 0 && cost == 3 && User[playerid][Userrace] == 6) // if its a Realm
 		{
 			print("!!!!!!!!!!!!!!!!! AM I HERE?! xxx!!!");
 			cost = 5;
