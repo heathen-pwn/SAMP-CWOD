@@ -18390,7 +18390,7 @@ CMD:unrentvehicle(playerid,params[])
 		User[playerid][vrented] = 0;
 		V[id][claimed] = false;
 		SFM(playerid,GREEN,"Info:"GR" You have stopped renting the %s.",GetVehicleName(GetVehicleModel(id)));
-		new Float:x, Float;y, Float:z;
+		new Float:x, Float:y, Float:z;
 		GetPlayerPos(playerid, x, y, z);
 		SetPlayerPos(playerid, x+1, y, z);
 		RespawnVehicle(id);
@@ -43363,7 +43363,7 @@ stock UpgradeTrait(playerid, trait[])
 		{
 			cost = 10;
 		}
-		if(value == 0 && cost == 3) // if its a Realm
+		if(value == 0 && cost == 3 && User[playerid][Userrace] != 6) // if its a Realm
 		{
 			print("!!!!!!!!!!!!!!!!! AM I HERE?! xxx!!!");
 			cost = 5;
@@ -63961,46 +63961,46 @@ CMD:g(playerid,params[])
 	}
 	return 1;
 }
-new Ask[MAX_PLAYERS];
+// new Ask[MAX_PLAYERS];
 CMD:ask(playerid,params[])
 {
-	if(User[playerid][Logged])
-	{
-		if(Ask[playerid] > gettime())
-			return SFM(playerid, GOLD, "Info:"GR" You need to wait %d seconds before using this command again.", Ask[playerid]-gettime());
-		new string[130];
-		if(sscanf(params,"s[130]",string)) return MSG(playerid,GOLD,"SYNTAX:"GR" /ask [question/answer]");
-		Ask[playerid] = gettime()+8;
-		printf("[%s][%s] [ask] %s: %s",PasteDate(),PasteTime(),User[playerid][Username],string);
-		if(strlen(string) <= 68)
-		{
-			if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"[Q/A] %s (ID: %d): %s",User[playerid][forumname], playerid,string);
-			else 
-			{
-				if(User[playerid][donator])
-				format(string,sizeof(string),"[Q/A] Premium Member %s (ID: %d): %s",User[playerid][pUsername], playerid,string);	
-				else format(string,sizeof(string),"[Q/A] %s (ID: %d): %s",User[playerid][pUsername], playerid,string);
-			}
-			SendClientMessageToAll(BEIGE, string);				
-		}
-		else
-		{
-				new texts[50];
-				strmid(texts,string,68,129);
-				strins(string, "-", 68, 1);
-				strdel(string, 69, 129);
-				if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"[Q/A] %s (ID: %d): %s...",User[playerid][forumname], playerid,string);
-				else 
-				{
-					if(User[playerid][donator]) format(string,sizeof(string),"[Q/A] Premium Member %s (ID: %d): %s...",User[playerid][pUsername], playerid,string);
-					else format(string,sizeof(string),"[Q/A] %s (ID: %d): %s...",User[playerid][pUsername], playerid,string);
-				}
-				SendClientMessageToAll(BEIGE, string);
-				format(string,sizeof(string),"...%s",texts);
-				SendClientMessageToAll(BEIGE, string);
-			}
-	}
-	return 1;
+	// if(User[playerid][Logged])
+	// {
+	// 	if(Ask[playerid] > gettime())
+	// 		return SFM(playerid, GOLD, "Info:"GR" You need to wait %d seconds before using this command again.", Ask[playerid]-gettime());
+	// 	new string[130];
+	// 	if(sscanf(params,"s[130]",string)) return MSG(playerid,GOLD,"SYNTAX:"GR" /ask [question/answer]");
+	// 	Ask[playerid] = gettime()+8;
+	// 	printf("[%s][%s] [ask] %s: %s",PasteDate(),PasteTime(),User[playerid][Username],string);
+	// 	if(strlen(string) <= 68)
+	// 	{
+	// 		if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"[Q/A] %s (ID: %d): %s",User[playerid][forumname], playerid,string);
+	// 		else 
+	// 		{
+	// 			if(User[playerid][donator])
+	// 			format(string,sizeof(string),"[Q/A] Premium Member %s (ID: %d): %s",User[playerid][pUsername], playerid,string);	
+	// 			else format(string,sizeof(string),"[Q/A] %s (ID: %d): %s",User[playerid][pUsername], playerid,string);
+	// 		}
+	// 		SendClientMessageToAll(BEIGE, string);				
+	// 	}
+	// 	else
+	// 	{
+	// 			new texts[50];
+	// 			strmid(texts,string,68,129);
+	// 			strins(string, "-", 68, 1);
+	// 			strdel(string, 69, 129);
+	// 			if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"[Q/A] %s (ID: %d): %s...",User[playerid][forumname], playerid,string);
+	// 			else 
+	// 			{
+	// 				if(User[playerid][donator]) format(string,sizeof(string),"[Q/A] Premium Member %s (ID: %d): %s...",User[playerid][pUsername], playerid,string);
+	// 				else format(string,sizeof(string),"[Q/A] %s (ID: %d): %s...",User[playerid][pUsername], playerid,string);
+	// 			}
+	// 			SendClientMessageToAll(BEIGE, string);
+	// 			format(string,sizeof(string),"...%s",texts);
+	// 			SendClientMessageToAll(BEIGE, string);
+	// 		}
+	// }
+	return MSG(playerid, GOLD, "ERROR:"GR" This command has discontinued. You can use (/(a)ssist(m)e) for assistance.");
 }
 CMD:b(playerid,params[])
 {
