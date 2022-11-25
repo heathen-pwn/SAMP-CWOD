@@ -18372,6 +18372,8 @@ CMD:rentvehicle(playerid,params[])
 			new engine, lights, alarm, doors, bonnet, boot, objective;
 			GetVehicleParamsEx(id, engine, lights, alarm, doors, bonnet, boot, objective);
 			SetVehicleParamsEx(id, VEHICLE_PARAMS_ON, lights, alarm, doors, bonnet, boot, objective);
+		} else {
+			V[id][fuel] = 100;
 		}
 	    return 1;
 	} 
