@@ -36437,13 +36437,13 @@ CMD:anims(playerid,params)
 	if(!User[playerid][Logged])
 		return 0;
 	large_string[0] = EOS;
-	strcat(large_string,""R"[Anims]"GR" /foodsit /checktime /relax /bar /showoff /scratch /salute /holdon /washhands /fall\n");
-	strcat(large_string,""R"[Anims]"GR" /cry /what /followme /greet /stand /cpr /hitch /eat /lookout /crack /baseball\n");
-	strcat(large_string,""R"[Anims]"GR" /laugh /robman /vomit /fu /crack /what /seat /rap /handsup /lay /smoke /pull\n");
-	strcat(large_string,""R"[Anims]"GR" /nobreath /crossarms /signal /lean /choke /wave /cheer /deal /chat /gesture\n");
-	strcat(large_string,""R"[Anims]"GR" /benchpress /jump /basketball /erp /buddy /camera /carfix /colt /carry /bomb /ambient\n");
-	strcat(large_string,""R"[Anims]"GR" /dodge /dildo /drugged /fight /graffiti /goggles /grenade /graveyard\n");
-	strcat(large_string, ""R"[Anims]"GR" /strip /tip /still /dance /idance /dive");
+	strcat(large_string,"/foodsit /checktime /relax /bar /showoff /scratch /salute /holdon /washhands /fall\n");
+	strcat(large_string,"/cry /what /followme /greet /stand /cpr /hitch /eat /lookout /crack /baseball\n");
+	strcat(large_string,"/laugh /robman /vomit /fu /crack /what /seat /rap /handsup /lay /smoke /pull\n");
+	strcat(large_string,"/nobreath /crossarms /signal /lean /choke /wave /cheer /deal /chat /gesture\n");
+	strcat(large_string,"/benchpress /jump /basketball /erp /buddy /camera /carfix /colt /carry /bomb /ambient\n");
+	strcat(large_string,"/dodge /dildo /drugged /fight /graffiti /goggles /grenade /graveyard\n");
+	strcat(large_string, "/strip /tip /still /dance /idance /dive");
 	Dialog_Show(playerid, dAnims, DIALOG_STYLE_MSGBOX, "Animations", large_string, "Close", "");
     return 1;
 }
