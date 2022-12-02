@@ -35943,9 +35943,11 @@ public OnMinPass()
 
 						if(temp > perm)
 							UpdateTrait(i, "tWillpower", perm);
-						else UpdateTrait(i, "tWillpower", GetPVarInt(i, "tWillpower")+1);
+						else {
+							UpdateTrait(i, "tWillpower", GetPVarInt(i, "tWillpower")+1);
+							MSG(i, cRP, "Willpower:"GR" You have regained a point of Willpower.");
+						}
 						RemoveTrait(i, "regenWP");
-						MSG(i, cRP, "Willpower:"GR" You have regained a point of Willpower.");
 					}
 				}
 				if(User[i][Userrace] == 4)
