@@ -5926,7 +5926,10 @@ Dialog:dMDC(playerid, response, listitem, inputtext[])
 			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a vehicle.");
 		switch(listitem)
 		{
-			case 0: Dialog_Show(playerid,dCitizenCheck,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Citizen Check","Insert the full of name of the citizen you would like to check:\nFormat: Name_Surname, e.g: John_Smith","Input","Cancel");
+			case 0: {
+				Dialog_Show(playerid,dCitizenCheck,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Citizen Check","Insert the full of name of the citizen you would like to check:\nFormat: Name_Surname, e.g: John_Smith","Input","Cancel");
+				print("A");
+			}
 			case 1: Dialog_Show(playerid,dVehicleCheck,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Vehicle Check","Insert the plate number of the vehicle you would like to check:\nFormat: LSnumber, e.g: LS1004","Input","Cancel");
 			case 2: Dialog_Show(playerid,dHouseCheck,DIALOG_STYLE_INPUT,"Mobile Digital Computer > House Check","Insert the address of the house you would like to check:\nFormat: Area Number, e.g: Jefferson 7628","Input","Cancel");
 			case 3: Dialog_Show(playerid,dBizCheck,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Business Check","Insert the name of the business you would like to check:\nFormat: BusinessName, e.g: Jefferson Hardware","Input","Cancel");
@@ -5963,7 +5966,7 @@ Dialog:dMDC(playerid, response, listitem, inputtext[])
 			}
 			case 5: Dialog_Show(playerid,dAddWarrant,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Add Warrant","Insert the name of the warrantee:","Input","Cancel");
 			case 6: Dialog_Show(playerid,dRemoveWarrant,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Remove Warrant","Insert the ID of the warrant to remove:","Input","Cancel");
-			case 7: Dialog_Show(playerid,dImpoundVeh,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Impound Vehicle","Insert the plate of the vehicle to impound:","Input","Cancel");
+			case 7: Dialog_Show(playerid,dImpoundVeh,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Impound Vehicle","Insert the plate of the vehicle/vehicle ID to impound:","Input","Cancel");
 			case 8: Dialog_Show(playerid,dUnImpoundVeh,DIALOG_STYLE_INPUT,"Mobile Digital Computer > Unimpound Vehicle","Insert the plate of the vehicle to unimpound:","Input","Cancel");
 		}
 	}
@@ -5978,16 +5981,24 @@ Dialog:dUnImpoundVeh(playerid, response, listitem, inputtext[])
 		if(isnull(inputtext))
 			return MSG(playerid, GOLD, "ERROR 036:"GR" Empty statement.");
 		new vid = -1;
-		for(new i = 1, j= GetVehiclePoolSize(); i <= j; i++)
-		{
-			if(!strcmp(V[i][vplate], inputtext, true))
+		if(IsNumeric(inputtext)) {
+			vid = strval(inputtext);
+			if(vid > MAX_VEHICLES) {
+				vid = -1;
+			}
+		}
+		else {
+			for(new i = 1, j= GetVehiclePoolSize(); i <= j; i++)
 			{
-				vid = i;
-				break;
+				if(!strcmp(V[i][vplate], inputtext, true))
+				{
+					vid = i;
+					break;
+				}
 			}
 		}
 		if(vid == -1)
-			return MSG(playerid, GOLD, "ERROR 404: Invalid vehicle plate specified.");
+			return MSG(playerid, GOLD, "ERROR 404: Invalid vehicle plate/vehicle ID specified.");
 		if(V[vid][vimpound] == 0)
 			return MSG(playerid, GOLD, "ERROR:"GR" Specified vehicle is not impounded."); 
 		format(large_string, sizeof large_string, "has unimpounded the %s.", GetVehicleName(GetVehicleModel(vid)));
@@ -6017,23 +6028,31 @@ Dialog:dImpoundVeh(playerid, response, listitem, inputtext[])
 		if(isnull(inputtext))
 			return MSG(playerid, GOLD, "ERROR 036:"GR" Empty statement.");
 		new vid = -1;
-		for(new i = 1, j= GetVehiclePoolSize(); i <= j; i++)
-		{
-			if(!strcmp(V[i][vplate], inputtext, true))
+		if(IsNumeric(inputtext)) {
+			vid = strval(inputtext);
+			if(vid > MAX_VEHICLES) {
+				vid = -1;
+			}
+		}
+		else {
+			for(new i = 1, j= GetVehiclePoolSize(); i <= j; i++)
 			{
-				vid = i;
-				break;
+				if(!strcmp(V[i][vplate], inputtext, true))
+				{
+					vid = i;
+					break;
+				}
 			}
 		}
 		if(vid == -1)
-			return MSG(playerid, GOLD, "ERROR 404: Invalid vehicle plate specified.");
+			return MSG(playerid, GOLD, "ERROR 404: Invalid vehicle plate/vehicle ID specified.");
 		if(V[vid][vrent] > 0)
 			return MSG(playerid, GOLD, "MDC:"GR" You cannot impound a state vehicle.");
 		
 		format(large_string, sizeof large_string, "calls in a Tow Truck to impound the %s.", GetVehicleName(GetVehicleModel(vid)));
 		cmd_bme(playerid, large_string);
 
-		format(large_string,sizeof large_string,"[MDC/Dispatch] %s %s has impounded the %s %s.",User[playerid][frankname],User[playerid][pUsername], GetVehicleName(GetVehicleModel(vid)), inputtext);
+		format(large_string,sizeof large_string,"[MDC/Dispatch] %s %s has impounded the %s %s.",User[playerid][frankname],User[playerid][pUsername], GetVehicleName(GetVehicleModel(vid)), V[vid][vplate]);
 		SendFMEx(User[playerid][faction],large_string,RADIO);
 		if(V[vid][vfac] == 0)
 		{
@@ -6118,15 +6137,19 @@ Dialog:dCitizenCheck(playerid, response, listitem, inputtext[])
 {
 	if(response)
 	{
+		print("B");
 		if(GetPlayerVehicleID(playerid) == 0)
 			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a vehicle.");
 		if(!isnull(inputtext))
 		{
+			print("C");
 			if(strlen(inputtext) > 3)
 			{
+				print("D");
 				format(large_string, sizeof large_string, "SELECT username,spawnat,ujob,gender FROM users WHERE username = '%s'", inputtext);
 				new DBResult: Result = db_query(Database, large_string);
 				large_string[0] = EOS;
+				print("E");
 				if(db_num_rows(Result))
 				{
 					new name[MAX_PLAYER_NAME],
@@ -6134,12 +6157,14 @@ Dialog:dCitizenCheck(playerid, response, listitem, inputtext[])
 						job,
 						gender
 					;
+					print("F");
 					db_get_field_assoc(Result, "username", name, 24);
 					spawn = db_get_field_assoc_int(Result, "spawnat");
 					job = db_get_field_assoc_int(Result, "ujob");
 					gender = db_get_field_assoc_int(Result, "gender");
 					new sjob[24];
 					new sspawn[24];
+					print("G");
 					switch(job)
 					{
 						case JOB_COURIER: sjob = "Courier";
@@ -6150,13 +6175,19 @@ Dialog:dCitizenCheck(playerid, response, listitem, inputtext[])
 						case JOB_MECH: sjob = "Mechanic";
 						default: sjob = "Unemployed";
 					}
-					if(spawn == 0) sspawn = "Default";
+					print("H");
+					if(spawn == -1) sspawn = "Default";
 					else format(sspawn, sizeof sspawn, "%s", H[spawn][hname]);
+					print("I");
 					new sgender[10];
 					if(gender == 0) sgender = "Male";
 					else sgender = "Female";
+					print("J");
 					format(large_string, sizeof large_string, "Citizen Name: %s\nSex: %s\nResidence: %s\nJob: %s", name, sgender, sspawn, sjob);
+					print("K");
+					print(large_string);
 					Dialog_Show(playerid,dMDCShow,DIALOG_STYLE_MSGBOX,"Mobile Digital Computer > Citizen Check",large_string,"Close","");
+					print("L");
 					return 1;
 				}
 				else MSG(playerid, GOLD, "ERROR 404:"GR" Invalid citizen name specified.");
@@ -6272,7 +6303,7 @@ Dialog:dBizCheck(playerid, response, listitem, inputtext[])
 		if(isnull(owner))
 			owner = "N/A";
 		format(large_string, sizeof large_string, "Business Name: %s\nAddress: %d\nOwner: %s", inputtext, B[id][baddress], owner);
-		Dialog_Show(playerid,dBizCheck,DIALOG_STYLE_LIST,"Mobile Digital Computer > Business Check",large_string,"Close", "");
+		Dialog_Show(playerid,dBizCheck,DIALOG_STYLE_MSGBOX,"Mobile Digital Computer > Business Check",large_string,"Close", "");
 	}
 	return 1;
 }
@@ -18260,6 +18291,7 @@ CMD:dnpc(playerid, params[])
 	}
 	else return MSG(playerid, GOLD, "Info:"GR" You do not have the appropriate permissions to operate this command.");
 }
+CMD:createcar(playerid, params[]) return cmd_vcreate(playerid, params);
 CMD:vcreate(playerid,params[])
 {
     if(!User[playerid][Logged]) return 0;
@@ -21021,6 +21053,7 @@ public OnGameModeInit()
 		db_query(Database,"CREATE TABLE IF NOT EXISTS ammobox (userid INTEGER,type TINYINT(3),amount INTEGER)");
 		db_query(Database,"CREATE TABLE IF NOT EXISTS plants (plant INTEGER,vw INTEGER,object SMALLINT, type TINYINT(1),x CHAR(10),y CHAR(10),z CHAR(10))");
 		db_query(Database,"CREATE TABLE IF NOT EXISTS adminrecord (userid INTEGER, log VARCHAR)");
+		db_query(Database,"CREATE TABLE IF NOT EXISTS xplogs (userid INTEGER, log VARCHAR)");
 		db_query(Database,"CREATE TABLE IF NOT EXISTS fishdata (userid INTEGER, fish TINYINT(1), weight TINYINT(3))");
 		db_query(Database,"CREATE TABLE IF NOT EXISTS sheet (userid INTEGER, trait VARCHAR(48), value VARCHAR(48),type TINYINT(1))");
 		db_query(Database,"CREATE TABLE IF NOT EXISTS objects (objectid INTEGER,model INTEGER,x VARCHAR(10),y VARCHAR(10),z VARCHAR(10),rx VARCHAR(10),ry VARCHAR(10), rz VARCHAR(10), interior INTEGER, vw INTEGER, oindex TINYINT,modelid INTEGER,txdname VARCHAR(60),txtname VARCHAR(60),color INTEGER)");
@@ -48755,9 +48788,14 @@ CMD:givexp(playerid,params[])
 			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s).\r\n",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp);
 			fwrite(pos, large_string);
 			fclose(pos);
+			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s).",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp);
+			format(large_string,sizeof large_string,"INSERT INTO xplogs (userid,log) VALUES (%d,'%s')", User[id][UserID], large_string);
+			db_query(Database, large_string);
 			large_string[0] = EOS;
 
 			SFM(id, GREEN, "Experience:"GR" You have been awarded (%d) Experience Points by %s.", xp, User[playerid][forumname]);
+
+
 			PlayAudioStreamForPlayer(id, "https://cdn.discordapp.com/attachments/991759556004814928/1002987929393709216/Experience_sound.mp3");	
 		}
 		else
@@ -62408,7 +62446,7 @@ CMD:help(playerid,params[])
 		strcat(large_string,""R"[General]"GR" /bank /banks /pfind /bfind /myprops /staff /rentvehicle /unrentvehicle /learn /myinfo /expstart /hud\n");
 		strcat(large_string,""R"[General]"GR" /(desc)ription /(mydesc)ription /inspect /(r)e(m)ove(desc)ription /levelup /anims /ask /breakin /bloodpack\n");
 		strcat(large_string,""R"[General]"GR" /label /dlabel /mylabels /dmylabels /cough /snarl /roar /growl /pdistance /frisk /offlinepm\n");
-		strcat(large_string,""R"[General]"GR" /plabel /dplabel /plabels /pdmylabels /(i)nventory /forumname /showrpf  /link /clearchat /scrapcar\n");
+		strcat(large_string,""R"[General]"GR" /plabel /dplabel /plabels /pdmylabels /(i)nventory /forumname /showrpf  /link /clearchat /scrapcar /print\n");
 		strcat(large_string, ""R"[General]"GR" Useful numbers: 7143 (requires a phone, call this number to acquire basic guns/artillery/merchandise)\n");
 		strcat(large_string,""R"[Weapons]"GR" /(m)y(w)eapons /nearweapons /(d)rop(w)eapon /(b)ind(w)eapon /(w)eapon(s)tore /(w)eapon(d)raw\n");
 		strcat(large_string, ""R"[Ammo]"GR" /myammopacks /passammopack /useammopack /passammo\n");
@@ -62465,7 +62503,7 @@ CMD:ahelp(playerid,params[])
 			// strcat(large_string, "[*] /setmaxhealthlevel /revive /changeform /removeform /maphelp (for mappers) /updatetrait /supdatetrait /removetrait /makedonator\n");
 			// strcat(large_string, "[*] /changedonator /removedonator");
 
-			strcat(large_string, ""R"[GENERAL]"D" /serverstats /assist /requests /aduty /storyteller /a\n");
+			strcat(large_string, ""R"[GENERAL]"D" /serverstats /assist /requests /aduty /storyteller /a /print /xplogs\n");
 			strcat(large_string, ""R"[UTILITY]"D" /gotopos /gethere /spawnmoney /setfuel /respawn /respawnallcars /getowner /inter /interiorlist /seecon /jetpack\n");
 			strcat(large_string, ""R"[UTILITY]"D" /revive /pnpc /changeform /removeform /givedrug /takedrug  /getuser /goto /setvw /setint /spawnwep /pbanks /an\n");
 			strcat(large_string, ""R"[NPC]"D" /cnpc /dnpc /npcanim /npcstat /rnpcstat /npccs /getherenpc; chatbox: `n<npcid>`; chatbox: `nn<npcid>`\n"); 
@@ -62476,7 +62514,7 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[CHR-SHEET]"D" /cs /expapps /exprev /rpfs /set(h)ealth(l)evel /setmaxhealthlevel /givewp /givebp /giverage\n");
 			strcat(large_string, ""R"[CHR-SHEET]"D" /givegnosis /giveq /giveconviction /giveglamour /givefaith /givexp /giverp /csmisc\n");
 			strcat(large_string, ""R"[EXTRA]"D" /updatetrait /supdatetrait /removetrait /tedit\n");
-			strcat(large_string, ""R"[PERM-VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods\n");
+			strcat(large_string, ""R"[PERM-VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo\n");
 			strcat(large_string, ""R"[TEMP-VEHICLES]"D" /vspawn /destroyv\n");
 			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse\n");
 			strcat(large_string, ""R"[GARAGES]"D" /gcreate /gdelete /gsetint /gsetowner /ggoto /linkgaragetofaction /neargarage\n");
@@ -63379,6 +63417,59 @@ CMD:arecord(playerid,params[])
 			new header[35];
 			format(header,sizeof header,"%s (Rows: %d)",name, rows);
 			Dialog_Show(playerid,dAdminRecord,DIALOG_STYLE_MSGBOX,header,large_string, "Close","");
+		}
+		else
+		{
+			MSG(playerid,GOLD,"ERROR:"GR" Invalid player name specified.");
+		}
+		return 1;
+	}
+	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+}
+CMD:xplogs(playerid,params[])
+{
+	if(User[playerid][Useradmin] > 0)
+	{
+		new name[MAX_PLAYER_NAME],
+			line,
+			count;
+		sscanf(params,"s[24]i",name,line);
+		if(isnull(params)) return MSG(playerid,GOLD,"SYNTAX:"GR" /xplogs [FullAccountName] [line]");
+		format(large_string,sizeof large_string,"SELECT userid FROM users WHERE username = '%s'",name);
+		new DBResult:Result = db_query(Database, large_string);
+		if(db_num_rows(Result))
+		{
+			
+			new unique = db_get_field_assoc_int(Result, "userid");
+			db_free_result(Result);
+			
+			format(large_string,sizeof large_string,"SELECT log FROM xplogs WHERE userid = %d",unique);
+			Result = db_query(Database, large_string);
+			large_string[0] = EOS;
+			new rows = db_num_rows(Result);
+			do
+			{
+				if(rows)
+				{
+					if(count >= line)
+					{
+						new log[220];
+						db_get_field_assoc(Result, "log", log, sizeof log);
+						format(large_string,sizeof large_string,"%s%s\n",large_string,log);
+					}
+					count++;
+				}
+				else 
+				{
+					MSG(playerid,GREEN,"Info: Specified player has no experience record.");
+					break;
+				}
+			}
+			while(db_next_row(Result));
+			db_free_result(Result);	
+			new header[35];
+			format(header,sizeof header,"%s (Rows: %d)",name, rows);
+			Dialog_Show(playerid,dExpRecord,DIALOG_STYLE_MSGBOX,header,large_string, "Close","");
 		}
 		else
 		{
@@ -64973,6 +65064,41 @@ CMD:do(playerid, params[])
 			ProxDetector(20.0, playerid, string,RP,RP,RP,RP,RP);
 			strmid(part,params,86,128,44);
 			format(string, sizeof(string), "* ...%s (( %s ))",part,sendernameEx(playerid));
+			ProxDetector(20.0, playerid, string,RP,RP,RP,RP,RP);
+		}
+	}
+	return 1;
+}
+CMD:print(playerid, params[])
+{
+    if(User[playerid][Logged])
+    {
+		if(!IsStoryteller(playerid) && User[playerid][Useradmin] == 0)
+			return MSG(playerid, GOLD, "ERROR:"GR" You are not a storyteller!");
+		if(isnull(params))
+		{
+			SendClientMessage(playerid,GOLD, "SYNTAX:"GR" /print [action]");
+			return 1;
+		}
+		new string[256];
+		format(string, sizeof string,"* %s", params);
+		new Float:x,Float:y,Float:z; GetPlayerPos(playerid, x, y, z);	
+		foreach(Player, i) if(User[i][xprecord] == 1 && IsPlayerInRangeOfPoint(i, 30, x, y, z)) RecordPlayer(i, string);	
+		RecordRP(playerid, string);		
+		//print(string);
+		if(strlen(params)<87)
+		{
+			format(string, sizeof(string), "* %s ",params);
+			ProxDetector(20.0, playerid, string,RP,RP,RP,RP,RP);
+   		}
+		else
+		{
+			new part[87];
+			strmid(part,params,0,86,87);
+			format(string, sizeof(string), "* %s...",part);
+			ProxDetector(20.0, playerid, string,RP,RP,RP,RP,RP);
+			strmid(part,params,86,128,44);
+			format(string, sizeof(string), "* ...%s",part);
 			ProxDetector(20.0, playerid, string,RP,RP,RP,RP,RP);
 		}
 	}
