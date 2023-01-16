@@ -41988,7 +41988,7 @@ CMD:supdatetrait(playerid, params[])
 			value[MAX_TRAIT_NAME],
 			type = 0;
 		if(sscanf(params, "us[24]is[24]", target, trait, type, value))
-			return MSG(playerid, GOLD, "SYNTAX:"GR" /supdatetrait [playerid/PartOfName] [trait] [type] [value] ");
+			return MSG(playerid, GOLD, "SYNTAX:"GR" /supdatetrait [playerid/PartOfName] [trait] [type(default=0)] [value] ");
 		if(target > MAX_PLAYERS || target < 0) return MSG(playerid, GOLD, "ERROR:"GR" Invalid player specified.");
 		if(User[target][Logged] == false) return MSG(playerid, GOLD, "ERROR:"GR" Invalid player specified.");
 		UpdateTraitString(target, trait, value, type);
