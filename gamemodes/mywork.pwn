@@ -13257,6 +13257,8 @@ CMD:bloodpack(playerid,params[])
 		if(gettime() < bloodwait[playerid])
 			return MSG(playerid, GOLD, "Info:"GR" You can drink one blood pack every five seconds.");
 		new itemid = FindPlayerItem_Name(playerid, "Blood Pack");
+        if(itemid == -1)
+            return MSG(playerid,GOLD,"ERROR:"GR" You don't have a Blood Pack.");
         if(UserItem[playerid][itemid][Value] < 1)
             return MSG(playerid,GOLD,"ERROR:"GR" You don't have a Blood Pack.");
 		if(User[playerid][Userrace] == 1)
@@ -62553,7 +62555,11 @@ CMD:getowner(playerid, params[])
 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
 CMD:getdot(playerid, params[]) {
-	printf("%d, ", GetDotFromNumber(strval(params)));
+	new dot;
+	sscanf(params, "i", dot);
+	format(large_string, sizeof large_string, "%s" , dot);
+	MSG(playerid, -1, large_string);
+	print(large_string);
 	return 1;
 }
 CMD:ah(playerid,params[]) return cmd_ahelp(playerid, params);
