@@ -13271,7 +13271,6 @@ CMD:bloodpack(playerid,params[])
 			else UpdateTrait(playerid, "BloodPool", bloodpool+2);
 			cmd_ame(playerid, "drinks a Blood Pack.");
 			GameTextForPlayer(playerid, "+2 Blood Points", 2500, 1);
-			
 		}
 		else
 		{
@@ -42409,12 +42408,13 @@ stock rGetDotValue(playerid, trait[])
 	return string;
 }
 stock GetDotFromNumber(number) {
-	new string[25];
+	new string[40];
+	if(number > 25) number = 25;
 	//strins syntax (string[],const substr[],pos,maxlength=sizeof string)
-	for(new i = 0; i <= number; i++) {
+	for(new i = 0; i < number; i++) {
 		if(i % 5 == 0)
-			strins(string, " ", i, sizeof string);
-		strins(string, "•", i, sizeof string);
+			strins(string, " ", strlen(string), sizeof string);
+		strins(string, "•", strlen(string), sizeof string);
 	}
 	return string;
 }
@@ -62557,7 +62557,7 @@ CMD:getowner(playerid, params[])
 CMD:getdot(playerid, params[]) {
 	new dot;
 	sscanf(params, "i", dot);
-	format(large_string, sizeof large_string, "%s" , dot);
+	format(large_string, sizeof large_string, "%s; strlen: %d" , GetDotFromNumber(dot), strlen(GetDotFromNumber(dot)));
 	MSG(playerid, -1, large_string);
 	print(large_string);
 	return 1;
