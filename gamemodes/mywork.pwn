@@ -37664,9 +37664,9 @@ public OnPlayerConnect(playerid)
 {
 	SetPlayerHealth(playerid,999999);
 	SetPlayerColor(playerid,COLOR_NOTLOGGED);
-	SetPlayerCameraPos(playerid, -267.8296, 2225.8545, 72.7462);
-	SetPlayerCameraLookAt(playerid, -268.8276, 2225.8196, 72.5361);
-	SetPlayerPos(playerid,  -268.8276, 2225.8196, 53);
+	// SetPlayerCameraPos(playerid, 688.8265, -537.1454, 16.4822);
+	// SetPlayerCameraLookAt(playerid, -268.8276, 2225.8196, 72.5361);
+	// SetPlayerPos(playerid,  -268.8276, 2225.8196, 53);
     new tmp[USER_DATA];
     User[playerid] = tmp;
     User[playerid][calling] = -1;
@@ -37746,43 +37746,47 @@ public OnPlayerConnect(playerid)
 	    }
     }
 	db_free_result(Result);// IMPORTANT
+	SetTimerEx("SetPlayerLoadoutCamera",250,0,"d",playerid);
+    return 1;
+}
+forward SetPlayerLoadoutCamera(playerid);
+public SetPlayerLoadoutCamera(playerid) {
     new cameraid = random(5);
 	switch(cameraid)
 	{
-		// FORT CARSON
+		// CAMERA, DILLIMORE
 		case 0: 
-		{
-			SetPlayerCameraPos(playerid, -267.8296, 2225.8545, 72.7462);
-			SetPlayerCameraLookAt(playerid, -268.8276, 2225.8196, 72.5361);
-			SetPlayerPos(playerid,  -268.8276, 2225.8196, 53);
+		{ // HOTEL
+			SetPlayerCameraPos(playerid, 688.8265, -537.1454, 16.4822);
+			SetPlayerCameraLookAt(playerid, 688.1108, -536.4487, 16.5422);
+			SetPlayerPos(playerid, 688.8265, -537.1454, 0);
 			//-258 2225 53
-		}
+		} 
 		case 1: 
-		{
-			SetPlayerCameraPos(playerid, -204.0897, 1089.8038, 26.1861);
-			SetPlayerCameraLookAt(playerid, -203.1872, 1090.2303, 25.9910);
-			SetPlayerPos(playerid, -203.1872, 1090.2303, 10.900);			
+		{ // forest
+			SetPlayerCameraPos(playerid, 917.1185, -400.6212, 60.5780);
+			SetPlayerCameraLookAt(playerid, 916.3115, -401.2094, 60.4731);
+			SetPlayerPos(playerid, 917.1185, -400.6212, 40);			
 		}
 		case 2: 
-		{
-			SetPlayerCameraPos(playerid, 123.8969, 1158.7892, 41.1085);
-			SetPlayerCameraLookAt(playerid, 122.9586, 1159.1279, 40.7235);
-			SetPlayerPos(playerid, 122.9586, 1159.1279, 0.0000);
+		{ // mid town view
+			SetPlayerCameraPos(playerid, 658.6024, -588.2780, 22.4851);
+			SetPlayerCameraLookAt(playerid, 659.4105, -587.6920, 22.4902);
+			SetPlayerPos(playerid, 658.6024, -588.2780, 5);
 		}
 		case 3:
-		{
-			SetPlayerCameraPos(playerid, -516.9248, 1201.4385, 36.7584);
-			SetPlayerCameraLookAt(playerid, -516.0071, 1201.0466, 36.6034);
-			SetPlayerPos(playerid,-516.0071, 1201.0466, 0.000);			
+		{ // nature view
+			SetPlayerCameraPos(playerid, 615.0828, -429.2184, 39.1839);
+			SetPlayerCameraLookAt(playerid, 615.8297, -429.8801, 39.1039);
+			SetPlayerPos(playerid, 615.0828, -429.2184, 15);			
 		}
 		case 4:
-		{
-			SetPlayerCameraPos(playerid, -185.9412, 931.1074, 18.2643);
-			SetPlayerCameraLookAt(playerid, -186.2164, 932.0668, 18.2392);
-			SetPlayerPos(playerid, -186.2164, 932.0668, 0.0000);
+		{ // 
+			SetPlayerCameraPos(playerid, 705.3606, -641.6536, 15.6265);
+			SetPlayerCameraLookAt(playerid, 705.3389, -640.6550, 15.7715);
+			SetPlayerPos(playerid, 705.3606, -641.6536, 0);
 		}
 	}
-    return 1;
 }
 Dialog:dRegister(playerid, response, listitem, inputtext[])
 {
