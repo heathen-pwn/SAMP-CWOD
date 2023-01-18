@@ -4665,6 +4665,7 @@ CMD:vehicle(playerid,params[])
    			else if(User[playerid][vrented] == car) can = true;
 			else if (User[playerid][TruckID] == car) can = true;
 			else if(GetVehicleKey(playerid, V[car][dataid]) != -1) can = true;
+			else if(GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
 			if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You have no keys to this vehicle.");
 			if(V[car][fuel] < 1) return MSG(playerid,GOLD,"ERROR:"GR" There's no fuel in this vehicle!");
 			if(engine == VEHICLE_PARAMS_ON)
@@ -4692,6 +4693,7 @@ CMD:vehicle(playerid,params[])
 			else if(AdminVeh[car] && User[playerid][Useradmin]) can = true;
 			else if(User[playerid][vrented] == car) can = true;
 			else if(GetVehicleKey(playerid, V[car][dataid]) != -1) can = true;
+			else if(GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
 			if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You have no keys to this vehicle.");
 			new engine, lights, alarm, doors, bonnet, boot, objective;
 			GetVehicleParamsEx(car, engine, lights, alarm, doors, bonnet, boot, objective);
@@ -43911,7 +43913,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 					GetPVarString(User[playerid][SheetMonitor], "Visage", trait, MAX_TRAIT_NAME);
 					if(!isnull(trait) && User[playerid][Useradmin] < 4) return MSG(playerid,GRAD2,"ERROR: Specified trait cannot be edited.");
 					Dialog_Show(playerid,dSheetSetVisage,DIALOG_STYLE_INPUT,
-					"Interactive Character Sheet","This is the name of the character's apocalyptic form, determined by the character's primary lore.\nValid Visages:\n\tBel (The Visage of Celestials)\n\tNusku (The Visage of the Flames)\n\tQingu (The Visage Of Radiance)\n\tDagan (The Visage of Awakenings)\n\tAnshar (The Visage of the Firmament)\n\tElill (The Visage of the Winds)\n\tKishar (The Visage of the Earth)\n\tAntu (The Visage of the Paths)\n\tMummu (The Visage of the Forge)\n\tNinsun (The Visage of Patterns)\n\tNedu (The Visage of Portals)\n\tShamash (The Visage of Light)\n\tIshhara (The Visage of Longing)\n\tAdad (The Visage of Storms)\n\tMammetum (The Visage of Transfiguration)\n\tZaltu (The Visage of the Beast)\n\tNinurtu (The Visage of the Wild)\n\tAruru (The Visage of Flesh)\n\tNamtar (The Visage of Death)\n\tNergal (The Visage of the Spirit)\n\tEreshkigal (The Visage of the Realms)","Set","Cancel");
+					"Interactive Character Sheet","This is the name of the character's apocalyptic form, determined by the character's primary lore.\nValid Visages:\n\tBel (The Visage of Celestials)\n\tNusku (The Visage of the Flames)\n\tQingu (The Visage Of Radiance)\n\tDagan (The Visage of Awakenings)\n\tAnshar (The Visage of the Firmament)\n\tEllil (The Visage of the Winds)\n\tKishar (The Visage of the Earth)\n\tAntu (The Visage of the Paths)\n\tMummu (The Visage of the Forge)\n\tNinsun (The Visage of Patterns)\n\tNedu (The Visage of Portals)\n\tShamash (The Visage of Light)\n\tIshhara (The Visage of Longing)\n\tAdad (The Visage of Storms)\n\tMammetum (The Visage of Transfiguration)\n\tZaltu (The Visage of the Beast)\n\tNinurtu (The Visage of the Wild)\n\tAruru (The Visage of Flesh)\n\tNamtar (The Visage of Death)\n\tNergal (The Visage of the Spirit)\n\tEreshkigal (The Visage of the Realms)","Set","Cancel");
 					return 1;		
 				}
 				if(strfind(inputtext, "Torment", false) != -1)
