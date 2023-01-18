@@ -4726,6 +4726,7 @@ CMD:vehicle(playerid,params[])
 			else if(AdminVeh[car] && User[playerid][Useradmin]) can = true;
 			else if(User[playerid][vrented] == car) can = true;
 			else if(GetVehicleKey(playerid, V[car][dataid]) != -1) can = true;
+			else if(GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
 			if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You have no keys to this vehicle.");
 			//owner = V[car][cowner];
 
@@ -42407,7 +42408,7 @@ stock rGetDotValue(playerid, trait[])
 	//printf("GetDotValue returned %s for %s",string,trait);
 	return string;
 }
-stock GetDotFromNumber(number) {
+stock GetDotFromNumber(number) { // can add this function into the above two
 	new string[40];
 	if(number > 25) number = 25;
 	//strins syntax (string[],const substr[],pos,maxlength=sizeof string)
@@ -42418,6 +42419,14 @@ stock GetDotFromNumber(number) {
 	}
 	return string;
 }
+// CMD:getdot(playerid, params[]) {
+// 	new dot;
+// 	sscanf(params, "i", dot);
+// 	format(large_string, sizeof large_string, "%s; strlen: %d" , GetDotFromNumber(dot), strlen(GetDotFromNumber(dot)));
+// 	MSG(playerid, -1, large_string);
+// 	print(large_string);
+// 	return 1;
+// }
 // CMD:dotvalue(playerid, params[])
 // {
 // 	new str[100];
@@ -62554,14 +62563,7 @@ CMD:getowner(playerid, params[])
 	}
 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
-CMD:getdot(playerid, params[]) {
-	new dot;
-	sscanf(params, "i", dot);
-	format(large_string, sizeof large_string, "%s; strlen: %d" , GetDotFromNumber(dot), strlen(GetDotFromNumber(dot)));
-	MSG(playerid, -1, large_string);
-	print(large_string);
-	return 1;
-}
+
 CMD:ah(playerid,params[]) return cmd_ahelp(playerid, params);
 CMD:ahelp(playerid,params[])
 {
