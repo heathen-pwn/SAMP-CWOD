@@ -43357,7 +43357,15 @@ stock UpgradeTrait(playerid, trait[])
 		{
 			if(User[playerid][Useradmin] > 0)
 				limit = 10;
-			else limit = 5;			
+			else {
+				new clan[MAX_TRAIT_NAME];
+				GetPVarString(playerid, "Clan", clan, MAX_TRAIT_NAME);
+				if(!strcmp(clan, "Caitiff")) { // Caitiff 6x for in and out clan disciplines
+					limit = 6;
+				} else {
+					limit = 5;
+				}
+			}		
 		}
 	}
 	for(new w = 0; w < sizeof(rLores); w++)
