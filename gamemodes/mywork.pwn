@@ -13263,14 +13263,14 @@ CMD:bloodpack(playerid,params[])
             return MSG(playerid,GOLD,"ERROR:"GR" You don't have a Blood Pack.");
 		if(User[playerid][Userrace] == 1)
 		{
-			cmd_ame(playerid, "drinks a Blood Pack.");
-			GameTextForPlayer(playerid, "+2 Blood Points", 2500, 1);
 			new bloodpool = GetPVarInt(playerid, "BloodPool");
 			new maxb = GetMaxBloodPool(playerid);
 			if(bloodpool >= maxb) return MSG(playerid, GOLD, "Info:"GR" Your Blood Pool is full.");
 			if(bloodpool+2 > maxb)
 				UpdateTrait(playerid, "BloodPool", maxb);
 			else UpdateTrait(playerid, "BloodPool", bloodpool+2);
+			cmd_ame(playerid, "drinks a Blood Pack.");
+			GameTextForPlayer(playerid, "+2 Blood Points", 2500, 1);
 			
 		}
 		else
