@@ -62488,6 +62488,14 @@ CMD:help(playerid,params[])
 	}
 	return 0;
 }
+CMD:getowner(playerid, params[])
+{
+	if(User[playerid][Useradmin]) {
+		MSG(playerid, GRAD4, "Deprecated; user /vinfo and /getuser instead");
+		return 1;
+	}
+	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+}
 CMD:ah(playerid,params[]) return cmd_ahelp(playerid, params);
 CMD:ahelp(playerid,params[])
 {
