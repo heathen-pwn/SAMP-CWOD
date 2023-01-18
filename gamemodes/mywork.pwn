@@ -4761,7 +4761,7 @@ CMD:vehicle(playerid,params[])
 			    if(User[playerid][faction] == V[car][vfac] && User[playerid][frank] == 1) can = true;
 				if(User[playerid][UserID] == V[car][cowner]) can = true;
 				if(AdminVeh[car] && User[playerid][Useradmin]) can = true;
-				if(User[playerid][Useradmin] > 2) can = true;
+				if(User[playerid][Useradmin] > 2 && GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
 				if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You don't have access to park this vehicle.");
 		        if(User[playerid][uMoney] < 100)
 		        {
@@ -42406,6 +42406,16 @@ stock rGetDotValue(playerid, trait[])
 	//printf("GetDotValue returned %s for %s",string,trait);
 	return string;
 }
+stock GetDotFromNumber(number) {
+	new string[25];
+	//strins syntax (string[],const substr[],pos,maxlength=sizeof string)
+	for(new i = 0; i <= number; i++) {
+		if(i % 5 == 0)
+			strins(string, " ", i, sizeof string);
+		strins(string, "•", i, sizeof string);
+	}
+	return string;
+}
 // CMD:dotvalue(playerid, params[])
 // {
 // 	new str[100];
@@ -45080,7 +45090,17 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 							}
 							// -- End
 							if(!fresh) // if player is not during char creation, then upgrade with XP
-								UpgradeTrait(User[playerid][SheetMonitor], sTraits[i]);
+							{
+								
+								if(User[playerid][Userrace] == 5 && !strcmp("Lore", sTraits[i])) {
+									// the word "Lore" for changeling Knowledge is intermixing with Demon's actual lore "Lore" upgrade
+								}
+								else {
+									UpgradeTrait(User[playerid][SheetMonitor], sTraits[i]);
+								}
+								
+							}
+								
 						}
 					}
 					//-- player is building their disciplines
@@ -45340,7 +45360,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 						}
 						if(!found && fresh == 12)
 						{
-							format(str,sizeof str,"ERROR: You are supposed to invest 3 starter points into the "MAR"Realms"GR" section. (%d left)",discipline);
+							format(str,sizeof str,"ERROR: You are supposed to invest 5 starter points into the "MAR"Realms"GR" section. (%d left)",discipline);
 							MSG(playerid,GRAD2,str);
 							stop = true;
 							return 1;
@@ -46244,7 +46264,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 				if(strfind(inputtext, "Willpower", true) != -1) return cmd_usewillpower(playerid, "1");
 				if(strfind(inputtext, "Conviction", true) != -1 && User[playerid][Userrace] == 4) return cmd_useconviction(playerid, "1");
 				if(strfind(inputtext, "Rage", true) != -1) return cmd_userage(playerid, "1");
-				if(strfind(inputtext, "Blood Pool", true) != -1) return cmd_useblood(playerid, "1");
+				if(strfind(inputtext, "Blood Pool", true) != -1) return cmd_usebloodpoint(playerid, "1");
 				if(strfind(inputtext, "Quintessence", true) != -1) return cmd_usequintessence(playerid, "1");
 				if(strfind(inputtext, "Glamour", true) != -1) return cmd_useglamourpoint(playerid, "1");
 			}
@@ -48233,6 +48253,9 @@ CMD:setrace(playerid,params[])
 		format(large_string, sizeof large_string, "STFCMD: %s has set %s race to %s. (character sheet has been reset)", User[playerid][forumname], User[id][Username], prace);
 		Staff(ADMIN, large_string);
 		//MSG(playerid,WHITE,"SERVER: Player's race has been changed. Instruct them to relog before touching their character sheet.");
+		format(large_string, sizeof large_string, "DELETE FROM xplogs WHERE userid = %d", User[id][UserID]);
+		db_query(Database, large_string);
+
 		new File:pos= fopen("Logs/SetRace.log", io_append);
 		format(large_string, sizeof large_string,"[%s][%s] %s set %s race to %s.\r\n",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], prace);
 		fwrite(pos, large_string);
@@ -48768,16 +48791,18 @@ CMD:givexp(playerid,params[])
 {
 	if(User[playerid][Useradmin] > 1)
 	{
-		new name[24],id = -1,xp;
-		sscanf(params,"s[24]i",name,xp);
+		new name[24],id = -1,xp,reason[124];
+		sscanf(params,"s[24]is[124]",name,xp, reason);
 		if(isnull(params))
-			return MSG(playerid,GOLD,"SYNTAX:"GR" /givexp [playerid/PartOfName/FullAccount_Name] [experience]");
+			return MSG(playerid,GOLD,"SYNTAX:"GR" /givexp [playerid/PartOfName/FullAccount_Name] [experience] [reason]");
 		if(IsNumeric(name))
 		{
 			id = strval(name);
 		}
 		if(id < 0 && isnull(name))
 			return MSG(playerid,GOLD,"ERROR:"GR" Invalid player specified.");
+		if(xp == 0) return MSG(playerid, GOLD, "ERROR:"GR" You cannot give zero experience points.");
+		if(isnull(reason))	{ format(reason, sizeof reason, "Not specified"); }		
 		if(id > -1)
 		{
 			if(!User[id][Logged]) 
@@ -48786,12 +48811,14 @@ CMD:givexp(playerid,params[])
 			UpdateTrait(id, "Experience", curxp+xp);
 			format(large_string, sizeof large_string, "STFCMD: %s gave %s %d experience points. (Previous Experience Points: %d; Current Experience Points: %d)", User[playerid][forumname], User[id][Username], xp, curxp, curxp+xp);
 			Staff(ADMIN, large_string);
+			format(large_string, sizeof large_string, "Reason: %s", reason);
+			Staff(ADMIN, large_string);
 			new File:pos= fopen("Logs/GiveExperience.log", io_append);
-			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s).\r\n",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp);
+			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s); reason: %s\r\n",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp, reason);
 			fwrite(pos, large_string);
 			fclose(pos);
-			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s).",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp);
-			format(large_string,sizeof large_string,"INSERT INTO xplogs (userid,log) VALUES (%d,'%s')", User[id][UserID], large_string);
+			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s); reason: %s",PasteDate(),PasteTime(), User[playerid][Username], User[id][Username], xp, reason);
+			format(large_string,sizeof large_string,"INSERT INTO xplogs (userid,log) VALUES (%d,'%q')", User[id][UserID], large_string);
 			db_query(Database, large_string);
 			large_string[0] = EOS;
 
@@ -48819,16 +48846,20 @@ CMD:givexp(playerid,params[])
 				format(large_string, sizeof large_string,"UPDATE sheet SET value = value+%d WHERE trait = 'Experience' AND userid = %d", xp, userid);
 				db_query(Database, large_string);
 			}
-			format(large_string, sizeof large_string, "STFCMD: %s gave %s %d experience points.", User[playerid][Username], name, xp);
+			format(large_string, sizeof large_string, "STFCMD: %s gave %s %d experience points; reason: %s", User[playerid][Username], name, xp, reason);
 			Staff(ADMIN, large_string);
 			new File:pos= fopen("Logs/GiveExperience.log", io_append);
-			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s).\r\n",PasteDate(),PasteTime(), User[playerid][Username], name, xp);
+			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s); reason: %s\r\n",PasteDate(),PasteTime(), User[playerid][Username], name, xp, reason);
 			fwrite(pos, large_string);
 			fclose(pos);
+			format(large_string, sizeof large_string,"[%s][%s] %s gave %s %d experience point(s); reason: %s",PasteDate(),PasteTime(), User[playerid][Username], name, xp, reason);
+			format(large_string,sizeof large_string,"INSERT INTO xplogs (userid,log) VALUES (%d,'%q')", userid, large_string);
+			db_query(Database, large_string);
 			large_string[0] = EOS;
-
+			db_free_result(Result);
 			format(large_string, sizeof large_string, "Experience: You have been awarded (%d) Experience Points by `%s` on `%s`.", xp, User[playerid][forumname], PasteDate());
 			InsertOfflineMessage(userid, large_string);			
+			
 		}
 		return 1;
 	}
@@ -49626,8 +49657,8 @@ CMD:dispel(playerid, params[])
 	}
 	return 0;
 }
-CMD:ubp(playerid, params[]) return cmd_useblood(playerid, params);
-CMD:useblood(playerid, params[])
+CMD:ubp(playerid, params[]) return cmd_usebloodpoint(playerid, params);
+CMD:usebloodpoint(playerid, params[])
 {
 	if(User[playerid][Userrace] == 0 || User[playerid][Userrace] == 1)
 	{
@@ -50247,9 +50278,34 @@ CMD:show(playerid,params[])
 			{
 				tra[0] = toupper(tra[0]);
 				new string[60+MAX_PLAYER_NAME];
-				format(string, sizeof(string), "> * %s %s (( %s ))", sTraits[i], rGetDotValue(playerid, sTraits[i]), sendernameEx(playerid));
-				ProxDetector(30.0, playerid, string, cRP,cRP,cRP,cRP,cRP);
-				found = true;
+				// To show physical attribute buffs
+				if(strfind(sTraits[i], "Strength", true) != -1 || strfind(sTraits[i], "Dexterity", true) != -1 || strfind(sTraits[i], "Stamina", true) != -1) { 
+					if(User[playerid][Userrace] == 1) {
+						new buffnum;
+						if(strfind(sTraits[i], "Strength", true) != -1) {
+							buffnum = GetPVarInt(playerid, "Strength")+GetPVarInt(playerid, "bStrength");
+						}
+						if(strfind(sTraits[i], "Dexterity", true) != -1) {
+							buffnum = GetPVarInt(playerid, "Dexterity")+GetPVarInt(playerid, "bDexterity");
+						}
+						if(strfind(sTraits[i], "Stamina", true) != -1) {
+							buffnum = GetPVarInt(playerid, "Strength")+GetPVarInt(playerid, "bStamina");
+						}
+						format(string, sizeof(string), "> * %s %s (( %s ))", sTraits[i], GetDotFromNumber(buffnum), sendernameEx(playerid));
+						ProxDetector(30.0, playerid, string, cRP,cRP,cRP,cRP,cRP);
+
+						found = true;
+						//GetPVarInt(playerid, "Strength")+GetPVarInt(playerid, "bStrength")
+					}
+					
+				}
+				// -- Buff show finished 
+				// standardized line for showing traits
+				if(!found) {
+					format(string, sizeof(string), "> * %s %s (( %s ))", sTraits[i], rGetDotValue(playerid, sTraits[i]), sendernameEx(playerid));
+					ProxDetector(30.0, playerid, string, cRP,cRP,cRP,cRP,cRP);
+					found = true;
+				}
 				break;
 			}
 		}
@@ -62495,6 +62551,10 @@ CMD:getowner(playerid, params[])
 		return 1;
 	}
 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+}
+CMD:getdot(playerid, params[]) {
+	printf("%d, ", GetDotFromNumber(strval(params)));
+	return 1;
 }
 CMD:ah(playerid,params[]) return cmd_ahelp(playerid, params);
 CMD:ahelp(playerid,params[])
