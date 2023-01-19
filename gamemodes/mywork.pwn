@@ -4414,7 +4414,7 @@ CMD:mp3(playerid, params[])
 	if(User[playerid][Logged])
 	{
 		new itemid = FindPlayerItem_Name(playerid, "MP3");
-		if(UserItem[playerid][itemid][Value] < 1)
+		if(itemid == -1)
 			return MSG(playerid, GOLD, "ERROR:"GR" You need an MP3 Player.");
 		//https://intenseradio.live-streams.nl:18000/live INTENSE RADIO
 		new DBResult:Result = db_query(Database, "SELECT * FROM livestream");
@@ -18858,7 +18858,7 @@ CMD:breakin(playerid,params[])
 		    return 1;
 		}
 		new itemid = FindPlayerItem_Name(playerid, "Toolkit");
-        if(UserItem[playerid][itemid][Value] < 1)
+        if(itemid == -1)
             return MSG(playerid,GOLD,"ERROR:"GR" You don't have a toolkit.");
 		foreach(Houses,i)
 		{
