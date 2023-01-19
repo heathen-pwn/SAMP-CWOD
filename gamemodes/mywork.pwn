@@ -4812,7 +4812,7 @@ CMD:businesstypes(playerid,params[])
 	    MSG(playerid,GRAD2,"1. Clothes Store | 2. Hardware Store | 3. Dealership (Motorcycles) | 4. General Store | 5. Roleplay Business | 6. Employment Center ");
 	    MSG(playerid,GRAD2,"7. Dealership (Industrial) | 8. Dealership (Aircraft) | 9. Dealership (Seacraft) | 10. Dealership (Cars) | 11 Dealership (Sportscars)");
 	    MSG(playerid,GRAD2,"12. Dealership (Special) | 13. Bank | 14. Weapon Store | 15. Cellphone Store | 16. Underground Shop | 17. Butcher's Shop ");
-		MSG(playerid, GRAD2, "18. Furniture Store | 19. Wood Factory | ");
+		MSG(playerid, GRAD2, "18. Furniture Store | 19. Wood Factory (/loggery) ");
  	} else {
 		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	}
@@ -8569,7 +8569,7 @@ CMD:jobhelp(playerid,params[])
 		MSG(playerid,Default,"** Fisherman (sidejob): /fish (/sellfish); Bus Driver: /busroute");
 		MSG(playerid, Default,"** Mechanic: /paintjob /paintcar /repair /modcar");
 		MSG(playerid, Default, "** Hunter (sidejob): /skinanimal (Hunting Rifle is acquired from the Weapon Store)");
-		MSG(playerid, Default, "** Lumberjack (sidejob): ~k~~PED_ANSWER_PHONE~ to start cutting trees. (~k~~PED_FIREWEAPON~ and ~k~~PED_LOCK_TARGET~ to cut)");
+		MSG(playerid, Default, "** Lumberjack (sidejob): ~k~~PED_ANSWER_PHONE~ to start cutting trees. (~k~~PED_FIREWEAPON~ and ~k~~PED_LOCK_TARGET~ to cut); /loggery");
 	}
 	else return 0;
 	return 1;
@@ -60667,6 +60667,7 @@ stock LogTree(playerid, tree)
 			TogglePlayerControllable(playerid, 1);
 			new logs = 5+random(10);
 			SFM(playerid, GOLD, "SERVER:"GR" You have logged the tree successfully and obtained (%d) wooden logs.", logs);
+			MSG(playerid, GOLD, "Info: You can sell wooden logs at the nearest loggery (/loggery).");
 			DeletePVar(playerid, "Lumberjack_LogTree");
 			new id = FindPlayerItemFree(playerid,"Log");
 			if(id == -1) return MSG(playerid, GOLD, "ERROR:"GR" You didn't receive anything because your inventory is full.");
