@@ -8322,6 +8322,28 @@ CMD:hfind(playerid,params[])
 	if(!f) return MSG(playerid,GOLD,"ERROR:"GR" Invalid house address specified.");
 	return 1;
 }
+CMD:nearproperty(playerid,params[])
+{
+	if(User[playerid][Useradmin] >= 3)
+	{
+		new bool:t;
+		new range = 10;
+		foreach(Props,i)
+		{
+		    if(IsPlayerInRangeOfPoint(playerid,range, P[i][px], P[i][py], P[i][pz]))
+			{
+				new query[124];
+				format(query, sizeof query,"[Property ID: %d] [Property Name: %s] [Property Address: %d] [Property Owner: %d]",i,P[i][pname],P[i][paddress], P[i][powner]);
+				MSG(playerid, GRAD2, query);
+				t = true;
+			}
+			else continue;
+		}
+		if(!t) return MSG(playerid,GRAD2,"None");
+	    return 1;
+	}
+	else return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+}
 CMD:nearhouse(playerid,params[])
 {
 	if(User[playerid][Useradmin] >= 3)
@@ -18294,6 +18316,19 @@ CMD:dnpc(playerid, params[])
 		return 1;
 	}
 	else return MSG(playerid, GOLD, "Info:"GR" You do not have the appropriate permissions to operate this command.");
+}
+CMD:vrepair(playerid, params[]) {
+	if(User[playerid][Useradmin] > 2) {
+		new car;
+		if(sscanf(params,"i", car)) return MSG(playerid, GOLD, "SYNTAX:"GR" /vrepair [vehicleid]");
+		RepairVehicle(car);
+		SetVehicleHealth(car, 1000);
+		format(large_string, sizeof large_string, "STFCMD: %s (ID: %d) has repaired the %s (Game ID: %d).", User[playerid][forumname], playerid, GetVehicleName(GetVehicleModel(id)));
+		Staff(GOLD,query);
+	} else {
+		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command. Use (/repair) if you are a mechanic.");
+	}
+	return 1;
 }
 CMD:createcar(playerid, params[]) return cmd_vcreate(playerid, params);
 CMD:vcreate(playerid,params[])
@@ -62604,14 +62639,14 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[CHR-SHEET]"D" /cs /expapps /exprev /rpfs /set(h)ealth(l)evel /setmaxhealthlevel /givewp /givebp /giverage\n");
 			strcat(large_string, ""R"[CHR-SHEET]"D" /givegnosis /giveq /giveconviction /giveglamour /givefaith /givexp /giverp /csmisc\n");
 			strcat(large_string, ""R"[EXTRA]"D" /updatetrait /supdatetrait /removetrait /tedit\n");
-			strcat(large_string, ""R"[PERM-VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo\n");
+			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair\n");
 			strcat(large_string, ""R"[TEMP-VEHICLES]"D" /vspawn /destroyv\n");
 			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse\n");
 			strcat(large_string, ""R"[GARAGES]"D" /gcreate /gdelete /gsetint /gsetowner /ggoto /linkgaragetofaction /neargarage\n");
 			strcat(large_string, ""R"[FACTIONS]"D" /fcreate /fdelete /setvehiclefaction /setfaction /refillstocks\n");
 			strcat(large_string, ""R"[SECURITY]"D" /kick /ban /offlineban /unban /arecord /ipp /gpcip /gpcig /pipcheck /ipcheck\n");
 			strcat(large_string, ""R"[DOORS/GATES]"D" /dcreate /ddelete /dedit /dgoto /neardoor /ddelete /linkdoortohouse /linkdoortoprop /linkdoortobiz /linkdoortofac\n");
-			strcat(large_string, ""R"[PROPS]"D" /pcreate /pdelete /psetlab /pgoto /psetint /psetvw /psetvwex /psettax /psetowner\n");
+			strcat(large_string, ""R"[PROPS]"D" /pcreate /pdelete /psetlab /pgoto /psetint /psetvw /psetvwex /psettax /psetowner /nearproperty\n");
 			strcat(large_string, ""R"[BIZ]"D" /bcreate /bdelete /bsetgov /brename /bsetprice /bsetgas /bgoto /bsetint /bsetdealerspawn /businesstypes /bseticon\n");
 			strcat(large_string, ""R"[DYNAMIC-JOBS]"D" /createtree /neartree /deletetree /createrock /nearrock /deleterock (miner job unfinished)");
 			if(IsPlayerAdmin(playerid)) {
