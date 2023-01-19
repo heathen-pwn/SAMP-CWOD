@@ -5203,7 +5203,7 @@ CMD:bsetint(playerid,params[])
 stock UpdateFaction(faid)
 {
 	new query[124];
-	format(query,sizeof query,"UPDATE factions SET name = '%s',type = %d,count = %d WHERE fid = %d"
+	format(query,sizeof query,"UPDATE factions SET name = '%q',type = %d,count = %d WHERE fid = %d"
 	,F[faid][fname],F[faid][ftype],F[faid][fmembers],faid);
 	db_query(Database, query);
 	return 1;
