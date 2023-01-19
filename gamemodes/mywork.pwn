@@ -50312,7 +50312,7 @@ CMD:show(playerid,params[])
 							buffnum = GetPVarInt(playerid, "Dexterity")+GetPVarInt(playerid, "bDexterity");
 						}
 						if(strfind(sTraits[i], "Stamina", true) != -1) {
-							buffnum = GetPVarInt(playerid, "Strength")+GetPVarInt(playerid, "bStamina");
+							buffnum = GetPVarInt(playerid, "Stamina")+GetPVarInt(playerid, "bStamina");
 						}
 						format(string, sizeof(string), "> * %s %s (( %s ))", sTraits[i], GetDotFromNumber(buffnum), sendernameEx(playerid));
 						ProxDetector(30.0, playerid, string, cRP,cRP,cRP,cRP,cRP);
