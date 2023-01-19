@@ -311,7 +311,7 @@ Garage
 #define WEAPON_RADAR 100
 #define WEAPON_LAUNCHER 101
 #define WEAPON_HUNTING_RIFLE 102
-
+#define HUNTING_RIFLE_AMMOPACK 256
 // Smuggler
 #define REGULAR_DEALER 7143
 #define FACTION_DEALER 3417
@@ -12570,7 +12570,7 @@ CMD:phouses(playerid, params[])
 	{
 		new id;
 		if(sscanf(params, "u", id))
-			return MSG(playerid, GOLD, "SYNTAX:"GR" /pvehicles [playerid/PartOfName]");
+			return MSG(playerid, GOLD, "SYNTAX:"GR" /phouses [playerid/PartOfName]");
 		if(User[id][Logged] == false)
 			return MSG(playerid, GOLD, "ERROR:"GR" Offline player specified.");
 		new query[124];
@@ -13374,7 +13374,7 @@ CMD:buy(playerid,params[])
 		}
 		case 14:
 		{
-		   return  Dialog_Show(playerid,dWeaponStore,DIALOG_STYLE_LIST,header,"Baseball Bat ($35)\nBrass Knuckles ($50)\nPepper Spray ($100)\nTaser ($500)\nKnife ($150)\nGolf Club ($20)\nHunting Rifle ($1000)\nChainsaw ($850)","Select","Cancel");
+		   return  Dialog_Show(playerid,dWeaponStore,DIALOG_STYLE_LIST,header,"Baseball Bat ($35)\nBrass Knuckles ($50)\nPepper Spray ($100)\nTaser ($500)\nKnife ($150)\nGolf Club ($20)\nHunting Rifle ($1000)\nHunting Ammo Pack ($350)\nChainsaw ($850)","Select","Cancel");
 		}
 		case 15:
 		{
@@ -15710,7 +15710,20 @@ Dialog:dWeaponStore(playerid, response, listitem, inputtext[])
 			#define HUNTING_LOC_NAME "NORTH ROCK"
 			MSG(playerid, GREEN, "Info:"GR" You can hunt deer with this at the "HUNTING_LOC_NAME" forest.");
 	    }
-	    case 7: // chainsaw
+	    case 7: // hunting ammo pack
+	    {
+		    new cost = 350;
+	        if(User[playerid][uMoney] < cost)
+	        {
+	    		MSG(playerid,GOLD,"ERROR:"GR" You don't have enough money to make this purchase.");
+				return cmd_buy(playerid,"");
+	        }
+			GiveMoney(playerid,-cost);
+			GivePlayerAmmo(playerid, HUNTING_RIFLE_AMMOPACK);
+			BusinessTill(User[playerid][BusinessIN], cost);
+			MSG(playerid, GREEN, "Info:"GR" Use (/useammopack hunting) to unpack this while carrying a hunting rifle.");
+	    }
+	    case 8: // chainsaw
 	    {
 		    new cost = 850;
 	        if(User[playerid][uMoney] < cost)
@@ -18323,8 +18336,8 @@ CMD:vrepair(playerid, params[]) {
 		if(sscanf(params,"i", car)) return MSG(playerid, GOLD, "SYNTAX:"GR" /vrepair [vehicleid]");
 		RepairVehicle(car);
 		SetVehicleHealth(car, 1000);
-		format(large_string, sizeof large_string, "STFCMD: %s (ID: %d) has repaired the %s (Game ID: %d).", User[playerid][forumname], playerid, GetVehicleName(GetVehicleModel(id)));
-		Staff(GOLD,query);
+		format(large_string, sizeof large_string, "STFCMD: %s (ID: %d) has repaired the %s (Game ID: %d).", User[playerid][forumname], playerid, GetVehicleName(GetVehicleModel(car)));
+		Staff(GOLD,large_string);
 	} else {
 		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command. Use (/repair) if you are a mechanic.");
 	}
@@ -59435,13 +59448,14 @@ CMD:passammopack(playerid,params[])
 	User[playerid][JustUsed] = gettime()+5;
 	return 1;
 }
+CMD:uap(playerid,params[]) return cmd_useammopack(playerid, params);
 CMD:useammopack(playerid,params[])
 {
 	if(User[playerid][Logged])
 	{
 		if(User[playerid][WeaponEquipped] < 1) return MSG(playerid,GOLD,"ERROR:"GR" You need to be wielding a weapon in order to use this command.");
 		if(isnull(params))
-		    return MSG(playerid,GOLD,"SYNTAX:"GR" /useammopack [handgun/shell/smg/assault/rifle/cartridges]");
+		    return MSG(playerid,GOLD,"SYNTAX:"GR" /useammopack [handgun/shell/smg/assault/rifle/cartridges/hunting]");
 		if(!strcmp(params,"handgun",true))
 		{
 		    if(GetPlayerAmmu(playerid, 22) > 0 || GetPlayerAmmu(playerid, 24) > 0)
@@ -59547,9 +59561,26 @@ CMD:useammopack(playerid,params[])
 		        return MSG(playerid,GOLD,"Info:"GR" You don't have the specified ammunition.");
 		    }
 		}
+		if(!strcmp(params,"hunting",true))
+		{
+		    if(GetPlayerAmmu(playerid, 255) > 0)
+		    {
+				if(User[playerid][WeaponEquipped] != WEAPON_HUNTING_RIFLE)
+				return MSG(playerid,GOLD,"ERROR:"GR" You cannot the specified ammo pack on your weapon.");
+				TakePlayerAmmo(playerid, 255);
+				User[playerid][WeaponEquipped_Ammo] += 30;
+				ResetPlayerWeapons(playerid);
+				GivePlayerWeapon(playerid, User[playerid][WeaponEquipped], User[playerid][WeaponEquipped_Ammo]);
+		    }
+		    else
+		    {
+		        return MSG(playerid,GOLD,"Info:"GR" You don't have the specified ammunition.");
+		    }
+		}
 	}
 	return 1;
 }
+
 stock GetAmmoBoxName(ammotype)
 {
 	new box[40];
@@ -59561,6 +59592,7 @@ stock GetAmmoBoxName(ammotype)
 	    case 30,31: box = "Automatic Rifle Ammo Pack";
 	    case 33,34: box = "Rifle Ammo Pack";
 	    case 25,26: box = "Shells Pack";
+		case WEAPON_HUNTING_RIFLE: box = "Hunting Ammo Pack";
 	}
 	return box;
 }
@@ -62639,9 +62671,9 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[CHR-SHEET]"D" /cs /expapps /exprev /rpfs /set(h)ealth(l)evel /setmaxhealthlevel /givewp /givebp /giverage\n");
 			strcat(large_string, ""R"[CHR-SHEET]"D" /givegnosis /giveq /giveconviction /giveglamour /givefaith /givexp /giverp /csmisc\n");
 			strcat(large_string, ""R"[EXTRA]"D" /updatetrait /supdatetrait /removetrait /tedit\n");
-			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair\n");
+			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair /pvehicles\n");
 			strcat(large_string, ""R"[TEMP-VEHICLES]"D" /vspawn /destroyv\n");
-			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse\n");
+			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse /phousesn");
 			strcat(large_string, ""R"[GARAGES]"D" /gcreate /gdelete /gsetint /gsetowner /ggoto /linkgaragetofaction /neargarage\n");
 			strcat(large_string, ""R"[FACTIONS]"D" /fcreate /fdelete /setvehiclefaction /setfaction /refillstocks\n");
 			strcat(large_string, ""R"[SECURITY]"D" /kick /ban /offlineban /unban /arecord /ipp /gpcip /gpcig /pipcheck /ipcheck\n");
