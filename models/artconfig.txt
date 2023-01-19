@@ -114,31 +114,31 @@ AddCharModel(1, 20060, skin56.dff, skin56.txd);
 // AddCharModel(1, 20063, beta_dsrp4.dff, beta_dsrp4.txd);
 // AddCharModel(1, 20064, beta_dsrp5.dff, beta_dsrp5.txd);
 // Uniforms
-AddCharModel(1, 20900, pd01.dff, pd01.txd);
-AddCharModel(1, 20901, pd02.dff, pd02.txd);
-AddCharModel(1, 20902, pd03.dff, pd03.txd);
-AddCharModel(1, 20903, pd04.dff, pd04.txd);
-AddCharModel(1, 20904, pd05.dff, pd05.txd);
-AddCharModel(1, 20905, pd06.dff, pd06.txd);
-AddCharModel(1, 20906, pd07.dff, pd07.txd);
-AddCharModel(1, 20907, pd08.dff, pd08.txd);
-AddCharModel(1, 20908, tucky_army01.dff, tucky_army01.txd);
-AddCharModel(1, 20909, tucky_army02.dff, tucky_army02.txd);
-AddCharModel(1, 20910, deputy1.dff, deputy1.txd);
-AddCharModel(1, 20911, deputy2.dff, deputy2.txd);
-AddCharModel(1, 20912, deputy3.dff, deputy3.txd);
-AddCharModel(1, 20913, deputy4.dff, deputy4.txd);
-AddCharModel(1, 20914, deputy5.dff, deputy5.txd);
-AddCharModel(1, 20915, deputy6.dff, deputy6.txd);
+AddCharModel(283, 20900, pd01.dff, pd01.txd);
+AddCharModel(283, 20901, pd02.dff, pd02.txd);
+AddCharModel(283, 20902, pd03.dff, pd03.txd);
+AddCharModel(283, 20903, pd04.dff, pd04.txd);
+AddCharModel(283, 20904, pd05.dff, pd05.txd);
+AddCharModel(283, 20905, pd06.dff, pd06.txd);
+AddCharModel(283, 20906, pd07.dff, pd07.txd);
+AddCharModel(283, 20907, pd08.dff, pd08.txd);
+AddCharModel(283, 20908, tucky_army01.dff, tucky_army01.txd);
+AddCharModel(283, 20909, tucky_army02.dff, tucky_army02.txd);
+AddCharModel(283, 20910, deputy1.dff, deputy1.txd);
+AddCharModel(283, 20911, deputy2.dff, deputy2.txd);
+AddCharModel(283, 20912, deputy3.dff, deputy3.txd);
+AddCharModel(283, 20913, deputy4.dff, deputy4.txd);
+AddCharModel(283, 20914, deputy5.dff, deputy5.txd);
+AddCharModel(283, 20915, deputy6.dff, deputy6.txd);
 
 // DSRP Uniforms
-AddCharModel(1, 20916, deputy7.dff, deputy7.txd);
-AddCharModel(1, 20917, deputy8.dff, deputy8.txd);
-AddCharModel(1, 20918, deputy9.dff, deputy9.txd);
-AddCharModel(1, 20919, deputy10.dff, deputy10.txd);
-AddCharModel(1, 20920, deputy11.dff, deputy11.txd);
-//AddCharModel(1, 20921, femaledeputy1.dff, femaledeputy1.txd);
-AddCharModel(1, 20921, femaledeputy2.dff, femaledeputy2.txd);
+AddCharModel(283, 20916, deputy7.dff, deputy7.txd);
+AddCharModel(283, 20917, deputy8.dff, deputy8.txd);
+AddCharModel(283, 20918, deputy9.dff, deputy9.txd);
+AddCharModel(283, 20919, deputy10.dff, deputy10.txd);
+AddCharModel(283, 20920, deputy11.dff, deputy11.txd);
+//AddCharModel(309, 20921, femaledeputy1.dff, femaledeputy1.txd);
+AddCharModel(309, 20921, femaledeputy2.dff, femaledeputy2.txd);
 
 // Features & Forms
 AddCharModel(1, 21001, invisible.dff, invisible.txd);
