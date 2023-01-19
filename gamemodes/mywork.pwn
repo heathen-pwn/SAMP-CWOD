@@ -18336,8 +18336,8 @@ CMD:vrepair(playerid, params[]) {
 		if(sscanf(params,"i", car)) return MSG(playerid, GOLD, "SYNTAX:"GR" /vrepair [vehicleid]");
 		RepairVehicle(car);
 		SetVehicleHealth(car, 1000);
-		format(large_string, sizeof large_string, "STFCMD: %s (ID: %d) has repaired the %s (Game ID: %d).", User[playerid][forumname], playerid, GetVehicleName(GetVehicleModel(car)));
-		Staff(GOLD,large_string);
+		format(large_string, sizeof large_string, "STFCMD: %s (ID: %d) has repaired the %s (Game ID: %d).", User[playerid][forumname], playerid, GetVehicleName(GetVehicleModel(car)), car);
+		Staff(ADMIN,large_string);
 	} else {
 		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command. Use (/repair) if you are a mechanic.");
 	}
@@ -62664,6 +62664,7 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[GENERAL]"D" /serverstats /assist /requests /aduty /storyteller /a /print /xplogs\n");
 			strcat(large_string, ""R"[UTILITY]"D" /gotopos /gethere /spawnmoney /setfuel /respawn /respawnallcars /getowner /inter /interiorlist /seecon /jetpack\n");
 			strcat(large_string, ""R"[UTILITY]"D" /revive /pnpc /changeform /removeform /givedrug /takedrug  /getuser /goto /setvw /setint /spawnwep /pbanks /an\n");
+			strcat(large_string, ""R"[UTILITY]"D" /phouses /pvehicles\n");
 			strcat(large_string, ""R"[NPC]"D" /cnpc /dnpc /npcanim /npcstat /rnpcstat /npccs /getherenpc; chatbox: `n<npcid>`; chatbox: `nn<npcid>`\n"); 
 			strcat(large_string, ""R"[INV]"D" /check /giverpitem \n");
 			strcat(large_string, ""R"[PREMIUM]"D" /makedonator /changedonator /removedonator\n");
@@ -62672,9 +62673,9 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[CHR-SHEET]"D" /cs /expapps /exprev /rpfs /set(h)ealth(l)evel /setmaxhealthlevel /givewp /givebp /giverage\n");
 			strcat(large_string, ""R"[CHR-SHEET]"D" /givegnosis /giveq /giveconviction /giveglamour /givefaith /givexp /giverp /csmisc\n");
 			strcat(large_string, ""R"[EXTRA]"D" /updatetrait /supdatetrait /removetrait /tedit\n");
-			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair /pvehicles\n");
+			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair\n");
 			strcat(large_string, ""R"[TEMP-VEHICLES]"D" /vspawn /destroyv\n");
-			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse /phousesn");
+			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse\n");
 			strcat(large_string, ""R"[GARAGES]"D" /gcreate /gdelete /gsetint /gsetowner /ggoto /linkgaragetofaction /neargarage\n");
 			strcat(large_string, ""R"[FACTIONS]"D" /fcreate /fdelete /setvehiclefaction /setfaction /refillstocks\n");
 			strcat(large_string, ""R"[SECURITY]"D" /kick /ban /offlineban /unban /arecord /ipp /gpcip /gpcig /pipcheck /ipcheck\n");
