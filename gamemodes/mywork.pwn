@@ -8333,7 +8333,7 @@ CMD:nearhouse(playerid,params[])
 		    if(IsPlayerInRangeOfPoint(playerid,range, H[i][hx], H[i][hy], H[i][hz]))
 			{
 				new query[124];
-				format(query, sizeof query,"[House ID: %d] [House Name: %s] [House Address: %d]",i,H[i][hname],H[i][haddress]);
+				format(query, sizeof query,"[House ID: %d] [House Name: %s] [House Address: %d] [House Owner: %d]",i,H[i][hname],H[i][haddress], H[i][howner]);
 				MSG(playerid, GRAD2, query);
 				t = true;
 			}
