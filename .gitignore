@@ -6,3 +6,5 @@ scriptfiles/Logs/*.txt
 server_log.txt
 include/pawn.ico
 new_customints.txt
+cmds_real.txt
+cmds.txt
