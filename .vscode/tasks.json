@@ -7,7 +7,8 @@
         "label": "build-normal",
         "type": "shell",
         "command": "${workspaceRoot}/pawno/pawncc.exe",
-        "args": ["'${fileBasename}'", "'-D${fileDirname}'", "'-;+'", "'-(+'", "'-d3'"],
+        // "args": ["'${fileBasename}'", "'-D${fileDirname}'", "'-;+'", "'-(+'", "'-d3'"],
+        "args": ["'${file}'", "'-D${fileDirname}'", "'-;+'", "'-(+'", "'-d3'"],
         "group": {
           "kind": "build",
           "isDefault": true
