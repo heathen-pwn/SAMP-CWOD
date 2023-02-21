@@ -10,3 +10,4 @@ cmds_real.txt
 cmds.txt
 *.bat
 filterscripts/testdraw.pwn
+crashinfo.txt
