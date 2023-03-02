@@ -2844,12 +2844,14 @@ stock GetItemName(itemid)
 		case 31: item = "Venison";
 		case 32: item = "Log";
 		case 33: item = "Vehicle Key";
+		case 34: item = "Medkit";
 		default: item = "N/A";
 	}
 	return item;
 }
 stock FindPlayerItem(playerid, item)
 {
+	//Looks for an item based on its itemid (i.e., Medkit is 34)
 	if(User[playerid][Logged])
 	{
 		if(item == 0) return -1;
@@ -2866,6 +2868,7 @@ stock FindPlayerItem(playerid, item)
 }
 stock FindPlayerItem_Name(playerid, item[])
 {
+	// Looks for an item based on its name
 	if(User[playerid][Logged])
 	{
 		for(new i = 0; i < MAX_INVENTORY; i++)
@@ -2881,6 +2884,7 @@ stock FindPlayerItem_Name(playerid, item[])
 }
 stock FindPlayerItemFree(playerid, item[MAX_ITEM_NAME])
 {
+	// Looks for an item, if its not there then returns a free slot where it can be put
 	if(User[playerid][Logged])
 	{
 		new bool:found = false;
@@ -13425,7 +13429,7 @@ CMD:buy(playerid,params[])
 	    case 4: // General store
 	    {
 	        return Dialog_Show(playerid,dGeneralStore,DIALOG_STYLE_LIST,header
-			,"Water ($5)\nCigarettes ($5)\nFruit ($5)\nSprunk ($5)\nFuel Canister ($250)\nRope ($100)\nBlindfold ($70)\nSoda ($3)\nSnack ($3)\nAlcoholic Beverage ($7)\nPack of Cards ($10)\nFishing Rod ($50)\nBait ($2)",
+			,"Water ($5)\nCigarettes ($5)\nFruit ($5)\nSprunk ($5)\nFuel Canister ($250)\nRope ($100)\nBlindfold ($70)\nSoda ($3)\nSnack ($3)\nAlcoholic Beverage ($7)\nPack of Cards ($10)\nFishing Rod ($50)\nBait ($2)\nMedkit ($750)",
 			 "Select", "Cancel");
 	    }
 	    case 5:
@@ -15974,6 +15978,19 @@ Dialog:dGeneralStore(playerid, response, listitem, inputtext[])
 			SetPVarInt(playerid, "buystack_slot", FindPlayerItemFree(playerid, "Bait"));
 			SetPVarInt(playerid, "buystack_id", GetItemID("Bait"));
 			SetPVarInt(playerid, "buystack_price", 2);	
+		}
+		case 13: {
+			id = GetInventoryFreeSlot(playerid);
+			if(id == -1) return MSG(playerid, GOLD, "Inventory:"GR" Your inventory is full.");
+		    new cost = 50;
+	        if(User[playerid][uMoney] < cost)
+	        {
+	    		MSG(playerid,GOLD,"ERROR:"GR" You don't have enough money to make this purchase.");
+				return cmd_buy(playerid,"");
+	        }
+			GiveMoney(playerid,-cost);
+			UpdateItem(playerid, id, GetItemID("Medkit"), "Medkit", 1, 100, false);
+			BusinessTill(User[playerid][BusinessIN], cost);
 		}
 	}
 	SFM(playerid, GREEN, "Info:"GR" Purchased.");
@@ -40493,7 +40510,7 @@ stock UseItem(playerid, slot)
 			case 16: FoodDrink(playerid, item, slot);
 			case 17: FoodDrink(playerid, item, slot);
 			case 18: FoodDrink(playerid, item, slot);
-			case 19: {}
+			case 19: {} // Dice
 			case 20: {}
 			case 21: MSG(playerid, GOLD, "Inventory:"GR" Baits are used through a Fishing Rod.");
 			case 22: cmd_fish(playerid, "");
@@ -40508,11 +40525,37 @@ stock UseItem(playerid, slot)
 			case 29: cmd_refill(playerid, "");
 			case 30: FoodDrink(playerid, item, slot);
 			case 31: FoodDrink(playerid, item, slot);
+			case 32: { }
+			case 33: { // Medkit
+				new medskill = GetPVarInt(playerid, "Medicine");
+				new duration = 130-(5*medskill);
+				foreach(Player, i) {
+					if(ProxDetectorS(3, playerid, i)) {
+						new timer = SetTimerEx("OnRevivePlayer", duration*1000, 0, "ddd", playerid, i, User[i][UserID]);
+						new query[124];
+						format(query, sizeof query, "uses his Medkit on %s.", sendernameEx(i));
+						PlayerActionMessage(playerid, query);
+						SetPVarInt(playerid, "timer_ReviveTimer", timer);
+						break;
+					}
+				}
+				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
+				
+			}
 			default: MSG(playerid, GOLD, "Inventory:"GR" Empty Slot specified.");
 		}
 		return 1;
 	}
 	return -1;
+}
+forward OnRevivePlayer(playerid, target, targetuserid);
+public OnRevivePlayer(playerid, target, targetuserid) {
+	if(User[playerid][Logged] && targetuserid == User[target][UserID]) {
+		RevivePlayer(target);
+		PlayerActionMessage(target, "has been revived.");
+		return 1;
+	}
+	return 0;
 }
 
 Dialog:dRadiSel(playerid, response, listitem, inputtext[])
@@ -43597,6 +43640,7 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(Strength_BuffTimer[playerid]);
 	KillTimer(Dexterity_BuffTimer[playerid]);
 	KillTimer(Stamina_BuffTimer[playerid]);
+	KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
 	//print("OnPlayerDisconnect - T");
 	/*if(reconnect[playerid] == true)
 		OnPlayerConnect(playerid);*/
