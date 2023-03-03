@@ -539,7 +539,7 @@ forward SpawnPlayerNow(playerid,point);
 forward OnPlayerSpawnComplete(playerid);
 forward DestroyObjectNow(objid);
 forward UnloadingTruck(playerid,Float:tx,Float:ty,Float:tz);
-forward HideWaiting(playerid);
+// forward HideWaiting(playerid);
 forward DeathBlink(playerid);
 forward OnPlayerRise(playerid);
 forward PlayerDeath(playerid);
@@ -40538,19 +40538,20 @@ stock UseItem(playerid, slot)
 				if(User[playerid][UsingMedkit]) {
 					return MSG(playerid, GOLD, "ERROR:"GR" You are already using a medkit!");
 				}
+				if(GetPlayerAnimationIndex(playerid) != 1274 && GetPlayerAnimationIndex(playerid) != 1159) return Wait(playerid,"~h~You are not crouching!");
 				new medskill = GetPVarInt(playerid, "Medicine");
 				new duration = 40-(5*medskill);
 				new bool:found;
 				foreach(Player, i) {
 					if(playerid == i) continue; 
-					if(ProxDetectorS(6, playerid, i) && User[i][Death] > 0) {
+					if(ProxDetectorS(2.5, playerid, i) && User[i][Death] > 0) {
 						print("found player in surrounding ");
 						new timer = SetTimerEx("OnRevivePlayer", duration*1000, 0, "ddd", playerid, i, User[i][UserID]);
 						new query[124];
 						if(medskill > 0) {
 							format(query, sizeof query, "uses his Medkit on %s (Medicine: %s; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
 						} else {
-							format(query, sizeof query, "uses his Medkit on %s (Medicine: 0; duration: %ds).", sendernameEx(i), duration);
+							format(query, sizeof query, "uses his Medkit on %s (Medicine: None; duration: %ds).", sendernameEx(i), duration);
 						}
 						
 						PlayerActionMessage(playerid, query);
@@ -40569,7 +40570,7 @@ stock UseItem(playerid, slot)
 				}
 				
 			}
-			default: MSG(playerid, GOLD, "Inventory:"GR" Empty Slot specified.");
+			default: MSG(playerid, GOLD, "Inventory:"GR" Empty slot specified.");
 		}
 		return 1;
 	}
@@ -50783,6 +50784,8 @@ CMD:bruh(playerid, params[])
 	if(User[playerid][Logged])
 	{
 		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+		if(User[playerid][Death] > 0)
+			return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 		new Float:x,Float:y,Float:z;
 		GetPlayerPos(playerid, x, y, z);
 		if(User[playerid][uGender] == 0)
@@ -50808,6 +50811,8 @@ CMD:cough(playerid, params[])
 		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
 		new Float:x,Float:y,Float:z;
 		GetPlayerPos(playerid, x, y, z);
+		if(User[playerid][Death] > 0)
+			return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 		if(User[playerid][uGender] == 0)
 		{
 			foreach(Player, i)
@@ -50841,6 +50846,8 @@ CMD:roar(playerid, params[])
 		{
 			if(User[playerid][cmdFlood] > gettime())
 				return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 			new Float:x,
 				Float:y,
 				Float:z;
@@ -50866,6 +50873,8 @@ CMD:growl(playerid, params[])
 		{
 			if(User[playerid][cmdFlood] > gettime())
 				return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 			new Float:x,
 				Float:y,
 				Float:z;
@@ -50890,6 +50899,8 @@ CMD:snarl(playerid, params[])
 		{
 			if(User[playerid][cmdFlood] > gettime())
 				return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 			new Float:x,
 				Float:y,
 				Float:z;
@@ -50912,6 +50923,8 @@ CMD:whistle(playerid, params[])
 	if(User[playerid][Logged])
 	{
 		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+		if(User[playerid][Death] > 0)
+			return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 		new Float:x,Float:y,Float:z;
 		GetPlayerPos(playerid, x, y, z);
 		if(User[playerid][uGender] == 0)
@@ -50939,6 +50952,8 @@ CMD:howl(playerid, params[])
 		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
 		if(User[playerid][shapeshift] < 2)
 			return MSG(playerid, GOLD, "ERROR:"GR" You are not in an animal form.");
+		if(User[playerid][Death] > 0)
+			return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 		if(isnull(params))
 		{
 			SendClientMessage(playerid,GOLD, "SYNTAX:"GR" /howl [action]");
@@ -63089,14 +63104,14 @@ stock Wait(playerid,text[],time = 1000,type = 4)
 	return 1;
 }
 
-public HideWaiting(playerid)
-{
-	if(!IsPlayerConnected(playerid))
-	    return 0;
-	TextDrawHideForPlayer(playerid,warning);
-	User[playerid][WaitShown] = false;
-	return 1;
-}
+// public HideWaiting(playerid)
+// {
+// 	if(!IsPlayerConnected(playerid))
+// 	    return 0;
+// 	TextDrawHideForPlayer(playerid,warning);
+// 	User[playerid][WaitShown] = false;
+// 	return 1;
+// }
 stock ApplyReloadAnimation(playerid,weaponid)
 {
 	switch(weaponid)
@@ -63893,7 +63908,7 @@ CMD:callmydeath(playerid,params[])
 {
 	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
 	ApplyAnimation(playerid, "PED", "KO_shot_stom", 4.0, 0, 1, 1, 1, 0, 1);
-	User[playerid][DeathTimer] = SetTimerEx("PlayerDeath",10,1,"d",playerid);
+	User[playerid][DeathTimer] = SetTimerEx("PlayerDeath",250,1,"d",playerid);
 	User[playerid][Death] = 250;
 	User[playerid][pCOD] = strval(params);
 	UpdateDynamic3DTextLabelText(User[playerid][UserTag],0xB4191DFF,sendernameEx(playerid));
@@ -63992,9 +64007,9 @@ public PlayerDeath(playerid) // CHECK ME
 
 			// player died before medkit got to finish
 			new beingrevived = GetPVarInt(playerid, "medkit_RevivedBy");
-			if(beingrevived >= 0 && IsPlayerConnected(playerid)) {
-				TogglePlayerControllable(playerid,1);
-				KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
+			if(beingrevived >= 0 && IsPlayerConnected(beingrevived)) {
+				TogglePlayerControllable(beingrevived,1);
+				KillTimer(GetPVarInt(beingrevived, "timer_ReviveTimer"));
 			}
 			SpawnPlayer(playerid);	
 			//--------------------------------------
