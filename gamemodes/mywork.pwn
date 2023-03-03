@@ -343,6 +343,9 @@ Garage
 //
 #define INVALID_USER_ID 0
 #define ROWS_PER_PAGE 23
+
+// 
+#define VAMPIRE_ERROR_MSG "ERROR:"GR" You are not a Vampire or a Ghoul."
 /*--------------------------------------------------------------*/
 // Main variables
 new Iterator:Houses<MAX_HOUSE>;
@@ -5016,6 +5019,7 @@ CMD:bcreate(playerid,params[])
 		B[i][bgas] = -1;
 		new address = 1000+random(9999);
 		B[i][baddress] = address;
+		B[i][bicon] = 37; // question mark
 		format(B[i][bname],40,"%s",name);
 		//format(string,sizeof string,"FOR SALE!\n"BL"[Business Name]"W" %s (%i)\n"BL"[Price]"W" $%i",name,i,B[i][bprice]);
 		/*if(B[i][btype] == -1)
@@ -5030,7 +5034,7 @@ CMD:bcreate(playerid,params[])
 		format(sx,10,"%f",x);
 		format(sy,10,"%f",y);
 		format(sz,10,"%f",z);
-		format(string,sizeof string,"INSERT INTO business (bid,x,y,z,vw,interior,type,price,name,address) VALUES (%d,'%s','%s','%s',%d,%d,%d,%d,'%q',%d)",i,sx,sy,sz,vw,interior,type,B[i][bprice],name,address);
+		format(string,sizeof string,"INSERT INTO business (bid,x,y,z,vw,interior,type,price,name,address,icon) VALUES (%d,'%s','%s','%s',%d,%d,%d,%d,'%q',%d,%d)",i,sx,sy,sz,vw,interior,type,B[i][bprice],name,address, B[i][bicon]);
 		db_query(Database,string);
 
 		format(string,sizeof string,"SERVER: You have created business ID %d here.",i);
@@ -5080,7 +5084,7 @@ CMD:bseticon(playerid,params[])
 	if(User[playerid][Useradmin] > 4)
 	{
 		new id,icon;
-		if(sscanf(params,"ii",id,icon)) return MSG(playerid,GOLD,"SYNTAX:"GR" /bseticon [business id] [iconid ()]");
+		if(sscanf(params,"ii",id,icon)) return MSG(playerid,GOLD,"SYNTAX:"GR" /bseticon [business id] [iconid (default: 37)]");
 		if(B[id][btype])
 		{
 			new string[124];
@@ -40531,15 +40535,23 @@ stock UseItem(playerid, slot)
 			case 33: { }
 			case 34: { // Medkit
 				new medskill = GetPVarInt(playerid, "Medicine");
-				new duration = 130-(5*medskill);
+				new duration = 40-(5*medskill);
 				new bool:found;
 				foreach(Player, i) {
-					if(ProxDetectorS(3, playerid, i) && User[i][Death] > 0) {
+					if(playerid == i) continue; 
+					if(ProxDetectorS(6, playerid, i) && User[i][Death] > 0) {
+						print("found player in surrounding ");
 						new timer = SetTimerEx("OnRevivePlayer", duration*1000, 0, "ddd", playerid, i, User[i][UserID]);
 						new query[124];
-						format(query, sizeof query, "uses his Medkit on %s (Medicine: %s; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
+						if(medskill > 0) {
+							format(query, sizeof query, "uses his Medkit on %s (Medicine: %s; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
+						} else {
+							format(query, sizeof query, "uses his Medkit on %s (Medicine: 0; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
+						}
+						
 						PlayerActionMessage(playerid, query);
 						SetPVarInt(playerid, "timer_ReviveTimer", timer);
+						SetPVarInt(i, "medkit_RevivedBy", playerid);
 						UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 						found = true;
 						TogglePlayerControllable(playerid,0);
@@ -50900,16 +50912,16 @@ CMD:whistle(playerid, params[])
 		{
 			foreach(Player, i)
 			{
-				if(IsPlayerInRangeOfPoint(i, 50, x, y, z)) {
+				if(ProxDetectorS(120, playerid, i)) {
 					// PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/991759556004814928/1002328665872416788/bruh.mp3");
 					// PlayAudioStreamForPlayer(i, "http://finalnights-rp.com/bruh.mp3");
 					SetPlayerMarkerForPlayer(i, playerid, COLOR_BLIP);
-					SetTimerEx("ResetBlipOfPlayer", 8000, 0, "dd" , playerid, i); 
+					SetTimerEx("ResetBlipOfPlayer", 10*1000, 0, "dd" , playerid, i); 
 				}
 			}
+			PlayerActionMessage(playerid, "whistles.");
 			User[playerid][cmdFlood] = gettime()+10;	
 		}
-		User[playerid][cmdFlood] = gettime()+10;
 		return 1;
 	}
 	return 0;
@@ -50933,7 +50945,7 @@ CMD:howl(playerid, params[])
 		foreach(Player, i) 
 		{
 			if(User[i][xprecord] == 1 && IsPlayerInRangeOfPoint(i, 30, x, y, z)) RecordPlayer(i, string);
-			if(IsPlayerInRangeOfPoint(i, 150, x, y, z))
+			if(ProxDetectorS(350, playerid, i))
 			{
 				PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/991759556004814928/1002294723593109625/werewolf_howl.mp3");
 				//PlayAudioStreamForPlayer(i, "http://finalnights-rp.com/wolf_howl.mp3");
@@ -50943,7 +50955,7 @@ CMD:howl(playerid, params[])
 				} else {
 					SetPlayerMarkerForPlayer(i, playerid, COLOR_BLIP);
 				}
-				SetTimerEx("ResetBlipOfPlayer", 10000, 0, "dd" , playerid, i); 
+				SetTimerEx("ResetBlipOfPlayer", 10*1000, 0, "dd" , playerid, i); 
 			}
 		}
 		if(strlen(params)<87)
@@ -51374,11 +51386,21 @@ CMD:susebloodpoint(playerid, params[])
 {
 	if(User[playerid][Userrace] == 0 || User[playerid][Userrace] == 1)
 	{
+		new affiliation[MAX_TRAIT_NAME];
+		GetPVarString(playerid, "Affiliation", affiliation, MAX_TRAIT_NAME);
+		
+		if(strcmp(affiliation,"Ghoul")) {
+			return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
+		}
+		if(isnull(affiliation) && User[playerid][Userrace] == 0) {
+			return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
+		}
+
 		new blood = GetPVarInt(playerid, "BloodPool");
 		if(blood == 0) return MSG(playerid,GOLD,"ERROR:"GR" You have no blood to expend.");
 		new reason[48],amount;
 		sscanf(params, "is[48]", amount, reason);
-		if(amount < 0 || amount == 0) return MSG(playerid,GOLD,"SYNTAX:"GR" /usebloodpoint [amount] [optional:reason]");
+		if(amount < 0 || amount == 0) return MSG(playerid,GOLD,"SYNTAX:"GR" /susebloodpoint [amount] [optional:reason]");
 		if(blood < amount) return MSG(playerid,GOLD,"ERROR:"GR" You don't have enough blood points to spend.");
 		if(isnull(reason)) format(large_string, 128, "> * %s has used %d blood points.", User[playerid][pUsername], amount);
 		else format(large_string, 128, "> * %s has used %d blood points; Reason: %s", User[playerid][pUsername], amount, reason);
@@ -51397,7 +51419,7 @@ CMD:susebloodpoint(playerid, params[])
 		RecordRP(playerid, large_string);
 		return 1;
 	}
-	return 0;
+	return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
 }
 stock GetMaxBPTurn(playerid)
 {
@@ -51468,20 +51490,21 @@ CMD:dispel(playerid, params[])
 	}
 	return 0;
 }
+
 CMD:ubp(playerid, params[]) return cmd_usebloodpoint(playerid, params);
 CMD:usebloodpoint(playerid, params[])
 {
-	#define ERROR_MSG "ERROR:"GR" This command is for Vampires or Ghouls."
+	
 	if(User[playerid][Userrace] == 0 || User[playerid][Userrace] == 1)
 	{
 		new affiliation[MAX_TRAIT_NAME];
 		GetPVarString(playerid, "Affiliation", affiliation, MAX_TRAIT_NAME);
 		
 		if(strcmp(affiliation,"Ghoul")) {
-			return MSG(playerid, GOLD, ERROR_MSG);
+			return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
 		}
 		if(isnull(affiliation) && User[playerid][Userrace] == 0) {
-			return MSG(playerid, GOLD, ERROR_MSG);
+			return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
 		}
 
 		new blood = GetPVarInt(playerid, "BloodPool");
@@ -51597,7 +51620,7 @@ CMD:usebloodpoint(playerid, params[])
 		RecordRP(playerid, large_string);
 		return 1;
 	}
-	return MSG(playerid, GOLD, ERROR_MSG);
+	return MSG(playerid, GOLD, VAMPIRE_ERROR_MSG);
 }
 
 
@@ -59445,6 +59468,7 @@ public OnPlayerSpawnComplete(playerid)
 	PlayerTextDrawSetString(playerid, tHLevel[playerid], large_string);
 	PlayerTextDrawShow(playerid, tHLevel[playerid]);
 	SetPlayerFightingStyle(playerid, User[playerid][fightstyle]);
+	SetPVarInt(playerid, "medkit_RevivedBy", -1);
 	TogglePlayerControllable(playerid, 1);
 }
 new TempSave = 0;
@@ -63958,6 +63982,13 @@ public PlayerDeath(playerid) // CHECK ME
 					SetPlayerSkin(playerid, User[playerid][uSkin]);
 					UpdateDynamic3DTextLabelText(User[playerid][UserTag], SOLIDWHITE, User[playerid][pUsername]);
 				}
+			}
+
+			// player died before medkit got to finish
+			new beingrevived = GetPVarInt(playerid, "medkit_RevivedBy");
+			if(beingrevived >= 0 && IsPlayerConnected(playerid)) {
+				TogglePlayerControllable(playerid,1);
+				KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
 			}
 			SpawnPlayer(playerid);	
 			//--------------------------------------
