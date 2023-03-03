@@ -18966,7 +18966,7 @@ CMD:breakin(playerid,params[])
 		    TogglePlayerControllable(playerid,1);
 		    KillTimer(BreakingTimer[playerid]);
 			foreach(Player,z)
-				SetPlayerMarkerForPlayer(playerid, z,COLOR_LOGGED);
+				SetPlayerMarkerForPlayer(z, playerid,COLOR_LOGGED);
 		    return 1;
 		}
 		new itemid = FindPlayerItem_Name(playerid, "Toolkit");
@@ -19020,7 +19020,8 @@ CMD:breakin(playerid,params[])
 			        if(alarm) // if the house has an alarm
 			        {
 	                    if(ProxDetectorS(rad,playerid,x))
-							SetPlayerMarkerForPlayer(playerid,x,COLOR_BLIP);
+							// OBSERVER, THIEF, BLIPCOLOR
+							SetPlayerMarkerForPlayer(x,playerid,COLOR_BLIP);
                     }
                     if(User[x][HouseIN] == i)
 					{
@@ -19037,6 +19038,7 @@ CMD:breakin(playerid,params[])
 				else User[playerid][breaking] = rad;
 				ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.0, 1, 0, 0, 0, 0);
 				BreakingTimer[playerid] = SetTimerEx("BreakingHouse",sec*1000,0,"dd",playerid,i);
+				// make this per 5 seconds or more, then add a check if anyone is nearby to set the marker for them (OnPlayerStreamin is not reliable)
 
 				if(alarm) // if the house has an alarm
 				{
@@ -40526,20 +40528,28 @@ stock UseItem(playerid, slot)
 			case 30: FoodDrink(playerid, item, slot);
 			case 31: FoodDrink(playerid, item, slot);
 			case 32: { }
-			case 33: { // Medkit
+			case 33: { }
+			case 34: { // Medkit
 				new medskill = GetPVarInt(playerid, "Medicine");
 				new duration = 130-(5*medskill);
+				new bool:found;
 				foreach(Player, i) {
-					if(ProxDetectorS(3, playerid, i)) {
+					if(ProxDetectorS(3, playerid, i) && User[i][Death] > 0) {
 						new timer = SetTimerEx("OnRevivePlayer", duration*1000, 0, "ddd", playerid, i, User[i][UserID]);
 						new query[124];
-						format(query, sizeof query, "uses his Medkit on %s.", sendernameEx(i));
+						format(query, sizeof query, "uses his Medkit on %s (Medicine: %s; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
 						PlayerActionMessage(playerid, query);
 						SetPVarInt(playerid, "timer_ReviveTimer", timer);
+						UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
+						found = true;
+						TogglePlayerControllable(playerid,0);
+						ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.0, 1, 0, 0, 0, 0);
 						break;
 					}
 				}
-				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
+				if(!found) {
+					MSG(playerid, GOLD, "SERVER:"GR" There is no heavily injured player in your surroundings.");
+				}
 				
 			}
 			default: MSG(playerid, GOLD, "Inventory:"GR" Empty Slot specified.");
@@ -40553,6 +40563,8 @@ public OnRevivePlayer(playerid, target, targetuserid) {
 	if(User[playerid][Logged] && targetuserid == User[target][UserID]) {
 		RevivePlayer(target);
 		PlayerActionMessage(target, "has been revived.");
+		TogglePlayerControllable(playerid,1);
+		KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
 		return 1;
 	}
 	return 0;
@@ -50877,11 +50889,36 @@ CMD:snarl(playerid, params[])
 	}
 	return 0;
 }
-
+CMD:whistle(playerid, params[])
+{
+	if(User[playerid][Logged])
+	{
+		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
+		new Float:x,Float:y,Float:z;
+		GetPlayerPos(playerid, x, y, z);
+		if(User[playerid][uGender] == 0)
+		{
+			foreach(Player, i)
+			{
+				if(IsPlayerInRangeOfPoint(i, 50, x, y, z)) {
+					// PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/991759556004814928/1002328665872416788/bruh.mp3");
+					// PlayAudioStreamForPlayer(i, "http://finalnights-rp.com/bruh.mp3");
+					SetPlayerMarkerForPlayer(i, playerid, COLOR_BLIP);
+					SetTimerEx("ResetBlipOfPlayer", 8000, 0, "dd" , playerid, i); 
+				}
+			}
+			User[playerid][cmdFlood] = gettime()+10;	
+		}
+		User[playerid][cmdFlood] = gettime()+10;
+		return 1;
+	}
+	return 0;
+}
 CMD:howl(playerid, params[])
 {
     if(User[playerid][Logged])
     {
+		if(User[playerid][cmdFlood] > gettime()) return MSG(playerid, GOLD, "Info:"GR" There is a ten seconds interval between each usage.");
 		if(User[playerid][shapeshift] < 2)
 			return MSG(playerid, GOLD, "ERROR:"GR" You are not in an animal form.");
 		if(isnull(params))
@@ -50900,7 +50937,13 @@ CMD:howl(playerid, params[])
 			{
 				PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/991759556004814928/1002294723593109625/werewolf_howl.mp3");
 				//PlayAudioStreamForPlayer(i, "http://finalnights-rp.com/wolf_howl.mp3");
-				SetPlayerMarkerForPlayer(i, playerid, WEREWOLF);
+				if(User[i][Userrace] == 2 ) // werewolf
+				{ 
+					SetPlayerMarkerForPlayer(i, playerid, WEREWOLF);
+				} else {
+					SetPlayerMarkerForPlayer(i, playerid, COLOR_BLIP);
+				}
+				SetTimerEx("ResetBlipOfPlayer", 10000, 0, "dd" , playerid, i); 
 			}
 		}
 		if(strlen(params)<87)
@@ -50918,8 +50961,13 @@ CMD:howl(playerid, params[])
 			format(string, sizeof(string), "* ...%s",part);
 			ProxDetector(150.0, playerid, string,RP,RP,RP,RP,RP);
 		}
+		User[playerid][cmdFlood] = gettime()+10;
 	}
 	return 1;
+}
+forward ResetBlipOfPlayer(playerid, observer);
+public ResetBlipOfPlayer(playerid, observer) {
+	SetPlayerMarkerForPlayer(observer, playerid,COLOR_LOGGED);
 }
 CMD:ugn(playerid, params[])
 	return cmd_usegnosis(playerid, params);
@@ -53953,9 +54001,37 @@ stock UseGift(playerid, giftname[])
 			SetPVarInt(playerid, "p_AssumeForm", 2);
 			AssumeForm(playerid);
 		}
-		if(strfind(giftname, "", true) != -1)
+		if(strfind(giftname, "Heightened Senses", true) != -1)
 		{
-
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");
+			if(User[playerid][active_auspex] == false)
+			{
+				User[playerid][active_auspex] = true;
+				MSG(playerid, GOLD, "Info:"GR" You have activated Heightened Senses");
+			}
+			else
+			{
+				User[playerid][active_auspex] = false;
+				MSG(playerid, GOLD, "Info:"GR" You have deactivated Heightened Senses");
+				return 1;
+			}
+		}
+		if(strfind(giftname, "Whisper Catching", true) != -1)
+		{
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");
+			if(User[playerid][active_auspex] == false)
+			{
+				User[playerid][active_auspex] = true;
+				MSG(playerid, GOLD, "Info:"GR" You have activated Whisper Catching");
+			}
+			else
+			{
+				User[playerid][active_auspex] = false;
+				MSG(playerid, GOLD, "Info:"GR" You have deactivated Whisper Catching");
+				return 1;
+			}
 		}
 		return 1;
 	}
@@ -59825,7 +59901,7 @@ stock CanHear(playerid, target)
 		GetPlayerPos(target, xxx, yyy, zzz);
 		if(!IsPlayerInRangeOfPoint(playerid, 50, xxx, yyy, zzz) || GetPlayerVirtualWorld(playerid) != GetPlayerVirtualWorld(target))
 			return 0;
-		if(GetPVarInt(playerid, "Heightened Senses") > 0 || User[playerid][active_auspex] == true)
+		if(User[playerid][active_auspex] == true) // ||  GetPVarInt(playerid, "Heightened Senses") > 0 
 		{
 			return 1;
 		}
@@ -64122,7 +64198,7 @@ public SetMarkerInterval(playerwhosees,playerwhoisseen)
     }
 }
 
-public OnPlayerStreamIn(playerid, forplayerid)
+public OnPlayerStreamIn(playerid, forplayerid) 
 {
 	/*if(User[playerid][isMasked] == 1)
 	{
@@ -64136,7 +64212,7 @@ public OnPlayerStreamIn(playerid, forplayerid)
 
 	return 1;
 }
-public OnPlayerStreamOut(playerid, forplayerid)
+public OnPlayerStreamOut(playerid, forplayerid) 
 {
 	//printf("[%s][%s] %s streamed out for %s",PasteDate(),PasteTime(),User[playerid][Username],User[forplayerid][Username]);
  	if(User[forplayerid][breaking] > 0) SetPlayerMarkerForPlayer(playerid,forplayerid,COLOR_LOGGED);
