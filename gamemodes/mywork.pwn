@@ -1493,6 +1493,7 @@ enum USER_DATA
 	bool:WaitShown,
 	DeathTimer,
 	Death,
+	bool:UsingMedkit,
 	gVar,
 	renting,
 	spawnat,
@@ -40534,6 +40535,9 @@ stock UseItem(playerid, slot)
 			case 32: { }
 			case 33: { }
 			case 34: { // Medkit
+				if(User[playerid][UsingMedkit]) {
+					return MSG(playerid, GOLD, "ERROR:"GR" You are already using a medkit!");
+				}
 				new medskill = GetPVarInt(playerid, "Medicine");
 				new duration = 40-(5*medskill);
 				new bool:found;
@@ -40546,7 +40550,7 @@ stock UseItem(playerid, slot)
 						if(medskill > 0) {
 							format(query, sizeof query, "uses his Medkit on %s (Medicine: %s; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
 						} else {
-							format(query, sizeof query, "uses his Medkit on %s (Medicine: 0; duration: %ds).", sendernameEx(i), GetDotFromNumber(medskill), duration);
+							format(query, sizeof query, "uses his Medkit on %s (Medicine: 0; duration: %ds).", sendernameEx(i), duration);
 						}
 						
 						PlayerActionMessage(playerid, query);
@@ -40556,6 +40560,7 @@ stock UseItem(playerid, slot)
 						found = true;
 						TogglePlayerControllable(playerid,0);
 						ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.0, 1, 0, 0, 0, 0);
+						User[playerid][UsingMedkit] = true;
 						break;
 					}
 				}
@@ -40577,6 +40582,7 @@ public OnRevivePlayer(playerid, target, targetuserid) {
 		PlayerActionMessage(target, "has been revived.");
 		TogglePlayerControllable(playerid,1);
 		KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
+		User[playerid][UsingMedkit] = false;
 		return 1;
 	}
 	return 0;
