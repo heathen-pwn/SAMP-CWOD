@@ -64591,7 +64591,7 @@ Dialog:dHelpDialog(playerid, response, listitem, inputtext[])
 				/(desc)ription /(mydesc)ription /inspect /(r)e(m)ove(desc)ription /levelup /anims /ask /breakin /bloodpack\n \
 				/label /dlabel /mylabels /dmylabels /cough /snarl /roar /growl /pdistance /frisk /offlinepm\n \
 				/plabel /dplabel /plabels /pdmylabels /(i)nventory /forumname /showrpf  /link /clearchat /scrapcar /print\n \
-				/whistle
+				/whistle \
 				","Close","Back");
 			}		
 			case 1: // Ammo
