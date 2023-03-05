@@ -6755,24 +6755,25 @@ CMD:detain(playerid,params[])
 forward UpdateActionText(playerid, ticks, max);
 public UpdateActionText(playerid, ticks, max) {
     if(User[playerid][Logged]) {
-
         printf("Max %d; Ticks %d", max, ticks);
-        new string[124];
-        if(ticks == max) { // work finished, award player by calling X function (learn how to pass by function in pawn guide)
+        new string[360];
+        if(ticks == max) { // work finished, award player by calling X function (learn how to pass by function in pawn-imp guide)
             // PlayerPlaySound(playerid, 1138, 0.0, 0.0, 0.0);
+			strins(string, "~y~", 0);
 			for(new i = 0; i < max; i++) {
-				strins(string, "~y~ö", strlen(string));
+				format(string, sizeof string,"%sö", string);
 			}
-			GameTextForPlayer(playerid, string, 1000, 6);
+			GameTextForPlayer(playerid, string, 3000, 6);
 			return TASK_SUCCESSFUL;
         }
         for(new i = 0; i < max; i++) { // work under progress!
             // printf("i %d; ticks %d", i, ticks);
+
             if(ticks > i && ticks < max) {
                 // printf("%d > %d", ticks, i);
-                strins(string, "~y~ö~r~", strlen(string));
+                format(string, sizeof string, "%s~y~ö", string);
             } else {
-                strins(string, "~r~ö", strlen(string));
+                format(string, sizeof string, "%s~r~ö", string);
             }
             
         }
@@ -6798,6 +6799,8 @@ CMD:ram(playerid, params[]) {
 	{
 		if(F[User[playerid][faction]][ftype] == PD)
 		{
+			if(User[playerid][Death] > 0)
+				return Wait(playerid,"~y~SERVER:~w~ You are heavily injured.");	
 			if(GetPVarInt(playerid, "Strength") < 3) return 
 				MSG(playerid, GOLD, "ERROR:"GR" You need to have at least (Strength 3) to use this command.");
 			// Props
@@ -6853,7 +6856,8 @@ CMD:ram(playerid, params[]) {
 			}
 			
 			// --
-			//forward UpdateActionText(playerid, ticks, max, callback[], const format[], {Float,_}:...);
+		
+
 			// add hexist check here
 			new string[140];
 			format(string, sizeof string,"SELECT locklevel from house WHERE hid = %d",H[entity][hid]);
@@ -6861,26 +6865,31 @@ CMD:ram(playerid, params[]) {
 			new lock = db_get_field_assoc_int(Result, "locklevel");
 			db_free_result(Result);			
 			//
-			const default_ram_ticks = 5;
+			const default_ram_hits = 5;
 
 			if(lock > 0) {
-				UpdateActionText(playerid, 0, default_ram_ticks*(lock+1));
+				UpdateActionText(playerid, 0, default_ram_hits*(lock+1));
 			} else {
-				UpdateActionText(playerid, 0, default_ram_ticks);
+				UpdateActionText(playerid, 0, default_ram_hits);
 			}
 
 			SetPVarInt(playerid, "player_RamDoorTicks", -1);
 			SetPVarInt(playerid, "player_RamDoorEntity", entity);
 			SetPVarInt(playerid, "player_RamDoorEntityType", entity_type);
+			SetPVarInt(playerid, "player_RamDoorMax", default_ram_hits*(lock+1));
 			if(lock > 0) {
-				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: %d)", GetDotFromNumber(lock));
+				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: %s)", GetDotFromNumber(lock));
 			}
 			else {
-				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: 0)");
+				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: None)");
 			}
 
-			PlayerActionMessage(playerid, string);
+			PlayerActionMessageBubble(playerid, string);
+
+			MSG(playerid, GOLD, "SERVER:"GR" You have started ramming the door infront of you.");
 			MSG(playerid, GOLD, "SERVER:"GR" Press "W"~k~~PED_ANSWER_PHONE~"GR" repeatedly to break the door down.");
+			SetPlayerLookAt(playerid, H[entity][hx],H[entity][hy]);
+			TogglePlayerControllable(playerid, 0);
 
 			return 1;
 		} 
@@ -6898,15 +6907,17 @@ public OnRamPerformed(playerid, type, id) {
 	if(User[playerid][Logged]) {
 		switch(type) {
 			case RAM_TYPE_HOUSE: {
-				LockHouse(playerid, id, false);
+				LockHouse(playerid, id, false, false);
 			}
 			default: { 
 
 			}
 		}
+		TogglePlayerControllable(playerid, 1);
 		DeletePVar(playerid, "player_RamDoorTicks");
 		DeletePVar(playerid, "player_RamDoorEntity");
 		DeletePVar(playerid, "player_RamDoorEntityType");
+		DeletePVar(playerid, "player_RamDoorMax");
 	}
 }
 // --
@@ -20631,7 +20642,7 @@ Dialog:HouseWithdraw(playerid, response, listitem, inputtext[])
 }
 
 
-stock LockHouse(playerid,houseid, bool:msg = true)
+stock LockHouse(playerid,houseid, bool:msg = true, bool:lock = true)
 {
 	new i = houseid;
     if(User[playerid][UserID] == H[i][howner] || User[playerid][renting] == i)
@@ -20644,8 +20655,9 @@ stock LockHouse(playerid,houseid, bool:msg = true)
 		 			cmd_ame(playerid,"locks the house.");
 	 				ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
 				}
-
-	 			H[i][hlock] = 1;
+				if(lock == true) {
+					H[i][hlock] = 1;
+				}
 			}
 			case 1:
 			{
@@ -38353,7 +38365,7 @@ CMD:anims(playerid,params)
 	strcat(large_string,"/laugh /robman /vomit /fu /crack /what /seat /rap /handsup /lay /smoke /pull\n");
 	strcat(large_string,"/nobreath /crossarms /signal /lean /choke /wave /cheer /deal /chat /gesture\n");
 	strcat(large_string,"/benchpress /jump /basketball /erp /buddy /camera /carfix /colt /carry /bomb /ambient\n");
-	strcat(large_string,"/dodge /dildo /drugged /fight /graffiti /goggles /grenade /graveyard\n");
+	strcat(large_string,"/dodge /assault /drugged /fight /graffiti /goggles /grenade /graveyard\n");
 	strcat(large_string, "/strip /tip /still /dance /idance /dive");
 	Dialog_Show(playerid, dAnims, DIALOG_STYLE_MSGBOX, "Animations", large_string, "Close", "");
     return 1;
@@ -38609,10 +38621,10 @@ CMD:drugged(playerid, params[])
 	}
 	return 1;
 }
-CMD:dildo(playerid, params[])
+CMD:assault(playerid, params[])
 {
 	new anumber;
-	if(sscanf(params, "i", anumber)) return MSG(playerid,GOLD,"SERVER:"GR" /dildo [1-9]");
+	if(sscanf(params, "i", anumber)) return MSG(playerid,GOLD,"SERVER:"GR" /assault [1-9]");
 	switch(anumber)
 	{
 		case 1: ApplyAnim(playerid, "DILDO", "DILDO_1", 4.1, 0, 0, 0, 0, 0, 1);
@@ -38624,7 +38636,7 @@ CMD:dildo(playerid, params[])
 		case 7: ApplyAnim(playerid, "DILDO", "DILDO_Hit_2", 4.1, 0, 0, 0, 0, 0, 1);
 		case 8: ApplyAnim(playerid, "DILDO", "DILDO_Hit_3", 4.1, 0, 0, 0, 0, 0, 1);
 		case 9: ApplyAnim(playerid, "DILDO", "DILDO_IDLE", 4.1, 0, 0, 0, 0, 0, 1);
-		default: return MSG(playerid, GOLD, "/dildo"GR" [1-9]");
+		default: return MSG(playerid, GOLD, "assault"GR" [1-9]");
 	}
 	return 1;
 }
@@ -62892,7 +62904,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			}
 			ticks++;
 			SetPVarInt(playerid, "player_RamDoorTicks", ticks);
-			new res = UpdateActionText(playerid, ticks, 5);
+			new res = UpdateActionText(playerid, ticks, GetPVarInt(playerid, "player_RamDoorMax"));
 			PlayerPlaySound(playerid, 1131, 0.0, 0.0, 0.0);
 			if(res == TASK_SUCCESSFUL) {
 				PlayerActionMessage(playerid, "breaks the door down.");
