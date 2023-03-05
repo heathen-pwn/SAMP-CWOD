@@ -6854,12 +6854,32 @@ CMD:ram(playerid, params[]) {
 			
 			// --
 			//forward UpdateActionText(playerid, ticks, max, callback[], const format[], {Float,_}:...);
-			UpdateActionText(playerid, 0, 5);
+			// add hexist check here
+			new string[140];
+			format(string, sizeof string,"SELECT locklevel from house WHERE hid = %d",H[entity][hid]);
+			new DBResult:Result = db_query(Database, string);
+			new lock = db_get_field_assoc_int(Result, "locklevel");
+			db_free_result(Result);			
+			//
+			const default_ram_ticks = 5;
+
+			if(lock > 0) {
+				UpdateActionText(playerid, 0, default_ram_ticks*(lock+1));
+			} else {
+				UpdateActionText(playerid, 0, default_ram_ticks);
+			}
+
 			SetPVarInt(playerid, "player_RamDoorTicks", -1);
 			SetPVarInt(playerid, "player_RamDoorEntity", entity);
 			SetPVarInt(playerid, "player_RamDoorEntityType", entity_type);
+			if(lock > 0) {
+				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: %d)", GetDotFromNumber(lock));
+			}
+			else {
+				format(string, sizeof string, "attempts to ram the door at their fore. (Lock level: 0)");
+			}
 
-			PlayerActionMessage(playerid,"attempts to ram the door at their fore.");
+			PlayerActionMessage(playerid, string);
 			MSG(playerid, GOLD, "SERVER:"GR" Press "W"~k~~PED_ANSWER_PHONE~"GR" repeatedly to break the door down.");
 
 			return 1;
