@@ -64167,6 +64167,14 @@ CMD:sa(playerid,params[])
 				StopMedkit(playerid);
 				return 1;
 			}
+			if(GetPVarInt(playerid, "player_RamDoorTicks") == -1 || GetPVarInt(playerid, "player_RamDoorTicks") > 0) {
+				TogglePlayerControllable(playerid, 1);
+				DeletePVar(playerid, "player_RamDoorTicks");
+				DeletePVar(playerid, "player_RamDoorEntity");
+				DeletePVar(playerid, "player_RamDoorEntityType");
+				DeletePVar(playerid, "player_RamDoorMax");
+				MSG(playerid, GOLD, "MEDKIT:"GR" You have interrupted the process.");
+			}
   			ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0, 1);
 				
 			//MSG(playerid,GRAD8,"["GRE"Info"G"] Animations cleared.");
