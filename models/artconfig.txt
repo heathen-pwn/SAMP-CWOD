@@ -111,6 +111,8 @@ AddCharModel(1, 20097, skin93.dff, skin93.txd);
 AddCharModel(1, 20098, skin94.dff, skin94.txd);
 AddCharModel(1, 20099, skin95.dff, skin95.txd);
 AddCharModel(1, 20100, skin96.dff, skin96.txd);
+AddCharModel(1, 20101, skin97.dff, skin97.txd);
+
 
 // Uniforms
 
@@ -171,6 +173,7 @@ AddCharModel(1, 22003, kaden.dff, kaden.txd);
 AddCharModel(1, 22004, kadenobfuscated.dff, kadenobfuscated.txd);
 AddCharModel(1, 22005, Clairered.dff, Clairered.txd);
 AddCharModel(1, 22006, mephuniform.dff, mephuniform.txd);
+AddCharModel(1, 22007, Hayden_K_Nassiim.dff, Hayden_K_Nassiim.txd);
 
 
 
