@@ -6921,6 +6921,7 @@ public OnRamPerformed(playerid, type, id) {
 		// add if(type == RAM_TYPE_HOUSE) when adding other entities
 		foreach(Player,p)
 		{
+			if(p == playerid) continue;
 			if(User[p][HouseIN] == id)
 			{
 				MSG(p,RP,"*** Door broke down!");
