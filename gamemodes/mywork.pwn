@@ -208,7 +208,7 @@ Garage
 
 
 #define CUSTOM_SKIN_START 20001
-#define CUSTOM_SKIN_END 20100
+#define CUSTOM_SKIN_END 20101
 #define CUSTOM_POLICESKIN_START 20900
 #define CUSTOM_POLICESKIN_END 20921
 #define ANIMAL_SKIN_START 21003
@@ -346,6 +346,11 @@ Garage
 
 // 
 #define VAMPIRE_ERROR_MSG "ERROR:"GR" You are not a Vampire or a Ghoul."
+
+#define TASK_UNSUCCESSFUL 0
+#define TASK_ONGOING 1
+#define TASK_SUCCESSFUL 2
+#define MAX_DOOR_BREAKDOWN
 /*--------------------------------------------------------------*/
 // Main variables
 new Iterator:Houses<MAX_HOUSE>;
@@ -4773,6 +4778,7 @@ CMD:vehicle(playerid,params[])
 				//printf("DOOR STATUS: %d",doors);
 			}
 			//printf("DOOR STATUS AFTER: %d",doors);
+			PlayerPlaySound(playerid, 1145, 0.0, 0.0, 0.0);
 			return 1;
 		}
 		else
@@ -6647,7 +6653,11 @@ CMD:arrest(playerid,params[])
 
 			}
 			else MSG(playerid,GOLD,"ERROR:"GR" Specified player is out of range.");
+		} else {
+			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a law enforcement faction.");
 		}
+	} else {
+		return MSG(playerid, GOLD, "ERROR:"GR" You are not in a faction.");
 	}
 	return 1;
 }
@@ -6696,7 +6706,11 @@ CMD:handcuff(playerid,params[])
 				else MSG(playerid,GOLD,"ERROR:"GR" You have to be behind the player you wish to handcuff.");
 			}
 			else MSG(playerid,GOLD,"ERROR:"GR" You must be behind the player you wish to handcuff.");
+		} else {
+			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a law enforcement faction.");
 		}
+	} else {
+		return MSG(playerid, GOLD, "ERROR:"GR" You are not in a faction.");
 	}
 	return 1;
 }
@@ -6728,10 +6742,154 @@ CMD:detain(playerid,params[])
 
 			}
 			else MSG(playerid,GOLD,"ERROR:"GR" Specified player out of range.");
+		} else {
+			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a law enforcement faction.");
 		}
+	} else {
+		return MSG(playerid, GOLD, "ERROR:"GR" You are not in a faction.");
 	}
 	return 1;
 }
+// Newest additions March 4 2023
+
+forward UpdateActionText(playerid, ticks, max);
+public UpdateActionText(playerid, ticks, max) {
+    if(User[playerid][Logged]) {
+
+        printf("Max %d; Ticks %d", max, ticks);
+        new string[124];
+        if(ticks == max) { // work finished, award player by calling X function (learn how to pass by function in pawn guide)
+            // PlayerPlaySound(playerid, 1138, 0.0, 0.0, 0.0);
+			for(new i = 0; i < max; i++) {
+				strins(string, "~y~ö", strlen(string));
+			}
+			GameTextForPlayer(playerid, string, 1000, 6);
+			return TASK_SUCCESSFUL;
+        }
+        for(new i = 0; i < max; i++) { // work under progress!
+            // printf("i %d; ticks %d", i, ticks);
+            if(ticks > i && ticks < max) {
+                // printf("%d > %d", ticks, i);
+                strins(string, "~y~ö~r~", strlen(string));
+            } else {
+                strins(string, "~r~ö", strlen(string));
+            }
+            
+        }
+        GameTextForPlayer(playerid, string, 1000, 6);
+		return TASK_ONGOING;
+    }
+	return TASK_UNSUCCESSFUL;
+}
+
+#define RAM_TYPE_HOUSE 1
+#define RAM_TYPE_BIZ 2
+#define RAM_TYPE_PROP 3
+#define RAM_TYPE_GARAGE 3
+#define INVALID_ENTITY_ID 65535
+#define INVALID_TYPE_ID -1
+
+CMD:playsound(playerid, params[]) {
+	PlayerPlaySound(playerid, strval(params), 0.0, 0.0, 0.0);
+	return 1;
+}
+CMD:ram(playerid, params[]) {
+	if(User[playerid][faction]) 
+	{
+		if(F[User[playerid][faction]][ftype] == PD)
+		{
+			if(GetPVarInt(playerid, "Strength") < 3) return 
+				MSG(playerid, GOLD, "ERROR:"GR" You need to have at least (Strength 3) to use this command.");
+			// Props
+			// if(IsPlayerInRangeOfPoint(playerid,1,P[i][px],P[i][py],P[i][pz]))
+			// else if(IsPlayerInRangeOfPoint(playerid,2,P[i][pxi],P[i][pyi],P[i][pzi]) && GetPlayerVirtualWorld(playerid) == P[i][pvwi])
+			// Biz
+			// if(IsPlayerInRangeOfPoint(playerid,1,B[i][bx],B[i][by],B[i][bz]))
+			// else if(IsPlayerInRangeOfPoint(playerid,2,B[i][bxi],B[i][byi],B[i][bzi]) && GetPlayerVirtualWorld(playerid) == B[i][bvwi])
+			// Houses
+			// if(IsPlayerInRangeOfPoint(playerid,1,H[i][hx],H[i][hy],H[i][hz]) || IsPlayerInRangeOfPoint(playerid,5,H[i][hx],H[i][hy],H[i][hz]-10))
+			// else if(IsPlayerInRangeOfPoint(playerid,2,H[i][hxi],H[i][hyi],H[i][hzi]) && GetPlayerVirtualWorld(playerid) == H[i][hvwi])
+			new entity = INVALID_ENTITY_ID;
+			new entity_type = INVALID_TYPE_ID;
+			// This can be turned into a function like: GetNearbyEntry(playerid, &entity, &type) and it would pass the entity and its type by reference
+			// foreach(Props, i) {
+			// 	 if(IsPlayerInRangeOfPoint(playerid,1,P[i][px],P[i][py],P[i][pz])) {
+			// 		entity = i;
+			// 		entity_type = RAM_TYPE_PROP;
+			// 	 } 
+			// 	 else if(IsPlayerInRangeOfPoint(playerid,2,P[i][pxi],P[i][pyi],P[i][pzi]) && GetPlayerVirtualWorld(playerid) == P[i][pvwi]) {
+			// 		entity = i;
+			// 		entity_type = RAM_TYPE_PROP;
+			// 	 }
+			// }
+			// foreach(Biz, i) {
+			// 	if(IsPlayerInRangeOfPoint(playerid,1,B[i][bx],B[i][by],B[i][bz])) {
+			// 		entity = i;
+			// 		entity_type = RAM_TYPE_BIZ;
+			// 	} 
+			// 	else if(IsPlayerInRangeOfPoint(playerid,2,B[i][bxi],B[i][byi],B[i][bzi]) && GetPlayerVirtualWorld(playerid) == B[i][bvwi]) {
+			// 		entity = i;
+			// 		entity_type = RAM_TYPE_BIZ;
+			// 	}
+			// }
+			foreach(Houses, i) {
+				if(IsPlayerInRangeOfPoint(playerid,1,H[i][hx],H[i][hy],H[i][hz]) || IsPlayerInRangeOfPoint(playerid,5,H[i][hx],H[i][hy],H[i][hz]-10)) {
+					entity = i;
+					entity_type = RAM_TYPE_HOUSE;
+				}
+				else if(IsPlayerInRangeOfPoint(playerid,2,H[i][hxi],H[i][hyi],H[i][hzi]) && GetPlayerVirtualWorld(playerid) == H[i][hvwi]) {
+					entity = i;
+					entity_type = RAM_TYPE_HOUSE;
+				}
+			}
+			if(entity == INVALID_ENTITY_ID || entity_type == INVALID_TYPE_ID) {
+				// return MSG(playerid, GOLD, "ERROR:"GR" You are not in range of an entry.");
+				return MSG(playerid, GOLD, "ERROR:"GR" You are not in range of a house.");
+			}
+			if(entity_type == RAM_TYPE_HOUSE) {
+				if(H[entity][hlock] == 0) {
+					return MSG(playerid, GOLD, "ERROR:"GR" This house is not locked.");
+				}
+			}
+			
+			// --
+			//forward UpdateActionText(playerid, ticks, max, callback[], const format[], {Float,_}:...);
+			UpdateActionText(playerid, 0, 5);
+			SetPVarInt(playerid, "player_RamDoorTicks", -1);
+			SetPVarInt(playerid, "player_RamDoorEntity", entity);
+			SetPVarInt(playerid, "player_RamDoorEntityType", entity_type);
+
+			PlayerActionMessage(playerid,"attempts to ram the door at their fore.");
+			MSG(playerid, GOLD, "SERVER:"GR" Press "W"~k~~PED_ANSWER_PHONE~"GR" repeatedly to break the door down.");
+
+			return 1;
+		} 
+		else {
+			return MSG(playerid, GOLD, "ERROR:"GR" You are not in a law enforcement faction.");
+		}
+	} 
+	else {
+		return MSG(playerid, GOLD, "ERROR:"GR" You are not in a faction.");
+	}
+}
+
+forward OnRamPerformed(playerid, type, id);
+public OnRamPerformed(playerid, type, id) {
+	if(User[playerid][Logged]) {
+		switch(type) {
+			case RAM_TYPE_HOUSE: {
+				LockHouse(playerid, id, false);
+			}
+			default: { 
+
+			}
+		}
+		DeletePVar(playerid, "player_RamDoorTicks");
+		DeletePVar(playerid, "player_RamDoorEntity");
+		DeletePVar(playerid, "player_RamDoorEntityType");
+	}
+}
+// --
 CMD:kiosk(playerid,params[])
 {
 	if(User[playerid][faction])
@@ -6746,7 +6904,7 @@ CMD:kiosk(playerid,params[])
 		}
 		return 1;
 	} else {
-		MSG(playerid, GOLD, "ERROR:"GR" You are not in a faction.");
+		MSG(playerid, GOLD, "ERROR:"GR" You are not in a law enforcement faction.");
 	}
 	return 0;
 }
@@ -8659,6 +8817,7 @@ CMD:jobhelp(playerid,params[])
 		MSG(playerid, Default,"** Mechanic: /paintjob /paintcar /repair /modcar");
 		MSG(playerid, Default, "** Hunter (sidejob): /skinanimal (Hunting Rifle is acquired from the Weapon Store)");
 		MSG(playerid, Default, "** Lumberjack (sidejob): ~k~~PED_ANSWER_PHONE~ to start cutting trees. (~k~~PED_FIREWEAPON~ and ~k~~PED_LOCK_TARGET~ to cut); /loggery");
+		
 	}
 	else return 0;
 	return 1;
@@ -20452,7 +20611,7 @@ Dialog:HouseWithdraw(playerid, response, listitem, inputtext[])
 }
 
 
-stock LockHouse(playerid,houseid)
+stock LockHouse(playerid,houseid, bool:msg = true)
 {
 	new i = houseid;
     if(User[playerid][UserID] == H[i][howner] || User[playerid][renting] == i)
@@ -20461,14 +20620,19 @@ stock LockHouse(playerid,houseid)
 		{
 			case 0:
 			{
-	 			cmd_ame(playerid,"locks the house.");
-	 			ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);
+				if(msg == true) {
+		 			cmd_ame(playerid,"locks the house.");
+	 				ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
+				}
+
 	 			H[i][hlock] = 1;
 			}
 			case 1:
 			{
-	 			cmd_ame(playerid,"unlocks the house.");
-	 			ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);
+				if(msg == true) {
+					cmd_ame(playerid,"unlocks the house.");
+					ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
+				}
 	 			H[i][hlock] = 0;
 			}
 		}
@@ -40581,12 +40745,16 @@ public OnRevivePlayer(playerid, target, targetuserid) {
 	if(User[playerid][Logged] && targetuserid == User[target][UserID]) {
 		RevivePlayer(target);
 		PlayerActionMessage(target, "has been revived.");
-		TogglePlayerControllable(playerid,1);
-		KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
-		User[playerid][UsingMedkit] = false;
+		StopMedkit(playerid);
 		return 1;
 	}
 	return 0;
+}
+
+stock StopMedkit(playerid) {
+		TogglePlayerControllable(playerid,1);
+		KillTimer(GetPVarInt(playerid, "timer_ReviveTimer"));
+		User[playerid][UsingMedkit] = false;
 }
 
 Dialog:dRadiSel(playerid, response, listitem, inputtext[])
@@ -51722,9 +51890,12 @@ Dialog:dBloodHeal(playerid, response, listitem, inputtext[])
 		blood = GetPVarInt(playerid, "hBloodSpent");
 		format(large_string, sizeof large_string, "* %s has healed %s with %d blood points (%d Health Levels were healed).", sendernameEx(playerid), sendernameEx(id), blood, bcount);
 		AutoMSG(playerid, large_string);
-		gIncreaseHP(id, blood*10);
-		format(large_string, 10, "~g~+%d HP", blood*10);
-		GameTextForPlayer(id, large_string, 2500, 1);
+		if(User[id][Death] == 0) {
+			gIncreaseHP(id, blood*10);
+			format(large_string, 10, "~g~+%d HP", blood*10);
+			GameTextForPlayer(id, large_string, 2500, 1);
+		}
+
 		DeletePVar(playerid, "hBloodSpent");
 		format(large_string, sizeof large_string,"HEALTH LEVELS: %s", PasteHealthCondition(id));
 		PlayerTextDrawSetString(id, tHLevel[id], large_string);
@@ -51732,6 +51903,7 @@ Dialog:dBloodHeal(playerid, response, listitem, inputtext[])
 		if(User[id][Death] > 0)
 		{
 			RevivePlayer(id);
+			GameTextForPlayer(id, "~g~Revived", 2500, 1);
 		}
 	}
 	return 1;
@@ -62691,6 +62863,28 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	if(newkeys & KEY_ACTION)
 	{
 
+		if(GetPVarInt(playerid,"player_RamDoorTicks") == -1 || GetPVarInt(playerid,"player_RamDoorTicks") > 0) {
+			new ticks = GetPVarInt(playerid,"player_RamDoorTicks");
+			// SFM(playerid, -1, "ticks %d", ticks);
+			if(ticks == -1) {
+				SetPVarInt(playerid, "player_RamDoorTicks", 1);
+				ticks = 0;
+			}
+			ticks++;
+			SetPVarInt(playerid, "player_RamDoorTicks", ticks);
+			new res = UpdateActionText(playerid, ticks, 5);
+			PlayerPlaySound(playerid, 1131, 0.0, 0.0, 0.0);
+			if(res == TASK_SUCCESSFUL) {
+				PlayerActionMessage(playerid, "breaks the door down.");
+				OnRamPerformed(playerid, GetPVarInt(playerid, "player_RamDoorEntityType"), GetPVarInt(playerid, "player_RamDoorEntity"));
+				foreach(Player, i) {
+					if(ProxDetectorS(30, playerid, i)) {
+						PlayerPlaySound(playerid, 1140, 0.0, 0.0, 0.0);
+		
+					}
+				}
+			}
+		}
  		if(GetPlayerAnimationIndex(playerid) != 1274 || GetPlayerAnimationIndex(playerid) != 1159)
 		{
 			//return Wait(playerid,"~h~You are not crouching!");
@@ -63927,6 +64121,11 @@ CMD:sa(playerid,params[])
 				MSG(playerid,GOLD,"Info:"GR" You cannot do anything when heavily wounded.");
 				return 1;
 			}
+			if(User[playerid][UsingMedkit]) {
+				MSG(playerid, GOLD, "MEDKIT:"GR" You have interrupted the process.");
+				StopMedkit(playerid);
+				return 1;
+			}
   			ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.0, 0, 0, 0, 0, 0, 1);
 				
 			//MSG(playerid,GRAD8,"["GRE"Info"G"] Animations cleared.");
@@ -63941,7 +64140,7 @@ CMD:sa(playerid,params[])
 				{
 					if(P[i][pvwi] == User[playerid][pvw])
 					{
-						MSG(playerid,RP,"Info:"GR" You have ended the process.");
+						MSG(playerid,RP,"DRUGLAB:"GR" You have interrupted the process.");
 						TogglePlayerControllable(playerid, 1);
 						User[playerid][gVar] = 100000000+i;
 						break;
@@ -64090,6 +64289,7 @@ CMD:revive(playerid,params[])
 		if(User[id][Death] > 0)
 		{
 			MSG(id,GREEN,"Info:"GR" You have been revived by an administrator.");
+			GameTextForPlayer(id, "~g~Revived", 2500, 1);
 			RevivePlayer(id);
 			new query[124];
 			format(query, sizeof query,"DELETE FROM health WHERE userid = %d", User[id][UserID]);
@@ -66160,7 +66360,7 @@ CMD:sendquery(playerid,params[])
 {
 	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
 	new query[150];
-	if(sscanf(params,"s[150]",query)) return MSG(playerid,GOLD,"[SYNTAX]:"GR" /sendquery [query]");
+	if(sscanf(params,"s[150]",query)) return MSG(playerid,GOLD,"[SYNTAX]:"GR" /sendquery [query]; USE THIS COMMAND WITH ULTIMATE CARE!");
 	db_query(Database,query);
 	PlayerPlaySound(playerid, 1052, 0.0, 0.0, 0.0);
 	printf("[query] %s execute: %s",User[playerid][Username],query);
