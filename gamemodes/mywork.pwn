@@ -6918,6 +6918,7 @@ public OnRamPerformed(playerid, type, id) {
 		DeletePVar(playerid, "player_RamDoorEntity");
 		DeletePVar(playerid, "player_RamDoorEntityType");
 		DeletePVar(playerid, "player_RamDoorMax");
+		// add if(type == RAM_TYPE_HOUSE) when adding other entities
 		foreach(Player,p)
 		{
 			if(User[p][HouseIN] == id)
@@ -62912,6 +62913,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			SetPVarInt(playerid, "player_RamDoorTicks", ticks);
 			new res = UpdateActionText(playerid, ticks, GetPVarInt(playerid, "player_RamDoorMax"));
 			PlayerPlaySound(playerid, 1131, 0.0, 0.0, 0.0);
+			ApplyAnimation(playerid, "DILDO", "DILDO_block", 4.1, 0, 0, 0, 0, 0, 1);
 			if(res == TASK_SUCCESSFUL) {
 				PlayerActionMessage(playerid, "breaks the door down.");
 				OnRamPerformed(playerid, GetPVarInt(playerid, "player_RamDoorEntityType"), GetPVarInt(playerid, "player_RamDoorEntity"));
