@@ -6907,7 +6907,7 @@ public OnRamPerformed(playerid, type, id) {
 	if(User[playerid][Logged]) {
 		switch(type) {
 			case RAM_TYPE_HOUSE: {
-				LockHouse(playerid, id, false, false);
+				RamDoor(id);
 			}
 			default: { 
 
@@ -6928,6 +6928,12 @@ public OnRamPerformed(playerid, type, id) {
 			}
 		}
 	}
+}
+stock RamDoor(houseid) {	
+	H[houseid][hlock] = 0;
+	new query[120];
+	format(query,sizeof query,"UPDATE house SET lock = %d WHERE hid = %d",H[houseid][hlock],houseid);
+	db_query(Database,query);
 }
 // --
 CMD:kiosk(playerid,params[])
@@ -8097,6 +8103,7 @@ CMD:neargarage(playerid,params[])
 	}
 	return 1;
 }
+// Not showing owned garages after /gsetowner
 CMD:mygarages(playerid,params[])
 {
 	if(User[playerid][Logged])
@@ -8121,6 +8128,7 @@ CMD:mygarages(playerid,params[])
 	else return 0;
 	
 }
+// returning Unknown command after /gsetowner
 CMD:lockgarage(playerid,params[])
 {
 	if(!User[playerid][Logged]) return 0;
@@ -20650,7 +20658,7 @@ Dialog:HouseWithdraw(playerid, response, listitem, inputtext[])
 }
 
 
-stock LockHouse(playerid,houseid, bool:msg = true, bool:lock = true)
+stock LockHouse(playerid,houseid)
 {
 	new i = houseid;
     if(User[playerid][UserID] == H[i][howner] || User[playerid][renting] == i)
@@ -20659,20 +20667,15 @@ stock LockHouse(playerid,houseid, bool:msg = true, bool:lock = true)
 		{
 			case 0:
 			{
-				if(msg == true) {
-		 			cmd_ame(playerid,"locks the house.");
-	 				ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
-				}
-				if(lock == true) {
-					H[i][hlock] = 1;
-				}
+				cmd_ame(playerid,"locks the house.");
+				ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
+				H[i][hlock] = 1;
+
 			}
 			case 1:
 			{
-				if(msg == true) {
-					cmd_ame(playerid,"unlocks the house.");
-					ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
-				}
+				cmd_ame(playerid,"unlocks the house.");
+				ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);				
 	 			H[i][hlock] = 0;
 			}
 		}
@@ -20683,7 +20686,8 @@ stock LockHouse(playerid,houseid, bool:msg = true, bool:lock = true)
 	}
 	else
 	{	MSG(playerid,GOLD,"ERROR:"GR" You do not have the keys to this house.");
-	    TogglePlayerControllable(playerid,1); }
+	    TogglePlayerControllable(playerid,1); 
+	}
 
 	return 1;
 }
@@ -64859,7 +64863,7 @@ Dialog:dHelpDialog(playerid, response, listitem, inputtext[])
 			{
 				large_string[0] = EOS;
 				strins(large_string, "/f /fmembers /invite /uninvite /settier /setrank /setfactionspawn /setspawn faction\n", 0);
-				strcat(large_string,"[PD] /(r)adio /(d)epartment(r)adio /hand(cuff) /kiosk /detain /arrest /frefuel\n");
+				strcat(large_string,"[PD] /(r)adio /(d)epartment(r)adio /hand(cuff) /kiosk /detain /arrest /frefuel /ram\n");
 				strcat(large_string, "[Illegal] Useful numbers: 3417 (requires a phone, call this number to acquire heavy heavy guns/artillery/merchandise)");
 				Dialog_Show(playerid,dHelpDialogList,DIALOG_STYLE_MSGBOX,"Faction",large_string,"Close","Back");
 			}
