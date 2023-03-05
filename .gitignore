@@ -11,3 +11,5 @@ cmds.txt
 *.bat
 filterscripts/testdraw.pwn
 crashinfo.txt
+filterscripts/callback.*
+filterscripts/action.*
