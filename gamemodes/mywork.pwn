@@ -6918,6 +6918,13 @@ public OnRamPerformed(playerid, type, id) {
 		DeletePVar(playerid, "player_RamDoorEntity");
 		DeletePVar(playerid, "player_RamDoorEntityType");
 		DeletePVar(playerid, "player_RamDoorMax");
+		foreach(Player,p)
+		{
+			if(User[p][HouseIN] == id)
+			{
+				MSG(p,RP,"*** Door broke down!");
+			}
+		}
 	}
 }
 // --
@@ -19039,8 +19046,7 @@ stock KnockHouse(playerid,houseid)
 		if(User[p][HouseIN] == i)
 		{
 			MSG(p,RP,"*** Knock knock knock!");
-			TogglePlayerControllable(playerid,1);
-			break;
+			// TogglePlayerControllable(playerid,1);
 		}
 	}
 }
