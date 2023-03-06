@@ -350,7 +350,12 @@ Garage
 #define TASK_UNSUCCESSFUL 0
 #define TASK_ONGOING 1
 #define TASK_SUCCESSFUL 2
-#define MAX_DOOR_BREAKDOWN
+
+
+// I made them as variables rather than MACROs because I want to be able to change them later dynamically ingame/console (maybe mayor, or admin)
+new Float:HOUSE_TAX_RATE = 0.001;
+new Float:BIZ_TAX_RATE = 0.001;
+
 /*--------------------------------------------------------------*/
 // Main variables
 new Iterator:Houses<MAX_HOUSE>;
@@ -7047,7 +7052,7 @@ Dialog:DialogKiosk(playerid, response, listitem, inputtext[])
 							printf("wUnique[%d] (weapon unique id & value): %d | BoundID 0 (hand): %d | BoundID 1 (first slot): %d | BoundID 2 (second slot): %d\nBound Weapon Value (hand): %d | Bound Weapon Value (first slot): %d | Bound Weapon Value (second slot): %d"
 							,uw,wUnique[uw],User[playerid][BoundID][0],User[playerid][BoundID][1]
 							,User[playerid][BoundID][2],User[playerid][Bound][0],User[playerid][Bound][1],User[playerid][Bound][2]);
-							Staff(ADMIN,"Weapon Hand has been taken.");
+							print("Weapon Hand has been taken.");
 						}
 						else if(wUnique[i] == User[playerid][BoundID][1])
 						{
@@ -7129,7 +7134,7 @@ Dialog:DialogKiosk(playerid, response, listitem, inputtext[])
 				Dialog_Show(playerid,DialogKioskWep,DIALOG_STYLE_LIST,"Kiosk > Armory",ARMORY_WEAPON_LIST,"Choose","Cancel");
 			}
 		    case 2: {
-				format(large_string, 256, "Input the ID of the skin:\nCustom PD models are from %d to %d.", CUSTOM_POLICESKIN_START, CUSTOM_POLICESKIN_START);
+				format(large_string, 256, "Input the ID of the skin:\nCustom PD models are from %d to %d.", CUSTOM_POLICESKIN_START, CUSTOM_POLICESKIN_END);
 				Dialog_Show(playerid,DialogKioskUniform,DIALOG_STYLE_INPUT,"Kiosk > Uniform",large_string,"Choose","Cancel");
 			}
 		}
@@ -17050,7 +17055,21 @@ CMD:business(playerid,params[])
 		{
 			if(User[playerid][UserID] == B[i][bowner])
 			{
-				format(large_string, sizeof large_string, "[Business Name: %s] [Business ID: %d] [Business Address: %d]",B[i][bname],i,B[i][baddress]);
+				new Float:tax = floatround(B[i][bprice]*BIZ_TAX_RATE);
+				new tax_relief = 0;
+				if(!isnull(User[playerid][donator]))
+				{
+					tax_relief = 2;
+					tax /= tax_relief;
+				}
+				if(tax_relief == 0) {
+					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "R"$%d"GR"]",
+					B[i][bname],i,B[i][baddress], B[i][bprice], floatround(B[i][bprice]*BIZ_TAX_RATE));
+				} else {
+					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "R"$%d"GR"] [Tax Relief: "G"$%d"GR"]",
+					B[i][bname],i,B[i][baddress], B[i][bprice], floatround(B[i][bprice]*BIZ_TAX_RATE), floatround(tax));
+				}
+
 				MSG(playerid,GRAD2,large_string);
 			}
 		}
@@ -17473,7 +17492,7 @@ public OnPlayerFish(playerid)
 		}
 		if(did)
 		{
-				PlayerActionMessageBubble(playerid,"has caught a Fish.");
+				PlayerActionMessageBubble(playerid,"has caught a fish.");
 			
 				format(large_string,sizeof large_string,"You have caught a %s (Weight: %dkg).\nPress 'Pull' to fetch it or 'Cancel' to let go.",fishname,weight);
 				Dialog_Show(playerid,FishCatch,DIALOG_STYLE_MSGBOX,"Fishing",large_string,"Pull","Cancel");	
@@ -18484,13 +18503,29 @@ CMD:npcanim(playerid, params[])
 		return MSG(playerid, GOLD, "Info:"GR" You do not have the appropriate permissions to operate this command.");
 }
 //native SetDynamicActorPos(STREAMER_TAG_ACTOR actorid, Float:x, Float:y, Float:z);
+IsValidNPCName(const name[]) {
+    if (name[0] < 'A' || name[0] > 'Z') return false; // If first letter is not capital, refuse
+    for(new i = 1; i < strlen(name); i++)
+    {
+        if(name[i] != '_' && (name[i] < 'A' || name[i] > 'Z') && (name[i] < 'a' || name[i] > 'z')) return false; // a-zA-Z_
+
+    }
+    return true;
+}
 CMD:cnpc(playerid, params[])
 {
 	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		new skin, name[MAX_PLAYER_NAME];
 		if(sscanf(params,"is[24]", skin, name))
-			return MSG(playerid, GOLD, "SYNTAX:"GR" /cnpc [skinid] [nametag] (NPCs are meant to carry realistic names; not Drug Dealer)");
+			return MSG(playerid, GOLD, "SYNTAX:"GR" /cnpc [skinid] [nametag] ");
+		if(!IsValidNPCName(name)) 
+		{
+			MSG(playerid, GOLD, "ERROR:"GR" Invalid name specified (NPCs are meant to carry realistic names).");
+			MSG(playerid, GOLD, "Naming convention:"GR" first letter capitalized, no special characters, underscore is optional.");
+			MSG(playerid, GOLD, "Correct examples:"GR" /cnpc 70 John Smith [or] /cnpc 70 John_Smith");
+			return 1;
+		}
 		if(strlen(name) > 24)
 			return MSG(playerid, GOLD, "ERROR:"GR" Name of the NPC cannot exceed 24 characters.");
 		if(skin < 1)
@@ -38164,7 +38199,7 @@ stock Paycheck(playerid)
 	{
 		if(User[playerid][UserID] == H[h][howner])
 		{
-			house_tax += floatround(H[h][hprice]*0.01);
+			house_tax += floatround(H[h][hprice]*HOUSE_TAX_RATE);
 			printf("House ID %d; TAX: %d",h,house_tax);
 		}
 			
@@ -38173,7 +38208,7 @@ stock Paycheck(playerid)
 	{
 		if(User[playerid][UserID] == B[b][bowner])
 		{
-			business_tax += floatround(B[b][bprice]*0.01);
+			business_tax += floatround(B[b][bprice]*BIZ_TAX_RATE);
 			printf("BIZ ID %d; TAX: %d",b,business_tax);
 		}
 	}
@@ -39517,7 +39552,7 @@ public SunburnTimer(playerid)
 stock IsRPName(const name[], max_underscores = 2)
 {
     new underscores = 0;
-    if (name[0] < 'A' || name[0] > 'Z') return false;
+    if (name[0] < 'A' || name[0] > 'Z') return false; // If first letter is not capital, refuse
     for(new i = 1; i < strlen(name); i++)
     {
         if(name[i] != '_' && (name[i] < 'A' || name[i] > 'Z') && (name[i] < 'a' || name[i] > 'z')) return false; // a-zA-Z_
@@ -39532,6 +39567,7 @@ stock IsRPName(const name[], max_underscores = 2)
     if (underscores == 0) return false; 
     return true;
 }
+
 CMD:seecon(playerid,params[])
 {
 	if(User[playerid][Useradmin] < 1) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
@@ -53437,6 +53473,7 @@ CMD:changeform(playerid, params[])
 			return MSG(playerid, GOLD, "SYNTAX:"GR" /changeform [playerid/partofname] [type (1 HUMAN,2 ANIMAL)]");
 		if(type > 2 || type < 1) return MSG(playerid, GOLD, "ERROR:"GR" There are only two types (1 and 2).");
 		MSG(playerid, GREEN, "SERVER:"GR" Transformation / Shapechanging dialog has been prompted to the specified player.");
+		MSG(playerid, GREEN, "SERVER:"GR" Use "W"/removeform"GR" to take away their form.");
 		SetPVarInt(id, "p_AssumeForm", type);
 		AssumeForm(id);
 	}
@@ -64560,7 +64597,20 @@ CMD:myhouses(playerid,params[])
 				db_get_field_assoc(Result, "name",query,40);
 				new id = db_get_field_assoc_int(Result,"hid");
 				new price = db_get_field_assoc_int(Result,"price");
-				format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: %d)", query,id,price);
+				new Float:tax = floatround(price*HOUSE_TAX_RATE);
+				new tax_relief = 0;
+				if(!isnull(User[playerid][donator]))
+				{
+					tax_relief = 2;
+					tax /= tax_relief;
+				}
+				if(tax_relief == 0) {
+					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: $%d)", query,id,price,floatround(price*HOUSE_TAX_RATE));
+				} else 
+				{
+					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: "R"$%d"GR"; Tax Relief: "G"$%d"GR")", query,id,price,floatround(price*HOUSE_TAX_RATE), floatround(tax_relief));
+				}
+				
 				MSG(playerid,GRAD2,query);
 			}
 			else
