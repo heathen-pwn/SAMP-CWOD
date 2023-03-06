@@ -15,7 +15,7 @@
         },
         "isBackground": false,
         "presentation": {
-          "reveal": "silent",
+          "reveal": "always",
           "panel": "dedicated"
         },
         "problemMatcher": "$pawncc"
