@@ -3688,6 +3688,7 @@ stock LoadNPCSheet(npcid, cs_npcname[])
 }
 stock LoadNPCs()
 {
+	print("---- LOADING NPCS");
 	new DBResult: Result = db_query(Database, "SELECT * FROM actors");
 	new timescalled;
 	do
@@ -3734,6 +3735,8 @@ stock LoadNPCs()
 			timescalled++;
 
 			LoadNPCSheet(dynamicid, name);
+
+			printf("[NPC] [nm:%s] [ntag: %s] [x:%f] [y:%f] [z:%f] [rot: %f] [vw:%d] [int:%d]", name, npcname, x, y, z, rot, vw, interior)
 		}
 		else break;
 	}
@@ -21298,7 +21301,10 @@ public SkinningAnimal(playerid, animal)
 	if(User[playerid][Logged])
 	{
 		if(!IsPlayerInRangeOfPoint(playerid, 2, AnimalX[animal], AnimalY[animal], AnimalZ[animal])) return MSG(playerid, GOLD, "ERROR:"GR" You moved away from the animal.");
-		if(GetPVarInt(playerid, "SkinningAnimal") > 15)
+		if(AnimalDeath[animal] == 0) {
+			return MSG(playerid, GOLD, "ERROR:"GR" Process interrupted as the animal respawned.");
+		}
+		if(GetPVarInt(playerid, "SkinningAnimal") > 15) // Finished
 		{
 			if(AnimalSkinned[animal] == true) return MSG(playerid, GOLD, "ERROR:"GR" This animal is already skinned.");
 			switch(animal)
@@ -38127,7 +38133,7 @@ public OnMinPass()
 				Staff(ADMIN,"DEBUG: Deer has respawned.");
 				//printf("AnimalDeath[%d] = %d", DEER, AnimalDeath[DEER]);
 			}
-			if(AnimalDeath[WOLF] > 9)
+			if(AnimalDeath[WOLF] > 14)
 			{
 				SetDynamicObjectPos(Animal[WOLF], WolfPathway[0][0], WolfPathway[0][1], WolfPathway[0][2]-1.2);
 				SetDynamicObjectRot(Animal[WOLF], 0, 0, 0);
