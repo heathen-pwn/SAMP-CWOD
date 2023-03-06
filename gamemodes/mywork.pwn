@@ -12959,7 +12959,12 @@ CMD:banks(playerid,params[])
 			{
 			    new branch[41];
         		db_get_field_assoc(Result, "branch", branch, 41);
-				format(query,sizeof query,"[ACC ID: "G"%d"GR"] [BRANCH: "G"%s"GR"] [BALANCE: "G"%d"GR"]",db_get_field_assoc_int(Result,"bankid"),branch,db_get_field_assoc_int(Result,"balance"));
+				new balance = db_get_field_assoc_int(Result,"balance");
+				if(balance < 1) {
+					format(query,sizeof query,"[ACC ID: "G"%d"GR"] [BRANCH: "G"%s"GR"] [BALANCE: "MAR"$%d"GR"]",db_get_field_assoc_int(Result,"bankid"),branch,balance);
+				} else {
+					format(query,sizeof query,"[ACC ID: "G"%d"GR"] [BRANCH: "G"%s"GR"] [BALANCE: "G"$%d"GR"]",db_get_field_assoc_int(Result,"bankid"),branch,balance);
+				}
 				MSG(playerid,GRAD2,query);
 			}
 			else
@@ -17063,10 +17068,10 @@ CMD:business(playerid,params[])
 					tax /= tax_relief;
 				}
 				if(tax_relief == 0) {
-					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "R"$%d"GR"]",
+					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "MAR"$%d"GR"]",
 					B[i][bname],i,B[i][baddress], B[i][bprice], floatround(B[i][bprice]*BIZ_TAX_RATE));
 				} else {
-					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "R"$%d"GR"] [Tax Relief: "G"$%d"GR"]",
+					format(large_string, sizeof large_string, "[Name: %s] [ID: %d] [Address: %d] [Price: $%d] [Tax: "MAR"$%d"GR"] [Tax Relief: "G"$%.1f"GR"]",
 					B[i][bname],i,B[i][baddress], B[i][bprice], floatround(B[i][bprice]*BIZ_TAX_RATE), floatround(tax));
 				}
 
@@ -64586,7 +64591,7 @@ CMD:myhouses(playerid,params[])
 {
 	if(User[playerid][Logged])
 	{
-		new query[100];
+		new query[148];
 		format(query, sizeof query,"SELECT name,price,hid from house WHERE owner = %d",User[playerid][UserID]);
 		new DBResult:Result = db_query(Database, query);
 		MSG(playerid,GRAD2,"|____ ["G"Houses"GR"] ____|");
@@ -64605,10 +64610,10 @@ CMD:myhouses(playerid,params[])
 					tax /= tax_relief;
 				}
 				if(tax_relief == 0) {
-					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: $%d)", query,id,price,floatround(price*HOUSE_TAX_RATE));
+					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: "MAR"$%d"GR")", query,id,price,floatround(price*HOUSE_TAX_RATE));
 				} else 
 				{
-					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: "R"$%d"GR"; Tax Relief: "G"$%d"GR")", query,id,price,floatround(price*HOUSE_TAX_RATE), floatround(tax_relief));
+					format(query,sizeof query,"["G"*"GR"] %s (ID: %d; Price: $%d; Tax: "MAR"$%d"GR"; Tax Relief: "G"$%.1f"GR")", query,id,price,floatround(price*HOUSE_TAX_RATE), floatround(tax));
 				}
 				
 				MSG(playerid,GRAD2,query);
