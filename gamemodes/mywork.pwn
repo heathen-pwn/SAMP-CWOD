@@ -17572,6 +17572,7 @@ CMD:hud(playerid, params[])
 {
 	if(User[playerid][Logged])
 	{
+		new hud = GetPVarInt(playerid, "inventoryHud");
 		if(User[playerid][showhud] == false)
 		{
 			User[playerid][showhud] = true;
@@ -17580,16 +17581,39 @@ CMD:hud(playerid, params[])
 			{
 				ShowPlayerProgressBar(playerid, bHunger);
 				ShowPlayerProgressBar(playerid, bThirst);
+				ShowPlayerProgressBar(playerid, bHealth);
+				PlayerTextDrawShow(playerid, tHLevel[playerid]);
 			}
 			MSG(playerid, GOLD, "Info:"GR" Hud enabled.");
+			if(hud == 0)	
+			{
+				TextDrawShowForPlayer(playerid, inventory_box);
+				PlayerTextDrawShow(playerid, inventory_header[playerid]);
+				for(new inventory_loop = 0; inventory_loop < MAX_INVENTORY; inventory_loop++)
+				{
+					PlayerTextDrawShow(playerid, invslot[playerid][inventory_loop]);	
+					UpdateInventorySlot(playerid, inventory_loop);
+				}	
+				SetPVarInt(playerid, "inventoryHud", 1);
+			}
 		}
 		else
 		{
 			User[playerid][showhud] = false;
 			if(User[playerid][Userrace] != 1)
 			{
-				ShowPlayerProgressBar(playerid, bThirst);
-				ShowPlayerProgressBar(playerid, bHunger);
+				HidePlayerProgressBar(playerid, bThirst);
+				HidePlayerProgressBar(playerid, bHunger);
+				HidePlayerProgressBar(playerid, bHealth);
+				PlayerTextDrawHide(playerid, tHLevel[playerid]);
+			}
+			if(hud == 1)
+			{
+				TextDrawHideForPlayer(playerid, inventory_box);
+				PlayerTextDrawHide(playerid, inventory_header[playerid]);
+				for(new inventory_loop = 0; inventory_loop < MAX_INVENTORY; inventory_loop++)
+					PlayerTextDrawHide(playerid, invslot[playerid][inventory_loop]);		
+				SetPVarInt(playerid, "inventoryHud", 0);	
 			}
 			TextDrawHideForPlayer(playerid, serverhud);
 			MSG(playerid, GOLD, "Info:"GR" Hud disabled.");
