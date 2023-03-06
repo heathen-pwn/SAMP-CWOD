@@ -402,7 +402,7 @@ new Stamina_BuffTimer[MAX_PLAYERS];
 new Text:weathertext;
 new Text:temperaturetext;
 // new Text:Servertag;
-new Text:warning;
+// new Text:warning;
 new Text:LightsOff;
 new Text:ShowFrame;
 new CourierPick;
@@ -425,6 +425,7 @@ new AttachPicked[MAX_PLAYERS];
 new ModelPicked[MAX_PLAYERS];
 new Text:gRedScreen = Text:INVALID_TEXT_DRAW;
 new Text:gGreenScreen = Text:INVALID_TEXT_DRAW;
+new Text:gBlackScreen = Text:INVALID_TEXT_DRAW;
 new wUnique[200]; // 3 weapons per cop
 #define LARGE_STRING_LENGTH 4095
 new large_string[LARGE_STRING_LENGTH];
@@ -3736,7 +3737,7 @@ stock LoadNPCs()
 
 			LoadNPCSheet(dynamicid, name);
 
-			printf("[NPC] [nm:%s] [ntag: %s] [x:%f] [y:%f] [z:%f] [rot: %f] [vw:%d] [int:%d]", name, npcname, x, y, z, rot, vw, interior)
+			printf("[NPC] [nm:%s] [ntag: %s] [x:%f] [y:%f] [z:%f] [rot: %f] [vw:%d] [int:%d]", name, npcname, x, y, z, rot, vw, interior);
 		}
 		else break;
 	}
@@ -14574,6 +14575,7 @@ public OnGreenFade(playerid)
 {
 	TextDrawHideForPlayer(playerid,gGreenScreen);
 }
+
 CMD:uproot(playerid,params[])
 {
 	if(User[playerid][Logged])
@@ -15046,6 +15048,7 @@ CMD:usedrug(playerid,params[])
 			MSG(playerid,RP,"Info:"GR" You started to lose health!");
 		}
 		new time,hp;
+		#pragma unused time
 		switch(pureness)
 		{
 		    case 25: hp = 15,time = 20*60;
@@ -21301,7 +21304,7 @@ public SkinningAnimal(playerid, animal)
 	if(User[playerid][Logged])
 	{
 		if(!IsPlayerInRangeOfPoint(playerid, 2, AnimalX[animal], AnimalY[animal], AnimalZ[animal])) return MSG(playerid, GOLD, "ERROR:"GR" You moved away from the animal.");
-		if(AnimalDeath[animal] == 0) {
+		if(AnimalStatus[animal] == ALIVE) {
 			return MSG(playerid, GOLD, "ERROR:"GR" Process interrupted as the animal respawned.");
 		}
 		if(GetPVarInt(playerid, "SkinningAnimal") > 15) // Finished
@@ -22258,16 +22261,27 @@ public OnGameModeInit()
 	TextDrawSetOutline(gGreenScreen, 0);
 	TextDrawFont(gGreenScreen, 0);
 
+	gBlackScreen = TextDrawCreate(641.599975, 1.500000, "usebox");
+	TextDrawLetterSize(gBlackScreen, 0.000000, 49.405799);
+	TextDrawTextSize(gBlackScreen, -2.000000, 0.000000);
+	TextDrawAlignment(gBlackScreen, 1);
+	TextDrawColor(gBlackScreen, 0);
+	TextDrawUseBox(gBlackScreen, true);
+	TextDrawBoxColor(gBlackScreen, 0x000000FF);
+	TextDrawSetShadow(gBlackScreen, 0);
+	TextDrawSetOutline(gBlackScreen, 0);
+	TextDrawFont(gBlackScreen, 0);
+
 	// --- PLEASE WAIT textdraw
-	warning = TextDrawCreate(259.666503, 434.725952, "eee");
-	TextDrawLetterSize(warning, 0.097666, 0.894815);
-	TextDrawAlignment(warning, 1);
-	TextDrawColor(warning, -1);
-	TextDrawSetShadow(warning, 0);
-	TextDrawSetOutline(warning, 1);
-	TextDrawBackgroundColor(warning, 51);
-	TextDrawFont(warning, 2);
-	TextDrawSetProportional(warning, 1);
+	// warning = TextDrawCreate(259.666503, 434.725952, "eee");
+	// TextDrawLetterSize(warning, 0.097666, 0.894815);
+	// TextDrawAlignment(warning, 1);
+	// TextDrawColor(warning, -1);
+	// TextDrawSetShadow(warning, 0);
+	// TextDrawSetOutline(warning, 1);
+	// TextDrawBackgroundColor(warning, 51);
+	// TextDrawFont(warning, 2);
+	// TextDrawSetProportional(warning, 1);
 
    	// --- Weather Textdraws
 	weathertext = TextDrawCreate(532.000000, 110.000000, "~y~");
@@ -38371,6 +38385,7 @@ stock ApplyAnim(playerid, animlib[], animname[], Float:fDelta, loop, lockx, lock
 	ApplyAnimation(playerid, animlib, animname, Float:fDelta, loop, lockx, locky, freeze, time, forcesync);
 	return 1;
 }
+
 // ANIMATIONS
 CMD:lay(playerid, params[])
 {
@@ -40766,7 +40781,9 @@ stock UseItem(playerid, slot)
 			}
 			case 11: MSG(playerid, GOLD, "Inventory:"GR" Use (/bfind - /pfind - /hfind) to interact with the GPS.");
 			case 12: cmd_mask(playerid, "");
-			case 13: {} 
+			case 13: {
+				Dialog_Show(playerid,dBlindfold,DIALOG_STYLE_INPUT,"Blindfold","Type the "R"[playerid/partofname]"D" you intend to blindfold:\n\nType "R"(/removeblindfold [playerid/PartOfName])"D" to remove it from them.","Blindfold","Close");
+			} 
 			case 14: cmd_mp3(playerid, "");
 			case 15: {}
 			case 16: FoodDrink(playerid, item, slot);
@@ -43040,7 +43057,7 @@ stock SetupPlayer(playerid)
 	PlayerTextDrawSetProportional(playerid, cstechnologyrate[playerid], 1);
 	PlayerTextDrawSetSelectable(playerid, cstechnologyrate[playerid], 0);
 	//TextDrawShowForPlayer(playerid, Servertag);
-	//TextDrawShowForPlayer(playerid, weathertext);
+	// TextDrawShowForPlayer(playerid, weathertext);
 	//TextDrawShowForPlayer(playerid, temperaturetext);*/
 	/*---------------------------------------------------------------*/
 	/*InventoryBox_Deprecated[0][playerid] = CreatePlayerTextDraw(playerid, 493.000000, 214.000000, "Preview_Model");
@@ -43853,7 +43870,7 @@ public OnPlayerDisconnect(playerid, reason)
 		}
 		else 
 		{
-			//format(query,sizeof query,"UPDATE users SET x='%s',y='%s',z='%s',vw = %d,interior = %d,localmin = %d,drughp = %d,druglevel = %d,drugpureness = %d,ondrug = %d,drugtime = %d WHERE userid = %d",sX,sY,sZ,User[playerid][pvw],User[playerid][pint],User[playerid][LocalMin],User[playerid][drughp],User[playerid][druglevel],User[playerid][drugpureness],User[playerid][onDrug],User[playerid][drugtime],User[playerid][UserID]);
+			// format(query,sizeof query,"UPDATE users SET x='%s',y='%s',z='%s',vw = %d,interior = %d,localmin = %d,drughp = %d,druglevel = %d,drugpureness = %d,ondrug = %d,drugtime = %d WHERE userid = %d",sX,sY,sZ,User[playerid][pvw],User[playerid][pint],User[playerid][LocalMin],User[playerid][drughp],User[playerid][druglevel],User[playerid][drugpureness],User[playerid][onDrug],User[playerid][drugtime],User[playerid][UserID]);
 			
 			format(large_string,sizeof large_string,
 			"UPDATE users SET crash = 1,x='%s',y='%s',z='%s',vw = %d,interior = %d,localmin = %d WHERE userid = %d"
@@ -51999,6 +52016,7 @@ Dialog:dBloodHeal(playerid, response, listitem, inputtext[])
 	}
 	return 1;
 }
+
 Dialog:dLupusSelect(playerid, response, listitem, inputtext[])
 {
 	if(response)
@@ -64905,7 +64923,7 @@ Dialog:dHelpDialog(playerid, response, listitem, inputtext[])
 				/(desc)ription /(mydesc)ription /inspect /(r)e(m)ove(desc)ription /levelup /anims /ask /breakin /bloodpack\n \
 				/label /dlabel /mylabels /dmylabels /cough /snarl /roar /growl /pdistance /frisk /offlinepm\n \
 				/plabel /dplabel /plabels /pdmylabels /(i)nventory /forumname /showrpf  /link /clearchat /scrapcar /print\n \
-				/whistle \
+				/whistle /blindfold(OOC) /removeblindfold\
 				","Close","Back");
 			}		
 			case 1: // Ammo
@@ -65094,6 +65112,69 @@ CMD:help(playerid,params[])
 	    return 1;
 	}
 	return 0;
+}
+Dialog:dBlindfold(playerid, response, listitem, inputtext[])
+{
+	if(response)
+	{
+		new id;
+		if(sscanf(inputtext, "u", id)) return MSG(playerid, GOLD, "ERROR:"GR" Invalid player specified.");
+		if(!User[id][Logged] || !IsPlayerConnected(id) || id == INVALID_PLAYER_ID)
+			return MSG(playerid, GOLD, "ERROR:"GR" Specified player is not logged on.");
+		new Float: x, Float: y, Float:z;
+		GetPlayerPos(id, x, y, z);
+		if(!IsPlayerInRangeOfPoint(playerid, 4, x, y, z) || User[id][pinvis])
+			return MSG(playerid, GOLD, "ERROR:"GR" The specified player is far away.");
+		new string[124];
+		format(string, sizeof string,"has blindfolded %s.", sendernameEx(id));
+		PlayerActionMessage(playerid, string);
+		SetPVarInt(id, "player_Blindfolded", 1);
+		Blindfold(id);
+	}
+	return 1;
+}
+CMD:removeblindfold(playerid, params[]) {
+	if(User[playerid][Logged]) {
+		new id;
+		if(sscanf(params,"u", id)) return MSG(playerid, GOLD, "ERROR:"GR" /removeblindfold [playerid/PartOfName]");
+		if(!ProxDetectorS(4.5, id, playerid)) return MSG(playerid, GOLD, "ERROR:"GR" Specified player is far away.");
+		if(GetPVarInt(playerid, "player_Blindfolded") != 1) return MSG(playerid, GOLD, "ERROR:"GR" Specified player is not blindfolded.");
+		if(id == playerid) {
+			if(User[playerid][cuff] == 1)
+				return MSG(playerid, GOLD, "ERROR:"GR" You cannot remove your blindfold while cuffed.");
+			if(User[playerid][pinvis])
+				return MSG(playerid, GOLD, "ERROR:"GR" You cannot do this while invisible.");
+			if(User[playerid][Death] > 0)
+				return MSG(playerid, GOLD, "ERROR:"GR" You cannot do this while incapacitated.");
+			if(User[playerid][tazed])
+				return MSG(playerid, GOLD, "ERROR:"GR" You cannot do this while tazed.");
+		} 
+		new string[124];
+		format(string, sizeof string,"has removed the blindfold from %s.", sendernameEx(id));
+		PlayerActionMessage(playerid, string);
+		TextDrawHideForPlayer(id, gBlackScreen);
+		DeletePVar(id, "player_Blindfolded");
+		return 1;
+	}
+	return 0;
+}
+CMD:blindfold(playerid, params[]) {
+	if(User[playerid][Logged]) {
+		if(GetPVarInt(playerid,"player_oocBlindfold") == 0) {
+			Blindfold(playerid);
+			SetPVarInt(playerid, "player_oocBlindfold", 1);
+		} else {
+			Blindfold(playerid, false);
+			DeletePVar(playerid, "player_oocBlindfold");
+		}
+	}
+}
+stock Blindfold(playerid, bool:on = true) {
+	if(on == true) {
+		TextDrawShowForPlayer(playerid, gBlackScreen);
+	} else {
+		TextDrawHideForPlayer(playerid, gBlackScreen);
+	}
 }
 CMD:getowner(playerid, params[])
 {
