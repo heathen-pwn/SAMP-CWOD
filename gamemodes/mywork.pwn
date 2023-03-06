@@ -61510,7 +61510,7 @@ Dialog:dDealListExpConfirm(playerid, response, listitem, inputtext[])
 			case 15:
 			{
 				new id = GetInventoryFreeSlot(playerid);
-				UpdateItem(playerid, id, GetItemID("IED"), "IED", 1, 100, true);	
+				UpdateItem(playerid, id, GetItemID("IED"), "IED", 1, 100, true);
 			}
 			default:
 			{
@@ -65125,11 +65125,14 @@ Dialog:dBlindfold(playerid, response, listitem, inputtext[])
 		GetPlayerPos(id, x, y, z);
 		if(!IsPlayerInRangeOfPoint(playerid, 4, x, y, z) || User[id][pinvis])
 			return MSG(playerid, GOLD, "ERROR:"GR" The specified player is far away.");
+		if(GetPVarInt(playerid, "player_Blindfolded") == 1) return MSG(playerid, GOLD,"ERROR:"GR" Specified player is already blindfolded. Type (/removeblindfold) to remove it.");
 		new string[124];
 		format(string, sizeof string,"has blindfolded %s.", sendernameEx(id));
 		PlayerActionMessage(playerid, string);
 		SetPVarInt(id, "player_Blindfolded", 1);
 		Blindfold(id);
+		new slot = FindPlayerItemFree(playerid,"Blindfold");
+		UpdateItem(playerid, slot, GetItemID("Blindfold"), "Blindfold", -1, 100, true);
 	}
 	return 1;
 }
@@ -65167,7 +65170,9 @@ CMD:blindfold(playerid, params[]) {
 			Blindfold(playerid, false);
 			DeletePVar(playerid, "player_oocBlindfold");
 		}
+		return 1;
 	}
+	return 0;
 }
 stock Blindfold(playerid, bool:on = true) {
 	if(on == true) {
