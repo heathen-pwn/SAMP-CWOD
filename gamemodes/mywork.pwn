@@ -6896,7 +6896,7 @@ CMD:ram(playerid, params[]) {
 			PlayerActionMessageBubble(playerid, string);
 
 			MSG(playerid, GOLD, "SERVER:"GR" You have started ramming the door infront of you.");
-			MSG(playerid, GOLD, "SERVER:"GR" Press "W"~k~~PED_ANSWER_PHONE~"GR" repeatedly to break the door down.");
+			MSG(playerid, GOLD, "SERVER:"GR" Press "W"~k~~PED_FIREWEAPON~"GR" repeatedly to break the door down.");
 			SetPlayerLookAt(playerid, H[entity][hx],H[entity][hy]);
 			TogglePlayerControllable(playerid, 0);
 
@@ -7921,10 +7921,15 @@ CMD:gcreate(playerid,params[])
 		Ga[i][gz] = z;
 		Ga[i][gvw] = vw;
 		Ga[i][gint] = interior;
-		Ga[i][gxi] = 0;
-		Ga[i][gyi] = 0;
-		Ga[i][gzi] = 0;
-		Ga[i][ginti] = 0;
+		// 613.874 -124.338 997.992
+		#define DEFAULT_GARAGE_X 613.874
+		#define DEFAULT_GARAGE_Y -124.338
+		#define DEFAULT_GARAGE_Z 997.992
+		#define DEFAULT_GARAGE_INTERIOR 3
+		Ga[i][gxi] = DEFAULT_GARAGE_X;
+		Ga[i][gyi] = DEFAULT_GARAGE_Y;
+		Ga[i][gzi] = DEFAULT_GARAGE_Z;
+		Ga[i][ginti] = DEFAULT_GARAGE_INTERIOR;
 		Ga[i][glinkedto] = id;
 		new svw[15];
 		format(svw,sizeof svw,"%i0%i",random(999999),i);
@@ -8193,7 +8198,7 @@ CMD:genter(playerid,params[])
 	new bool:rng;
 	foreach(Garages,i)
 	{
-		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz]))
+		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvw])
 		{
 			if(Ga[i][glock] == 1)
 			{
@@ -8240,7 +8245,7 @@ CMD:gexit(playerid,params[])
 	new bool:rng;
 	foreach(Garages,i)
 	{
-		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]))
+		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])
 		{
 			if(Ga[i][glock] == 1)
 			{
@@ -51240,7 +51245,7 @@ CMD:whistle(playerid, params[])
 			{
 				if(ProxDetectorS(120, playerid, i)) {
 					// PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/991759556004814928/1002328665872416788/bruh.mp3");
-					// PlayAudioStreamForPlayer(i, "http://finalnights-rp.com/bruh.mp3");
+					PlayAudioStreamForPlayer(i, "https://cdn.discordapp.com/attachments/473202609793138708/1082702526106841199/whistle.mp3");
 					SetPlayerMarkerForPlayer(i, playerid, COLOR_BLIP);
 					SetTimerEx("ResetBlipOfPlayer", 10*1000, 0, "dd" , playerid, i); 
 				}
@@ -63006,29 +63011,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	if(newkeys & KEY_ACTION)
 	{
 
-		if(GetPVarInt(playerid,"player_RamDoorTicks") == -1 || GetPVarInt(playerid,"player_RamDoorTicks") > 0) {
-			new ticks = GetPVarInt(playerid,"player_RamDoorTicks");
-			// SFM(playerid, -1, "ticks %d", ticks);
-			if(ticks == -1) {
-				SetPVarInt(playerid, "player_RamDoorTicks", 1);
-				ticks = 0;
-			}
-			ticks++;
-			SetPVarInt(playerid, "player_RamDoorTicks", ticks);
-			new res = UpdateActionText(playerid, ticks, GetPVarInt(playerid, "player_RamDoorMax"));
-			PlayerPlaySound(playerid, 1131, 0.0, 0.0, 0.0);
-			ApplyAnimation(playerid, "DILDO", "DILDO_block", 4.1, 0, 0, 0, 0, 0, 1);
-			if(res == TASK_SUCCESSFUL) {
-				PlayerActionMessage(playerid, "breaks the door down.");
-				OnRamPerformed(playerid, GetPVarInt(playerid, "player_RamDoorEntityType"), GetPVarInt(playerid, "player_RamDoorEntity"));
-				foreach(Player, i) {
-					if(ProxDetectorS(30, playerid, i)) {
-						PlayerPlaySound(playerid, 1140, 0.0, 0.0, 0.0);
-		
-					}
-				}
-			}
-		}
+
  		if(GetPlayerAnimationIndex(playerid) != 1274 || GetPlayerAnimationIndex(playerid) != 1159)
 		{
 			//return Wait(playerid,"~h~You are not crouching!");
@@ -63105,6 +63088,29 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	}
 	if(newkeys & KEY_FIRE)
 	{
+		if(GetPVarInt(playerid,"player_RamDoorTicks") == -1 || GetPVarInt(playerid,"player_RamDoorTicks") > 0) {
+			new ticks = GetPVarInt(playerid,"player_RamDoorTicks");
+			// SFM(playerid, -1, "ticks %d", ticks);
+			if(ticks == -1) {
+				SetPVarInt(playerid, "player_RamDoorTicks", 1);
+				ticks = 0;
+			}
+			ticks++;
+			SetPVarInt(playerid, "player_RamDoorTicks", ticks);
+			new res = UpdateActionText(playerid, ticks, GetPVarInt(playerid, "player_RamDoorMax"));
+			PlayerPlaySound(playerid, 1131, 0.0, 0.0, 0.0);
+			ApplyAnimation(playerid, "DILDO", "DILDO_block", 4.1, 0, 0, 0, 0, 0, 1);
+			if(res == TASK_SUCCESSFUL) {
+				PlayerActionMessage(playerid, "breaks the door down.");
+				OnRamPerformed(playerid, GetPVarInt(playerid, "player_RamDoorEntityType"), GetPVarInt(playerid, "player_RamDoorEntity"));
+				foreach(Player, i) {
+					if(ProxDetectorS(30, playerid, i)) {
+						PlayerPlaySound(playerid, 1140, 0.0, 0.0, 0.0);
+		
+					}
+				}
+			}
+		}
 		if(GetPVarInt(playerid, "Lumberjack_StartCut") > 0)
 		{
 			if(User[playerid][WeaponEquipped] == WEAPON_CHAINSAW)
