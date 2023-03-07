@@ -8138,6 +8138,7 @@ CMD:mygarages(playerid,params[])
 	
 }
 // returning Unknown command after /gsetowner
+CMD:glock(playerid, params[]) return cmd_lockgarage(playerid, params);
 CMD:lockgarage(playerid,params[])
 {
 	if(!User[playerid][Logged]) return 0;
@@ -8149,12 +8150,16 @@ CMD:lockgarage(playerid,params[])
 		    found = true;
 		    //printf("User[playerid][renting]: %d; Ga[i][glinkedto]: %d; H[Ga[i][glinkedto]][howner]: %d; User[playerid][UserID]: %d"
 			//,User[playerid][renting],Ga[i][glinkedto],H[Ga[i][glinkedto]][howner],User[playerid][UserID]);
+			print("A");
 			if(Ga[i][glock] == 1)
 			{
-			    if(User[playerid][renting] == Ga[i][glinkedto] || H[Ga[i][glinkedto]][howner] == User[playerid][UserID] || User[playerid][UserID] == Ga[i][gowner])
+				printf("B renting %d glinkedto %d gowner %d", User[playerid][renting], Ga[i][glinkedto], Ga[i][gowner]);
+			    if(User[playerid][renting] == Ga[i][glinkedto] || (Ga[i][glinkedto] != -1 && H[Ga[i][glinkedto]][howner] == User[playerid][UserID]) || User[playerid][UserID] == Ga[i][gowner])
 			    {
+					print("C");
 					PlayerActionMessageBubble(playerid,"unlocks the garage.");
 					Ga[i][glock] = 0;
+					print("D");
 					if(!IsPlayerInAnyVehicle(playerid)) ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);
 					format(string,sizeof string,"UPDATE garages SET lock = 0 WHERE gid = %d",i);
 					db_query(Database, string);
@@ -8164,8 +8169,10 @@ CMD:lockgarage(playerid,params[])
 			{
 			    if(User[playerid][renting] == Ga[i][glinkedto] || H[Ga[i][glinkedto]][howner] == User[playerid][UserID] || User[playerid][UserID] == Ga[i][gowner])
 			    {
+					print("E");
 					PlayerActionMessageBubble(playerid,"locks the garage.");
 					Ga[i][glock] = 1;
+					print("F");
 					if(!IsPlayerInAnyVehicle(playerid)) ApplyAnimation(playerid, "BD_FIRE", "wash_up", 4.0, 0, 0, 0, 0, 0, 1);
 					format(string,sizeof string,"UPDATE garages SET lock = 1 WHERE gid = %d",i);
 					db_query(Database, string);
@@ -16210,7 +16217,7 @@ Dialog:dGeneralStore(playerid, response, listitem, inputtext[])
 		case 13: {
 			id = GetInventoryFreeSlot(playerid);
 			if(id == -1) return MSG(playerid, GOLD, "Inventory:"GR" Your inventory is full.");
-		    new cost = 50;
+		    new cost = 750;
 	        if(User[playerid][uMoney] < cost)
 	        {
 	    		MSG(playerid,GOLD,"ERROR:"GR" You don't have enough money to make this purchase.");
@@ -52299,6 +52306,8 @@ CMD:shapeshift(playerid, params[])
 			SetPVarInt(playerid, "backup_Appearance", appearance);		
 			return 1;
 		}
+		// Add check if color is null, then let them select color from predefined colors
+		// Can change color for 50k, premium is for $1000
 		if(!strcmp(params, "crinos", true))
 		{
 			if(User[playerid][shapeshift] == 2)
@@ -65165,7 +65174,7 @@ CMD:removeblindfold(playerid, params[]) {
 		new id;
 		if(sscanf(params,"u", id)) return MSG(playerid, GOLD, "ERROR:"GR" /removeblindfold [playerid/PartOfName]");
 		if(!ProxDetectorS(4.5, id, playerid)) return MSG(playerid, GOLD, "ERROR:"GR" Specified player is far away.");
-		if(GetPVarInt(playerid, "player_Blindfolded") != 1) return MSG(playerid, GOLD, "ERROR:"GR" Specified player is not blindfolded.");
+		if(GetPVarInt(id, "player_Blindfolded") != 1) return MSG(playerid, GOLD, "ERROR:"GR" Specified player is not blindfolded.");
 		if(id == playerid) {
 			if(User[playerid][cuff] == 1)
 				return MSG(playerid, GOLD, "ERROR:"GR" You cannot remove your blindfold while cuffed.");
