@@ -8198,43 +8198,50 @@ CMD:genter(playerid,params[])
 	new bool:rng;
 	foreach(Garages,i)
 	{
-		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvw])
+		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz])) //  && GetPlayerVirtualWorld(playerid) == Ga[i][gvw]
 		{
-			if(Ga[i][glock] == 1)
-			{
-			    MSG(playerid,GOLD,"ERROR:"GR" This garage is locked!");
-			    return 1;
-			}
-		    if(id > 0)
-		    {
-		        printf("[garage_debug] Garage ID %d (maxcars: %d; carin: %d)",i,Ga[i][maxcars],Ga[i][carin]);
-				if(Ga[i][maxcars] == Ga[i][carin])
-					return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars.");
-			    SetVehicleVirtualWorld(id,Ga[i][gvwi]);
-			    LinkVehicleToInterior(id,Ga[i][ginti]);
-				SetVehiclePos(id,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]);
-				SetVehicleZAngle(id,Ga[i][gangle]);
-				SetPlayerInterior(playerid,Ga[i][ginti]);
-				SetPlayerVirtualWorld(playerid,Ga[i][gvwi]);
-				V[id][garagein] = i;
-				Ga[i][carin]++;
-				new query[124];
-				format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",i,V[id][dataid]);
-				db_query(Database, query);
-			}
-			else
-			{
-				SetPlayerInterior(playerid,Ga[i][ginti]);
-				SetPlayerVirtualWorld(playerid,Ga[i][gvwi]);
-				SetPlayerPos(playerid,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]);
-				SetPlayerFacingAngle(playerid,Ga[i][gangle]);
-			}
+			EnterGarage(playerid, i, id);
       		rng = true;
 		    break;
 		}
 	}
 	if(!rng) return MSG(playerid,GOLD,"ERROR:"GR" You are not in range of a garage entrance.");
 	return 1;
+}
+stock EnterGarage(playerid, garageid, car = 0) {
+	if(User[playerid][Logged] && Ga[garageid][gexist]) {
+		if(Ga[garageid][glock] == 1)
+		{
+			MSG(playerid,GOLD,"ERROR:"GR" This garage is locked!");
+			return 1;
+		}
+		if(car > 0)
+		{
+			printf("[garage_debug] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
+			if(Ga[garageid][maxcars] == Ga[garageid][carin])
+				return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars.");
+			SetVehicleVirtualWorld(car,Ga[garageid][gvwi]);
+			LinkVehicleToInterior(car,Ga[garageid][ginti]);
+			SetVehiclePos(car,Ga[garageid][gxi],Ga[garageid][gyi],Ga[garageid][gzi]);
+			SetVehicleZAngle(car,Ga[garageid][gangle]);
+			SetPlayerInterior(playerid,Ga[garageid][ginti]);
+			SetPlayerVirtualWorld(playerid,Ga[garageid][gvwi]);
+			V[car][garagein] = garageid;
+			Ga[garageid][carin]++;
+			new query[124];
+			format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
+			db_query(Database, query);
+		}
+		else
+		{
+			SetPlayerInterior(playerid,Ga[garageid][ginti]);
+			SetPlayerVirtualWorld(playerid,Ga[garageid][gvwi]);
+			SetPlayerPos(playerid,Ga[garageid][gxi],Ga[garageid][gyi],Ga[garageid][gzi]);
+			SetPlayerFacingAngle(playerid,Ga[garageid][gangle]);
+		}
+		return 1;
+	}
+	return 0;
 }
 CMD:gexit(playerid,params[])
 {
@@ -8247,38 +8254,45 @@ CMD:gexit(playerid,params[])
 	{
 		if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])
 		{
-			if(Ga[i][glock] == 1)
-			{
-			    MSG(playerid,GOLD,"ERROR:"GR" This garage is locked!");
-			    return 1;
-			}
-		    if(id > 0)
-		    {
-			    SetVehicleVirtualWorld(id,Ga[i][gvw]);
-			    LinkVehicleToInterior(id,Ga[i][gint]);
-				SetVehiclePos(id,Ga[i][gx],Ga[i][gy],Ga[i][gz]);
-				SetVehicleZAngle(id,Ga[i][ganglex]);
-				SetPlayerInterior(playerid,Ga[i][gint]);
-				SetPlayerVirtualWorld(playerid,Ga[i][gvw]);
-				V[id][garagein] = 0;
-				Ga[i][carin]--;
-				new query[124];
-				format(query,sizeof query,"UPDATE cars SET garage = 0 WHERE carid = %d",V[id][dataid]);
-				db_query(Database, query);
-			}
-			else
-			{
-				SetPlayerInterior(playerid,Ga[i][gint]);
-				SetPlayerVirtualWorld(playerid,Ga[i][gvw]);
-				SetPlayerPos(playerid,Ga[i][gx],Ga[i][gy],Ga[i][gz]);
-				SetPlayerFacingAngle(playerid,Ga[i][ganglex]);
-			}
+			ExitGarage(playerid, i, id);
 		    rng = true;
 		    break;
 		}
 	}
 	if(!rng) return MSG(playerid,GOLD,"ERROR:"GR" You are not in range of a garage exit.");
 	return 1;
+}
+stock ExitGarage(playerid, garageid, car) {
+	if(User[playerid][Logged] && Ga[garageid][gexist]) {
+		if(Ga[garageid][glock] == 1)
+		{
+			MSG(playerid,GOLD,"ERROR:"GR" This garage is locked!");
+			return 1;
+		}
+		if(car > 0)
+		{
+			SetVehicleVirtualWorld(car,Ga[garageid][gvw]);
+			LinkVehicleToInterior(car,Ga[garageid][gint]);
+			SetVehiclePos(car,Ga[garageid][gx],Ga[garageid][gy],Ga[garageid][gz]);
+			SetVehicleZAngle(car,Ga[garageid][ganglex]);
+			SetPlayerInterior(playerid,Ga[garageid][gint]);
+			SetPlayerVirtualWorld(playerid,Ga[garageid][gvw]);
+			V[car][garagein] = 0;
+			Ga[garageid][carin]--;
+			new query[124];
+			format(query,sizeof query,"UPDATE cars SET garage = 0 WHERE carid = %d",V[car][dataid]);
+			db_query(Database, query);
+		}
+		else
+		{
+			SetPlayerInterior(playerid,Ga[garageid][gint]);
+			SetPlayerVirtualWorld(playerid,Ga[garageid][gvw]);
+			SetPlayerPos(playerid,Ga[garageid][gx],Ga[garageid][gy],Ga[garageid][gz]);
+			SetPlayerFacingAngle(playerid,Ga[garageid][ganglex]);
+		}
+		return 1;
+	}
+	return 0;
 }
 CMD:ggoto(playerid,params[])
 {
@@ -63241,6 +63255,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		{
 		    if(IsPlayerInRangeOfPoint(playerid,1,P[i][px],P[i][py],P[i][pz]))
 		    {
+				// if(GetPlayerVirtualWorld(playerid) != P[i][pvw]) continue;
 				if(P[i][pxi] == 0.0000)
 				{
 				    MSG(playerid,GOLD,"ERROR:"GR" This property has no interior, please contact an administrator to fix it.");
@@ -63260,6 +63275,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		    }
 		    else if(IsPlayerInRangeOfPoint(playerid,2,P[i][pxi],P[i][pyi],P[i][pzi]) && GetPlayerVirtualWorld(playerid) == P[i][pvwi])
 		    {
+				if(GetPlayerVirtualWorld(playerid) != P[i][pvwi]) continue;
 				User[playerid][PropIN] = -1;
 				SetPlayerInterior(playerid,P[i][pint]);
 				SetPlayerVirtualWorld(playerid,P[i][pvw]);
@@ -63276,6 +63292,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		{
 		    if(IsPlayerInRangeOfPoint(playerid,1,B[i][bx],B[i][by],B[i][bz]))
 		    {
+				// if(GetPlayerVirtualWorld(playerid) != B[i][bvw]) continue;
 				if(B[i][bxi] == 0.0000)
 				{
 				    MSG(playerid,GOLD,"ERROR:"GR" This business has no interior, please contact an administrator to fix it.");
@@ -63292,6 +63309,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		    }
 		    else if(IsPlayerInRangeOfPoint(playerid,2,B[i][bxi],B[i][byi],B[i][bzi]) && GetPlayerVirtualWorld(playerid) == B[i][bvwi])
 		    {
+				if(GetPlayerVirtualWorld(playerid) != B[i][bvwi]) continue;
 				SetPlayerInterior(playerid,B[i][bint]);
 				SetPlayerVirtualWorld(playerid,B[i][bvw]);
 				SetPlayerPos(playerid,B[i][bx],B[i][by],B[i][bz]);
@@ -63307,6 +63325,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		{
 		    if(IsPlayerInRangeOfPoint(playerid,1,H[i][hx],H[i][hy],H[i][hz]) || IsPlayerInRangeOfPoint(playerid,5,H[i][hx],H[i][hy],H[i][hz]-10))
 		    {
+				// if(GetPlayerVirtualWorld(playerid) != H[i][hvw]) continue;
 		        if(H[i][hlock] == 1)
 					return Wait(playerid,"The door is locked!");//return MSG(playerid,GRAD2,"Info: The door is locked!");
 				if(H[i][hxi] == 0.0000)
@@ -63341,6 +63360,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 		    {
 				if(H[i][hlock] == 1)
 					return Wait(playerid,"The door is locked!");
+				if(GetPlayerVirtualWorld(playerid) != H[i][hvwi]) continue;
 				SetPlayerInterior(playerid,H[i][hint]);
 				SetPlayerVirtualWorld(playerid,H[i][hvw]);
 				SetPlayerPos(playerid,H[i][hx],H[i][hy],H[i][hz]);
@@ -63353,6 +63373,23 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				break;
 		    }
 		    
+		}
+		if(!IsPlayerInAnyVehicle(playerid)) {
+			// MSG(playerid, -1, "in in");
+			foreach(Garages,i)
+			{
+				#define ON_FOOT_RAD 3
+				if(IsPlayerInRangeOfPoint(playerid,ON_FOOT_RAD,Ga[i][gx],Ga[i][gy],Ga[i][gz]))
+				{
+					EnterGarage(playerid, i, 0);
+					break;
+				}
+				else if(IsPlayerInRangeOfPoint(playerid,ON_FOOT_RAD,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])
+				{
+					ExitGarage(playerid, i, 0);
+					break;
+				}
+			}
 		}
 		//SFM(playerid,-1,"House in: %d",User[playerid][HouseIN]);
 		return 1;
