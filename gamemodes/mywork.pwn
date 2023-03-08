@@ -3769,7 +3769,7 @@ stock LoadCars()
 		interior,
 		vw,
 		ren,
-		garage,
+		garage = -1,
 		lock;
 	new timescalled;
 	new DBResult:Result = db_query(Database, "SELECT * FROM cars");
@@ -3833,13 +3833,18 @@ stock LoadCars()
 			db_get_field_assoc(Result, "plate", V[carid][vplate], 24);
 			if(isnull(V[carid][vplate]))
 			{
-				format(V[carid][vplate], 24, "LS%d", 1000+random(1000));
+				format(V[carid][vplate], 24, "RC%d", 1000+random(1000));
 			}
 			SetVehicleNumberPlate(carid, V[carid][vplate]);
-			if(garage > 0)
+			if(garage >= 0)
 			{
 				V[carid][garagein] = garage;
-				Ga[garage][carin]++;
+				//Car spawned in garage (/v park)
+				// This is a panacea for cars that entered garages before this patch
+				if(GetDistanceBetweenPoints(x, y, z, Ga[garage][gxi], Ga[garage][gyi], Ga[garage][gzi]) < 100 && vw == Ga[garage][gvwi]) { 
+					Ga[garage][carin]++;					
+				}
+				
 			}
 
 			//if(owner != 0)
@@ -4831,18 +4836,40 @@ CMD:vehicle(playerid,params[])
 	{
 		if(car > 0)
 		{
-			printf("[garage_debug_vpark] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
-			new garageid;
+			new garageid = -1;
+			print("[park] 1");
 			foreach(Garages, g) {
-				if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz])) || 
-				IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])) 
+				if(IsPlayerInRangeOfPoint(playerid,100,Ga[g][gxi],Ga[g][gyi],Ga[g][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[g][gvwi]) 
 				{
+					print("[park] 2");
 					garageid = g;
-					if(Ga[garageid][maxcars] == Ga[garageid][carin])
+					print("[park] 3");
+					printf("[garage_debug_vpark] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
+					print("[park] 4");
+					if(Ga[garageid][carin] >= Ga[garageid][maxcars])
 						return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars.");
+					print("[park] 5");
+				}
+				if(GetDistanceBetweenPoints(V[car][vx], V[car][vy], V[car][vz], Ga[g][gxi], Ga[g][gyi], Ga[g][gzi]) < 5 
+				&& V[car][vvw] == Ga[g][gvwi]) { // car spawns in the garage
+					print("[park] 6");
+					if(garageid == g) continue; // player is in a garage, so disregard this
+					print("[park] 7");
+					// car is parked inside the garage and is now being parked outside (how do we know? because we know its not in the garage from the previous condition)
+					if(V[car][garagein] == g) { // the car is normally parked in the garage and now is going to be parked outside so remove it from the garage
+						print("[park] 8");
+						Ga[g][carin]--;
+						print("[park] 9");
+						V[car][garagein] = -1;
+						print("[park] 10");
+						format(query,sizeof query,"UPDATE cars SET garage = -1 WHERE vid = %d",V[car][dataid]);
+						print("[park] 11");
+						db_query(Database, query);
+						print("[park] 12");
+					}
 				}
 			}
-
+			printf("GARAGEID %d V[car][garagein] %d", garageid, V[car][garagein]);
 			new bool:can;
 			if(User[playerid][faction] == V[car][vfac] && User[playerid][frank] == 1) can = true;
 			if(User[playerid][UserID] == V[car][cowner]) can = true;
@@ -4874,21 +4901,24 @@ CMD:vehicle(playerid,params[])
 
 			MSG(playerid,GREEN,"Info:"GR" Your vehicle has been parked.");
 			GiveMoney(playerid,-100);
-
-			SetVehicleZAngle(car,Ga[garageid][gangle]);
-
-			if((V[car][garagein] > 0 && Ga[V[car][garagein]][gexist]) || garageid > 0) {
-				if(garageid == 0) {
-					garageid = V[car][garagein]
-				}
+			print("[park] 13");
+			if(garageid != -1) {
+				SetVehicleZAngle(car,Ga[garageid][gangle]);
+				print("[park] 14");
+			}
+			printf("[park] 15 garageid %d", garageid);
+			print("[park] 16");
+			if(garageid != -1) { // Player is inside a garage
+				print("[park] 17");
 				Ga[garageid][carin]++;
-				new query[124];
+				V[car][garagein] = garageid;
+				print("[park] 18");
 				format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
 				db_query(Database, query);
 			}
+			print("[park] 19");
 		}
 		else MSG(playerid,GOLD,"ERROR:"GR" You have to be inside a vehicle in order to perform this command.");
-
 	}
 	return 1;
 }
@@ -8250,7 +8280,7 @@ stock EnterGarage(playerid, garageid, car = 0) {
 			SetVehicleZAngle(car,Ga[garageid][gangle]);
 			SetPlayerInterior(playerid,Ga[garageid][ginti]);
 			SetPlayerVirtualWorld(playerid,Ga[garageid][gvwi]);
-			V[car][garagein] = garageid;
+			// V[car][garagein] = garageid;
 			// Ga[garageid][carin]++;
 			// new query[124];
 			// format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
@@ -8301,11 +8331,11 @@ stock ExitGarage(playerid, garageid, car) {
 			SetVehicleZAngle(car,Ga[garageid][ganglex]);
 			SetPlayerInterior(playerid,Ga[garageid][gint]);
 			SetPlayerVirtualWorld(playerid,Ga[garageid][gvw]);
-			V[car][garagein] = 0;
-			Ga[garageid][carin]--;
-			new query[124];
-			format(query,sizeof query,"UPDATE cars SET garage = 0 WHERE carid = %d",V[car][dataid]);
-			db_query(Database, query);
+			// V[car][garagein] = 0;
+			// Ga[garageid][carin]--;
+			// new query[124];
+			// format(query,sizeof query,"UPDATE cars SET garage = 0 WHERE carid = %d",V[car][dataid]);
+			// db_query(Database, query);
 		}
 		else
 		{
@@ -17983,7 +18013,7 @@ stock SpawnVehicle(owner,model,Float:x,Float:y,Float:z,Float:rotation,color1,col
 	V[vid][vy] = y;
 	V[vid][vz] = z;
 	V[vid][fuel] = 100;
-	format(V[vid][vplate], 24, "LS%d", 1000+random(1000));
+	format(V[vid][vplate], 24, "RC%d", 1000+random(1000));
 	SetVehicleNumberPlate(vid, V[vid][vplate]);
 	GetVehicleZAngle(vid, V[vid][vrot]);
 	V[vid][siren] = addsiren;
@@ -21624,11 +21654,11 @@ public OnGameModeInit()
    	zones[0] = CreateDynamicCircle(zones_points_0[0], zones_points_0[1], zones_points_0[2]);
 	/*------------------------------[LOADINGS]-------------------------------*/
    	LoadBiz();
+	LoadGarages();
    	LoadCars();
    	LoadWeapons();
    	LoadHou();
    	LoadFac();
-	LoadGarages();
 	LoadProps();
 	LoadDoors();
 	LoadPlants();
@@ -65319,7 +65349,7 @@ CMD:ahelp(playerid,params[])
 			strcat(large_string, ""R"[CHR-SHEET]"D" /cs /expapps /exprev /rpfs /set(h)ealth(l)evel /setmaxhealthlevel /givewp /givebp /giverage\n");
 			strcat(large_string, ""R"[CHR-SHEET]"D" /givegnosis /giveq /giveconviction /giveglamour /givefaith /givexp /giverp /csmisc\n");
 			strcat(large_string, ""R"[EXTRA]"D" /updatetrait /supdatetrait /removetrait /tedit\n");
-			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair /setfuel /respawnallcars\n");
+			strcat(large_string, ""R"[VEHICLES]"D" /vcreate /vdelete /vsetrentable /getcar /deletemods /vinfo /vrepair /setfuel /respawnallcars /vowner\n");
 			strcat(large_string, ""R"[TEMP-VEHICLES]"D" /vspawn /destroyv\n");
 			strcat(large_string, ""R"[HOUSES]"D" /hcreate /hgoto /hdelete /hsetint /linkhousetoapartment /nearhouse\n");
 			strcat(large_string, ""R"[GARAGES]"D" /gcreate /gdelete /gsetint /gsetowner /ggoto /linkgaragetofaction /neargarage\n");
@@ -66593,7 +66623,7 @@ CMD:getcar(playerid,params[])
 	GetPlayerPos(playerid,x,y,z);
 	new id = strval(params);
 	if(V[id][garagein] > 0)
-		return SFM(playerid,GOLD,"ERROR: The specified vehicle is in garage ID %d. You cannot teleport it.",V[id][garagein]);
+		return SFM(playerid,GOLD,"ERROR: The specified vehicle is in garage ID %d. You cannot teleport it directly.",V[id][garagein]);
 	SetVehiclePos(id,x,y,z);
 	LinkVehicleToInterior(id,GetPlayerInterior(playerid));
 	SetVehicleVirtualWorld(id,GetPlayerVirtualWorld(playerid));
