@@ -4831,37 +4831,61 @@ CMD:vehicle(playerid,params[])
 	{
 		if(car > 0)
 		{
-			    new bool:can;
-			    if(User[playerid][faction] == V[car][vfac] && User[playerid][frank] == 1) can = true;
-				if(User[playerid][UserID] == V[car][cowner]) can = true;
-				if(AdminVeh[car] && User[playerid][Useradmin]) can = true;
-				if(User[playerid][Useradmin] > 2 && GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
-				if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You don't have access to park this vehicle.");
-		        if(User[playerid][uMoney] < 100)
-		        {
-		            return MSG(playerid,GOLD,"ERROR:"GR" You need "G"$100"GR" in order to pack a vehicle.");
-		        }
-		        new Float:x,Float:y,Float:z,Float:a;
-		        GetVehiclePos(car,x,y,z);
-				GetVehicleZAngle(car,a);
-				V[car][vx] = x;
-				V[car][vy] = y;
-				V[car][vz] = z;
-				V[car][vrot] = a;
-				new sx[10],sy[10],sz[10],sa[10];
-				format(sx,10,"%f",x);
-				format(sy,10,"%f",y);
-				format(sz,10,"%f",z);
-				format(sa,10,"%f",a);
-				new interior = GetPlayerInterior(playerid);
-				new vw = GetPlayerVirtualWorld(playerid);
-				V[car][vint] = interior;
-				V[car][vvw] = vw;
-				format(query,sizeof query,"UPDATE cars SET x = '%s', y = '%s',z = '%s',rot = '%s',vw = '%d',interior = '%d' WHERE vid = %d",sx,sy,sz,sa,vw,interior,V[car][dataid]);
-				db_query(Database, query);
+			printf("[garage_debug_vpark] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
+			new garageid;
+			foreach(Garages, g) {
+				if(IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gx],Ga[i][gy],Ga[i][gz])) || 
+				IsPlayerInRangeOfPoint(playerid,rad,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])) 
+				{
+					garageid = g;
+					if(Ga[garageid][maxcars] == Ga[garageid][carin])
+						return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars.");
+				}
+			}
 
-				MSG(playerid,GREEN,"Info:"GR" Your vehicle has been parked.");
-				GiveMoney(playerid,-100);
+			new bool:can;
+			if(User[playerid][faction] == V[car][vfac] && User[playerid][frank] == 1) can = true;
+			if(User[playerid][UserID] == V[car][cowner]) can = true;
+			if(AdminVeh[car] && User[playerid][Useradmin]) can = true;
+			if(User[playerid][Useradmin] > 2 && GetPVarInt(playerid, "aAdminDuty") == 1) can = true;
+			if(!can) return MSG(playerid,GOLD,"ERROR:"GR" You don't have access to park this vehicle.");
+			if(User[playerid][uMoney] < 100)
+			{
+				return MSG(playerid,GOLD,"ERROR:"GR" You need "G"$100"GR" in order to pack a vehicle.");
+			}
+			new Float:x,Float:y,Float:z,Float:a;
+			GetVehiclePos(car,x,y,z);
+			GetVehicleZAngle(car,a);
+			V[car][vx] = x;
+			V[car][vy] = y;
+			V[car][vz] = z;
+			V[car][vrot] = a;
+			new sx[10],sy[10],sz[10],sa[10];
+			format(sx,10,"%f",x);
+			format(sy,10,"%f",y);
+			format(sz,10,"%f",z);
+			format(sa,10,"%f",a);
+			new interior = GetPlayerInterior(playerid);
+			new vw = GetPlayerVirtualWorld(playerid);
+			V[car][vint] = interior;
+			V[car][vvw] = vw;
+			format(query,sizeof query,"UPDATE cars SET x = '%s', y = '%s',z = '%s',rot = '%s',vw = '%d',interior = '%d' WHERE vid = %d",sx,sy,sz,sa,vw,interior,V[car][dataid]);
+			db_query(Database, query);
+
+			MSG(playerid,GREEN,"Info:"GR" Your vehicle has been parked.");
+			GiveMoney(playerid,-100);
+
+			SetVehicleZAngle(car,Ga[garageid][gangle]);
+
+			if((V[car][garagein] > 0 && Ga[V[car][garagein]][gexist]) || garageid > 0) {
+				if(garageid == 0) {
+					garageid = V[car][garagein]
+				}
+				Ga[garageid][carin]++;
+				new query[124];
+				format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
+				db_query(Database, query);
+			}
 		}
 		else MSG(playerid,GOLD,"ERROR:"GR" You have to be inside a vehicle in order to perform this command.");
 
@@ -8217,9 +8241,9 @@ stock EnterGarage(playerid, garageid, car = 0) {
 		}
 		if(car > 0)
 		{
-			printf("[garage_debug] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
-			if(Ga[garageid][maxcars] == Ga[garageid][carin])
-				return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars.");
+			printf("[garage_debug_entergarage] Garage ID %d (maxcars: %d; carin: %d)",garageid,Ga[garageid][maxcars],Ga[garageid][carin]);
+			// if(Ga[garageid][maxcars] == Ga[garageid][carin])
+			// 	return MSG(playerid,GOLD,"ERROR:"GR" This garage cannot fit anymore cars."); // ADD THIS TO /v park instead!!
 			SetVehicleVirtualWorld(car,Ga[garageid][gvwi]);
 			LinkVehicleToInterior(car,Ga[garageid][ginti]);
 			SetVehiclePos(car,Ga[garageid][gxi],Ga[garageid][gyi],Ga[garageid][gzi]);
@@ -8227,10 +8251,10 @@ stock EnterGarage(playerid, garageid, car = 0) {
 			SetPlayerInterior(playerid,Ga[garageid][ginti]);
 			SetPlayerVirtualWorld(playerid,Ga[garageid][gvwi]);
 			V[car][garagein] = garageid;
-			Ga[garageid][carin]++;
-			new query[124];
-			format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
-			db_query(Database, query);
+			// Ga[garageid][carin]++;
+			// new query[124];
+			// format(query,sizeof query,"UPDATE cars SET garage = %d WHERE vid = %d",garageid,V[car][dataid]);
+			// db_query(Database, query);
 		}
 		else
 		{
@@ -63384,7 +63408,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					EnterGarage(playerid, i, 0);
 					break;
 				}
-				else if(IsPlayerInRangeOfPoint(playerid,ON_FOOT_RAD,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])
+				else if(IsPlayerInRangeOfPoint(playerid,ON_FOOT_RAD-1,Ga[i][gxi],Ga[i][gyi],Ga[i][gzi]) && GetPlayerVirtualWorld(playerid) == Ga[i][gvwi])
 				{
 					ExitGarage(playerid, i, 0);
 					break;
