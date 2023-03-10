@@ -37833,37 +37833,70 @@ public DayTime()
 			SetSVarInt("IChour", ichour);
 			SetSVarInt("ICmin", 0);		
 			printf("[publicDayTime] An IC hour has passed. [ICHOUR: %d]", ichour);	
-			if(ichour >= 6 && ichour <= 20)
-			{
-				SetWorldTime(ichour);
-				printf("[publicDayTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
-				day_condition = 1;
-			}
-			else 
-			{	
-				KillTimer(DayTimer);
-				KillTimer(NightTimer);
-				SetWorldTime(0);
-				NightTimer = SetTimer("NightTime", 2300, true); 
-				printf("An IC hour passed and time has been changed to Night. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
-				day_condition = 0;
-				foreach(Player, i)
-				{
-					if(User[i][Userrace] == 2)
+			switch(ichour) {
+				6..20: {
+					SetWorldTime(ichour);
+					printf("[publicDayTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+					day_condition = 1;
+				}
+				// case 21,22,23,24,0,1,2,3,4,5: {
+				default: {
+					KillTimer(DayTimer);
+					KillTimer(NightTimer);
+					SetWorldTime(0);
+					NightTimer = SetTimer("NightTime", 2300, true); 
+					printf("An IC hour passed and time has been changed to Night. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+					day_condition = 0;
+					foreach(Player, i)
 					{
-						new temp = GetPVarInt(i, "tRage");
-						new perm = GetPVarInt(i, "Rage");
-						if(temp < perm)
+						if(User[i][Userrace] == 2)
 						{
-							new bonus = 1+random(3);
-							SFM(i, MAROON, "Rage:"GR" The Beast stirs inside you and Rage floods back into your being as you witness the moon. (%d Rage Points Gained)", bonus);
-							if(bonus+temp >= perm)
-								UpdateTrait(i, "tRage", perm);	
-							else UpdateTrait(i, "tRage", perm+bonus);	
+							new temp = GetPVarInt(i, "tRage");
+							new perm = GetPVarInt(i, "Rage");
+							if(temp < perm)
+							{
+								new bonus = 1+random(3);
+								SFM(i, MAROON, "Rage:"GR" The Beast stirs inside you and Rage floods back into your being as you witness the moon. (%d Rage Points Gained)", bonus);
+								if(bonus+temp >= perm)
+									UpdateTrait(i, "tRage", perm);	
+								else UpdateTrait(i, "tRage", perm+bonus);	
+							}
 						}
 					}
 				}
+
 			}
+			// if(ichour >= 6 && ichour <= 20)
+			// {
+			// 	SetWorldTime(ichour);
+			// 	printf("[publicDayTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+			// 	day_condition = 1;
+			// }
+			// else 
+			// {	
+			// 	KillTimer(DayTimer);
+			// 	KillTimer(NightTimer);
+			// 	SetWorldTime(0);
+			// 	NightTimer = SetTimer("NightTime", 2300, true); 
+			// 	printf("An IC hour passed and time has been changed to Night. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+			// 	day_condition = 0;
+			// 	foreach(Player, i)
+			// 	{
+			// 		if(User[i][Userrace] == 2)
+			// 		{
+			// 			new temp = GetPVarInt(i, "tRage");
+			// 			new perm = GetPVarInt(i, "Rage");
+			// 			if(temp < perm)
+			// 			{
+			// 				new bonus = 1+random(3);
+			// 				SFM(i, MAROON, "Rage:"GR" The Beast stirs inside you and Rage floods back into your being as you witness the moon. (%d Rage Points Gained)", bonus);
+			// 				if(bonus+temp >= perm)
+			// 					UpdateTrait(i, "tRage", perm);	
+			// 				else UpdateTrait(i, "tRage", perm+bonus);	
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 
 	}
