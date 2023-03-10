@@ -60231,6 +60231,16 @@ CMD:respawnallcars(playerid, params[])
 	}
 	return 0;
 }
+CMD:respawncar(playerid,params[])
+{
+	if(User[playerid][Useradmin] < 2) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+	new Float:x,Float:y,Float:z, carid;
+	GetPlayerPos(playerid,x,y,z);
+	sscanf(params, "i", carid);
+	RespawnVehicle(carid);
+	MSG(playerid, GOLD, "SERVER:"GR" Vehicle respawned.");
+	return 1;
+}
 stock RespawnVehicle(vehicleid)
 {
 	if(IsValidVehicle(vehicleid))
@@ -60238,6 +60248,8 @@ stock RespawnVehicle(vehicleid)
 		RepairVehicle(vehicleid);
 		SetVehiclePos(vehicleid, V[vehicleid][vx], V[vehicleid][vy], V[vehicleid][vz]);
 		SetVehicleZAngle(vehicleid, V[vehicleid][vrot]);
+		LinkVehicleToInterior(id,V[vehicleid][vint]);
+		SetVehicleVirtualWorld(id,V[vehicleid][vvw]);
 		if(AdminVeh[vehicleid])
 		{
 			DestroyVehicle(vehicleid);
@@ -66626,8 +66638,8 @@ CMD:getcar(playerid,params[])
 	new Float:x,Float:y,Float:z;
 	GetPlayerPos(playerid,x,y,z);
 	new id = strval(params);
-	if(V[id][garagein] > 0)
-		return SFM(playerid,GOLD,"ERROR: The specified vehicle is in garage ID %d. You cannot teleport it directly.",V[id][garagein]);
+	// if(V[id][garagein] > 0)
+	// 	return SFM(playerid,GOLD,"ERROR: The specified vehicle is in garage ID %d. You cannot teleport it directly.",V[id][garagein]);
 	SetVehiclePos(id,x,y,z);
 	LinkVehicleToInterior(id,GetPlayerInterior(playerid));
 	SetVehicleVirtualWorld(id,GetPlayerVirtualWorld(playerid));
