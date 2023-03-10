@@ -22505,6 +22505,10 @@ public OnGameModeInit()
 
 	// Train
 	//AddStaticVehicle(538, 815.015686,-1372.294677,-1.678642, 0, 1, 1);
+	// Garage interior no collision fix
+	CreateObject(971, 608.995971, 608.995971, -127.075653, 1000.689880, 0.000000, 90.000000);
+	CreateObject(971, 608.995971, -118.185646, 1000.689880, 0.000000, 0.000000, 90.000000);
+
 	//--- Server Objects
 	new tmpobjid,oexport,interior;
 	/*
@@ -37808,7 +37812,7 @@ public DayTime()
 	icsec += 1;
 	secspassed++;
 	SetSVarInt("ICsec", icsec);
-	printf("[publicDayTime] icsec: %d",icsec);
+	// printf("[publicDayTime] icsec: %d",icsec);
 	
 	if(icsec > 59)
 	{
