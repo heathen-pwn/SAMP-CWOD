@@ -2024,7 +2024,7 @@ CMD:maphelp(playerid,params[])
 {
 	if(User[playerid][Useradmin] > 0 || IsStoryteller(playerid))
 	{
-		MSG(playerid,GOLD,"[Map]"GR" /oc /om /ocp /os /oedit /ogoto /od /odall /rotate /getrot /odisplay /doff /export /cweather /ctime /changemat");
+		MSG(playerid,GOLD,"[Map]"GR" /oc /om /ocp /os /oedit /ogoto /od /odall /rotate /getrot /odisplay /doff /export /pweather /ptime /changemat");
 		return 1;
 	} else return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
@@ -2217,7 +2217,7 @@ CMD:export(playerid,params[])
 	}
 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
-CMD:cweather(playerid,params[])
+CMD:pweather(playerid,params[])
 {
 	if(User[playerid][Useradmin] > 0)
 	{
@@ -2227,31 +2227,70 @@ CMD:cweather(playerid,params[])
 	}
  	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
+CMD:ptime(playerid, params[]) {
+	if(User[playerid][Logged]) {
+		if(User[playerid][Useradmin] > 0)
+		{
+			new time;
+			sscanf(params, "i", time);
+			SetPlayerTime(playerid, time, 0);
+			return 1;
+		}
+	}
+ 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+}
+CMD:settime(playerid, params[]) return cmd_ctime(playerid, params);
 CMD:ctime(playerid,params[])
 {
-	if(User[playerid][Useradmin] > 0)
+	if(User[playerid][Useradmin] > 2)
 	{
-		new ichour = strval(params);
+		new ichour, icmin;
+		if(sscanf(params, "iI(-1)", ichour, icmin)) return MSG(playerid, GOLD, "SYNTAX: /settime [hour] [optional:minute]");
 		SetWorldTime(ichour);
 		SetSVarInt("IChour", ichour);
-		if(ichour >= 6 && ichour <= 20)
-		{
-			printf(">>>>>>>>>>>>>>>>>>>>>>>>> SETDAY (ichour: %d)", ichour);
-			SetWorldTime(ichour);
-			KillTimer(NightTimer);
-			KillTimer(DayTimer);
-			DayTimer = SetTimer("DayTime", 71, true); 
-			day_condition = 1;
+		if(icmin >= 0 && icmin < 59) {
+			SetSVarInt("ICmin", icmin);
 		}
-		else 
-		{
-			printf(">>>>>>>>>>>>>>>>>>>>>>>>> SETNIGHT (ichour: %d)", ichour);
-			KillTimer(NightTimer);
-			KillTimer(DayTimer);
-			NightTimer = SetTimer("NightTime", 2300, true); 
-			SetWorldTime(0);
-			day_condition = 0;
+		if(icmin == -1) {
+			icmin = GetSVarInt("ICmin");
 		}
+		new query[124];
+		format(query, sizeof query,"SERVER:"GR" Time has been set to %2d:%2d; the hud will update in a minute.", ichour, icmin);
+		MSG(playerid, GOLD, query);
+		MSG(playerid, GOLD, "Info:"GR" Daytime (6:00 to 20:00), Night Time (21:00 to 5:00)");
+		// MSG(playerid, GOLD, "Info:"GR" An IC day is 64.8 minutes; an IC night is 20.7 hours");
+		// Thats 22.5 hours, where's the 1.5 bro? Add it to day time
+		switch(ichour) {
+			case 6..20: { // Daytime
+				printf(">>>>>>>>>>>>>>>>>>>>>>>>> SETDAY (ichour: %d)", ichour);
+				SetWorldTime(ichour);
+				KillTimer(NightTimer);
+				KillTimer(DayTimer);
+				DayTimer = SetTimer("DayTime", 71, true); 
+				day_condition = 1;
+			}
+			default: {
+				printf(">>>>>>>>>>>>>>>>>>>>>>>>> SETNIGHT (ichour: %d)", ichour);
+				KillTimer(NightTimer);
+				KillTimer(DayTimer);
+				NightTimer = SetTimer("NightTime", 2300, true); 
+				SetWorldTime(0);
+				day_condition = 0;
+			}
+		}
+		// if(ichour >= 6 && ichour <= 20) Day
+		// {
+
+		// }
+		// else Night
+		// {
+		// 	printf(">>>>>>>>>>>>>>>>>>>>>>>>> SETNIGHT (ichour: %d)", ichour);
+		// 	KillTimer(NightTimer);
+		// 	KillTimer(DayTimer);
+		// 	NightTimer = SetTimer("NightTime", 2300, true); 
+		// 	SetWorldTime(0);
+		// 	day_condition = 0;
+		// }
 		return 1;
 	}
 	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
@@ -37834,7 +37873,7 @@ public DayTime()
 			SetSVarInt("ICmin", 0);		
 			printf("[publicDayTime] An IC hour has passed. [ICHOUR: %d]", ichour);	
 			switch(ichour) {
-				6..20: {
+				case 6..20: {
 					SetWorldTime(ichour);
 					printf("[publicDayTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
 					day_condition = 1;
@@ -37934,30 +37973,52 @@ public NightTime()
 				SetSVarInt("IChour", 0);
 				
 			}
-			if(ichour > 20 && ichour < 6)
-			{
-				SetWorldTime(0);
-				printf("[NightTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
-			}
-			else 
-			{	
-				KillTimer(DayTimer);
-				KillTimer(NightTimer);
-				SetWorldTime(6);
-				DayTimer = SetTimer("DayTime", 71, true); 
-				printf("[NightTime] An IC hour passed and time has been changed to Day. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
-				foreach(Player, i)
-				{
-					if(day_condition == 1 && User[i][Userrace] == 1 && GetPlayerInterior(i) == 0)
-					{
-						MSG(i, RED,"SUNLIGHT: You have been subjected to the rays of sunlight and slowly started scorching. Seek shelter immediately!");
-						SetHealth(i, User[i][Health]-2);
-						if(GetPVarInt(i, "SunburnCalled") == 0)  SetTimerEx("SunburnTimer", 10000, false, "i", i);
-						SetPVarInt(i, "SunburnCalled", 1);
-					}
+			switch(ichour) {
+				case 21,22,23,24,0,1,2,3,4,5: { // Night
+					SetWorldTime(0);
+					printf("[NightTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
 				}
-
+				default: {
+					KillTimer(DayTimer);
+					KillTimer(NightTimer);
+					SetWorldTime(6);
+					DayTimer = SetTimer("DayTime", 71, true); 
+					printf("[NightTime] An IC hour passed and time has been changed to Day. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+					foreach(Player, i)
+					{
+						if(day_condition == 1 && User[i][Userrace] == 1 && GetPlayerInterior(i) == 0)
+						{
+							MSG(i, RED,"SUNLIGHT: You have been subjected to the rays of sunlight and slowly started scorching. Seek shelter immediately!");
+							SetHealth(i, User[i][Health]-2);
+							if(GetPVarInt(i, "SunburnCalled") == 0)  SetTimerEx("SunburnTimer", 10000, false, "i", i);
+							SetPVarInt(i, "SunburnCalled", 1);
+						}
+					}					
+				}
 			}
+			// if(ichour > 20 && ichour < 6)
+			// {
+			// 	SetWorldTime(0);
+			// 	printf("[NightTime] SetWorldTime has been called. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+			// }
+			// else 
+			// {	
+			// 	KillTimer(DayTimer);
+			// 	KillTimer(NightTimer);
+			// 	SetWorldTime(6);
+			// 	DayTimer = SetTimer("DayTime", 71, true); 
+			// 	printf("[NightTime] An IC hour passed and time has been changed to Day. [IChour: %d; ICmin: %d; ICsec: %d]",ichour, icmin, icsec);
+			// 	foreach(Player, i)
+			// 	{
+			// 		if(day_condition == 1 && User[i][Userrace] == 1 && GetPlayerInterior(i) == 0)
+			// 		{
+			// 			MSG(i, RED,"SUNLIGHT: You have been subjected to the rays of sunlight and slowly started scorching. Seek shelter immediately!");
+			// 			SetHealth(i, User[i][Health]-2);
+			// 			if(GetPVarInt(i, "SunburnCalled") == 0)  SetTimerEx("SunburnTimer", 10000, false, "i", i);
+			// 			SetPVarInt(i, "SunburnCalled", 1);
+			// 		}
+			// 	}
+			// }
 		}
 
 	}
@@ -60269,7 +60330,7 @@ CMD:respawncar(playerid,params[])
 	if(User[playerid][Useradmin] < 2) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	new Float:x,Float:y,Float:z, carid;
 	GetPlayerPos(playerid,x,y,z);
-	sscanf(params, "i", carid);
+	if(sscanf(params, "i", carid)) return MSG(playerid, GOLD, "SYNTAX:"GR" /respawncar [vehicleid]");
 	RespawnVehicle(carid);
 	MSG(playerid, GOLD, "SERVER:"GR" Vehicle respawned.");
 	return 1;
@@ -60281,8 +60342,8 @@ stock RespawnVehicle(vehicleid)
 		RepairVehicle(vehicleid);
 		SetVehiclePos(vehicleid, V[vehicleid][vx], V[vehicleid][vy], V[vehicleid][vz]);
 		SetVehicleZAngle(vehicleid, V[vehicleid][vrot]);
-		LinkVehicleToInterior(id,V[vehicleid][vint]);
-		SetVehicleVirtualWorld(id,V[vehicleid][vvw]);
+		LinkVehicleToInterior(vehicleid,V[vehicleid][vint]);
+		SetVehicleVirtualWorld(vehicleid,V[vehicleid][vvw]);
 		if(AdminVeh[vehicleid])
 		{
 			DestroyVehicle(vehicleid);
@@ -65386,7 +65447,7 @@ CMD:ahelp(playerid,params[])
 			// strcat(large_string, "[*] /setmaxhealthlevel /revive /changeform /removeform /maphelp (for mappers) /updatetrait /supdatetrait /removetrait /makedonator\n");
 			// strcat(large_string, "[*] /changedonator /removedonator");
 
-			strcat(large_string, ""R"[GENERAL]"D" /serverstats /assist /requests /aduty /storyteller /a /print /xplogs\n");
+			strcat(large_string, ""R"[GENERAL]"D" /serverstats /assist /requests /aduty /storyteller /a /print /xplogs /settime\n");
 			strcat(large_string, ""R"[UTILITY]"D" /gotopos /gethere /spawnmoney  /respawn /getowner /inter /interiorlist /seecon /jetpack\n");
 			strcat(large_string, ""R"[UTILITY]"D" /revive /pnpc /changeform /removeform /givedrug /takedrug  /getuser /goto /setvw /setint /spawnwep /pbanks /an\n");
 			strcat(large_string, ""R"[UTILITY]"D" /phouses /pvehicles /checkcs /ajail /release /pmyinfo\n");
