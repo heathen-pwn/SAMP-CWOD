@@ -2240,6 +2240,31 @@ CMD:ptime(playerid, params[]) {
  	return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 }
 CMD:settime(playerid, params[]) return cmd_ctime(playerid, params);
+/*
+Daytime
+
+1 sec = 72 ms
+1 min = 60*72 = 4320 ms
+1 hour = 259200 ms
+15 hours = 3888000 ms
+
+15 IC hours = 1 OOC hour
+
+===
+
+Night time
+
+1 sec = 2300 ms
+1 min = 60*2300 = 138000 ms
+1 hour = 60*138000 = 8280000ms
+
+9 hours = 8280000*9 = 74520000 = 20.7 hours
+
+1 IC night is 20.7 hours
+
+# 1.5 hours is missing
+# Add it to Day Time
+*/
 CMD:ctime(playerid,params[])
 {
 	if(User[playerid][Useradmin] > 2)
@@ -66717,7 +66742,8 @@ CMD:gotopos(playerid,params[])
 }
 CMD:gotocar(playerid,params[])
 {
-	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
+	// if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
+	if(User[playerid][Useradmin] < 2) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	new Float:x,Float:y,Float:z;
 	new id = strval(params);
 	GetVehiclePos(id,x,y,z);
