@@ -67659,6 +67659,8 @@ CMD:w(playerid,params[])
 			}
 			//////SendMoleMessage(playerid,string);
 		}
+		format(string, sizeof string, "whispers %s.", sendernameEx(target));
+		cmd_bme(playerid, string);
 	}
 	return 1;
 }
