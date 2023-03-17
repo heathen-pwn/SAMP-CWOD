@@ -50617,6 +50617,10 @@ stock ResetCS(id)
 		for(new b = 0; b < sizeof(rVirtues); b++) DeletePVar(id, rVirtues[b]);
 		for(new c = 0; c < sizeof(rDisciplines); c++) DeletePVar(id, rDisciplines[c]);
 		for(new d = 0; d < sizeof(rSpheres); d++) DeletePVar(id, rSpheres[d]);
+		for(new d = 0; d < sizeof(hCreeds); d++) DeletePVar(id, hCreeds[d]);
+		for(new d = 0; d < sizeof(rLores); d++) DeletePVar(id, rLores[d]);
+		for(new d = 0; d < sizeof(rRealms); d++) DeletePVar(id, rRealms[d]);
+		for(new d = 0; d < sizeof(rArts); d++) DeletePVar(id, rArts[d]);
 		for(new e = 0; e < sizeof(sNoEdit); e++) DeletePVar(id, sNoEdit[e]);
 		UpdateTrait(id, "Strength", 1);
 		UpdateTrait(id, "Dexterity", 1);
@@ -60969,6 +60973,12 @@ public OnPlayerText(playerid, text[])
 	}
 	if(User[playerid][shapeshift] >= 2 && User[playerid][shapeshift] <= 4) cmd_bme(playerid, "barks");
 	if(User[playerid][shapeshift] >= 5) cmd_bme(playerid, "says");
+	/* A fix to chatting stops current animation
+		Register last animation in ApplyAnim
+		Use ApplyAnim to apply chat anims here
+		Before applying chat anims;
+			do: check if next anim is chat anim while previous was walking then dont apply chat anim
+	*/
 	if(!User[playerid][pinvis] || User[playerid][Death] > 0 || !User[playerid][tazed] && User[playerid][animation] == false)
 	{
 		new animindex = GetPlayerAnimationIndex(playerid);
