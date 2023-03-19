@@ -174,6 +174,8 @@ AddCharModel(1, 22004, kadenobfuscated.dff, kadenobfuscated.txd);
 AddCharModel(1, 22005, Clairered.dff, Clairered.txd);
 AddCharModel(1, 22006, mephuniform.dff, mephuniform.txd);
 AddCharModel(1, 22007, Hayden_K_Nassiim.dff, Hayden_K_Nassiim.txd);
+AddCharModel(1, 22008, skeeper1.dff, skeeper1.txd);
+AddCharModel(1, 22009, skeeper2.dff, skeeper2.txd);
 
 
 
