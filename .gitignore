@@ -13,3 +13,6 @@ filterscripts/testdraw.pwn
 crashinfo.txt
 filterscripts/callback.*
 filterscripts/action.*
+backups/*
+bats/*
+filterscripts/chatanim.pwn
