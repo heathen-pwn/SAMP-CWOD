@@ -44140,8 +44140,15 @@ public OnPlayerDisconnect(playerid, reason)
 	foreach(Player,i)
 	{
 		/*if(User[i][Seecon])*/ 
-		if(GetPVarInt(playerid, "VanishNow_FinalNightsRP") == 0)
-			SFM(i,GRAD4,"*** Disconnection: Username: %s (ID:%i) (%s)",User[playerid][Username],playerid, szDisconnectReason[reason]);
+		if(GetPVarInt(playerid, "VanishNow_FinalNightsRP") == 0) {
+			if(User[i][Useradmin] > 0) {
+				ip[18];
+	    		GetPlayerIp(i,ip,sizeof ip);
+				SFM(i,GRAD4,"*** Disconnection: Username: %s (ID:%i) (%s) (IP: %s)",User[playerid][Username],playerid, szDisconnectReason[reason], ip);
+			} else {
+				SFM(i,GRAD4,"*** Disconnection: Username: %s (ID:%i) (%s)",User[playerid][Username],playerid, szDisconnectReason[reason]);
+			}
+		}
 		if(User[playerid][specing] > -1)
 		{
 			if(User[i][specedby] == playerid)
@@ -65198,7 +65205,7 @@ Dialog:dHelpDialog(playerid, response, listitem, inputtext[])
 				/(desc)ription /(mydesc)ription /inspect /(r)e(m)ove(desc)ription /levelup /anims /ask /breakin /bloodpack\n \
 				/label /dlabel /mylabels /dmylabels /cough /snarl /roar /growl /pdistance /frisk /offlinepm\n \
 				/plabel /dplabel /plabels /pdmylabels /(i)nventory /forumname /showrpf  /link /clearchat /scrapcar /print\n \
-				/whistle /blindfold(OOC) /removeblindfold\
+				/whistle /blindfold(OOC) /removeblindfold /seecon\
 				","Close","Back");
 			}		
 			case 1: // Ammo
