@@ -39823,7 +39823,7 @@ stock IsRPName(const name[], max_underscores = 2)
 
 CMD:seecon(playerid,params[])
 {
-	if(User[playerid][Useradmin] < 1) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+	// if(User[playerid][Useradmin] < 1) return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	new query[55];
 	if(User[playerid][Seecon])
 	{
