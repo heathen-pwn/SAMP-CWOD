@@ -64587,6 +64587,9 @@ public PlayerDeath(playerid) // CHECK ME
 			User[playerid][Death] = -1;
 			cmd_dw(playerid,"");
 			MSG(playerid,RED,"SERVER: You have died...");
+			new bool:dropmoney;
+			if(User[playerid][uMoney] > 100) 
+				dropmoney = true;
 			GiveMoney(playerid, -100);
 			SetHealth(playerid, 100);
 			KillTimer(User[playerid][DeathTimer]);
@@ -64649,7 +64652,11 @@ public PlayerDeath(playerid) // CHECK ME
 			CORPSE[corpse][cVW] = User[playerid][pvw];
 			CORPSE[corpse][cObject] = actor;
 			CORPSE[corpse][cTime] = gettime()+3600;
-			CORPSE[corpse][cMoney] = 100;
+			if(dropmoney == true) {
+				CORPSE[corpse][cMoney] = 100;
+			} else {
+				CORPSE[corpse][cMoney] = 0;
+			}
 			CORPSE[corpse][cCOD] = User[playerid][pCOD];
 			User[playerid][pCOD] = 0;
 			if(isnull(User[playerid][donator])) 
@@ -64669,6 +64676,12 @@ public PlayerDeath(playerid) // CHECK ME
 			format(query,sizeof query,"UPDATE users SET weapon = '%s',ammo = '%s' WHERE userid = %d",wep,ammo,User[playerid][UserID]);
 			db_query(Database, query);
 			Iter_Add(Corpses, corpse);
+			printf("[corpse] Corpse %d has been spawned by %s (ID: %d; UID: %d) on death count = %d", 
+			corpse, User[playerid][Username], playerid, User[playerid][UserID], User[playerid][Death]);
+			printf("[corpse-data] cUser %d cX %f cY %f cZ %f cR %f cSkin %d cVW %d cObject %d cTime %d cMoney $%d cCOD %d cFirstSlot %d cFirstSlot_Ammo %d cSecondSlot %d cSecondSlot_Ammo %d", 
+			CORPSE[corpse][cUser], CORPSE[corpse][cX], CORPSE[corpse][cY], CORPSE[corpse][cZ], CORPSE[corpse][cR], CORPSE[corpse][cSkin], 
+			CORPSE[corpse][cVW], CORPSE[corpse][cObject], CORPSE[corpse][cTime], CORPSE[corpse][cMoney], CORPSE[corpse][cCOD], 
+			CORPSE[corpse][cFirstSlot], CORPSE[corpse][cFirstSlot_Ammo], CORPSE[corpse][cSecondSlot], CORPSE[corpse][cSecondSlot_Ammo]);
 			//--------------------------------------
 			return 2;
 	    }
