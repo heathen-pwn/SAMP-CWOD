@@ -63936,8 +63936,8 @@ CMD:weapondraw(playerid,params[])
 CMD:weaponstore(playerid,params[])
 {
     if(!User[playerid][Logged]) return 0;
-
-    if(User[playerid][Death] > 0) MSG(playerid,GOLD,"ERROR:"GR" You are heavily injured.");
+	
+    if(User[playerid][Death] > 0) return MSG(playerid,GOLD,"ERROR:"GR" You are heavily injured.");
 	if(User[playerid][shapeshift] > 1) return MSG(playerid, GOLD, "ERROR:"GR" You cannot use this feature while shapeshifted.");
     if(User[playerid][animation]) return MSG(playerid,GOLD,"ERROR:"GR" You cannot use this feature right now.");
  	if(User[playerid][tazed] == 1)
@@ -64499,6 +64499,17 @@ CMD:callmydeath(playerid,params[])
 	User[playerid][Death] = 250;
 	User[playerid][pCOD] = strval(params);
 	UpdateDynamic3DTextLabelText(User[playerid][UserTag],0xB4191DFF,sendernameEx(playerid));
+	return 1;
+}
+CMD:killme(playerid,params[])
+{
+	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
+	KillPlayer(playerid);
+	// ApplyAnimation(playerid, "PED", "KO_shot_stom", 4.0, 0, 1, 1, 1, 0, 1);
+	// User[playerid][DeathTimer] = SetTimerEx("PlayerDeath",250,1,"d",playerid);
+	// User[playerid][Death] = 250;
+	// User[playerid][pCOD] = strval(params);
+	// UpdateDynamic3DTextLabelText(User[playerid][UserTag],0xB4191DFF,sendernameEx(playerid));
 	return 1;
 }
 CMD:stopanim(playerid,params[]) return cmd_sa(playerid,params);
