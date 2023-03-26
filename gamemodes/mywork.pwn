@@ -1698,7 +1698,7 @@ CMD:vinfo(playerid, params[])
 }
 CMD:deletemods(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0)
+	if(User[playerid][Useradmin] > 0)
 	{
 		new componentid, veh;
 		if(sscanf(params, "i", veh)) return MSG(playerid, GOLD, "ERROR:"GR" /deletemods [vehicleid]");
@@ -18101,7 +18101,7 @@ stock SpawnVehicle(owner,model,Float:x,Float:y,Float:z,Float:rotation,color1,col
 }
 CMD:pnpc(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0)
+	if(User[playerid][Useradmin] > 0)
 	{
 		new id;
 		if(sscanf(params,"u", id))
@@ -44142,7 +44142,7 @@ public OnPlayerDisconnect(playerid, reason)
 		/*if(User[i][Seecon])*/ 
 		if(GetPVarInt(playerid, "VanishNow_FinalNightsRP") == 0) {
 			if(User[i][Useradmin] > 0) {
-				ip[18];
+				new ip[18];
 	    		GetPlayerIp(i,ip,sizeof ip);
 				SFM(i,GRAD4,"*** Disconnection: Username: %s (ID:%i) (%s) (IP: %s)",User[playerid][Username],playerid, szDisconnectReason[reason], ip);
 			} else {
@@ -46079,7 +46079,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 			|| User[playerid][Userrace] == 4 
 			|| User[playerid][Userrace] == 5 
 			|| User[playerid][Userrace] == 6 
-			|| User[playerid][Useradmin] != 0)
+			|| User[playerid][Useradmin] > 0)
 			{
 				if(strfind(inputtext, "Nature:", false) != -1)
 				{
@@ -46121,7 +46121,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 				if(strfind(inputtext, "Affiliation:", false) != -1)
 				{
 					GetPVarString(User[playerid][SheetMonitor], "Affiliation", trait, MAX_TRAIT_NAME);
-					if(User[playerid][Useradmin] != 0)
+					if(User[playerid][Useradmin] > 0)
 					{
 						if(User[User[playerid][SheetMonitor]][Userrace] == 0) Dialog_Show(playerid,dSheetSetAff,DIALOG_STYLE_INPUT,"Interactive Character Sheet","This trait represents your character's affiliation. You can only set your affiliation once, to change it you need advisors' supervision.\nValid Affiliations: None, Ghoul, Kinfolk, Society of Leopold, Government Agency, The Arcanum","Set","Cancel");
 						else if(User[User[playerid][SheetMonitor]][Userrace] == 3) Dialog_Show(playerid,dSheetSetAff,DIALOG_STYLE_INPUT,"Interactive Character Sheet","Mages tend to be social creatures. The Affiliation Trait reflects your character's overall allegiance (Traditions, Technocracy, Disparate), and the next entry defines her particular group within that affiliation. ","Set","Cancel");	
@@ -46478,7 +46478,7 @@ Dialog:dSheet(playerid, response, listitem, inputtext[])
 					}
 					else 
 					{
-						if(User[playerid][Useradmin] != 0)
+						if(User[playerid][Useradmin] > 0)
 						{
 							return UpgradeTrait(User[playerid][SheetMonitor], "Arete");
 						}
@@ -50884,7 +50884,7 @@ CMD:givegnosis(playerid,params[])
 }
 CMD:giverpitem(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0)
+	if(User[playerid][Useradmin] > 0)
 	{
 		//UpdateItem(playerid, slot, itemid, itemname[], value, condition = 100, bool:mergable = false, bool:fakeitem = false)
 		if(isnull(User[playerid][forumname])) return MSG(playerid, GOLD, "ERROR:"GR" Set up your (/forumname) before using this command.");
@@ -60862,7 +60862,7 @@ public OnPlayerText(playerid, text[])
 	if(User[playerid][specing] > -1) return 0;
 	new string[130];
 	// npc chatting
-	if(User[playerid][Useradmin] != 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
+	if(User[playerid][Useradmin] > 0 || GetPVarInt(playerid, "pNPCPerm") == 1 || IsStoryteller(playerid))
 	{
 		//strfind(const string[], const sub[], bool:ignorecase=false, pos=0)
 		new npc_chat = strfind(text, "n<", false); 
@@ -64884,7 +64884,7 @@ public OnVehicleStreamOut(vehicleid, forplayerid)
 
 public OnPlayerClickPlayer(playerid, clickedplayerid, source)
 {
-	if(User[playerid][Useradmin] != 0)
+	if(User[playerid][Useradmin] > 0)
 	{
 		new player[5];
 		format(player, 5, "%d", clickedplayerid);
@@ -67246,7 +67246,7 @@ CMD:id(playerid,params[])
 new bool:globalchat;
 CMD:togooc(playerid, params[])
 {
-	if(User[playerid][Useradmin] != 0)
+	if(User[playerid][Useradmin] > 0)
 	{
 		if(globalchat == true)
 			globalchat = false;
@@ -67268,7 +67268,7 @@ CMD:g(playerid,params[])
 		printf("[%s][%s] [ooc] %s: %s",PasteDate(),PasteTime(),User[playerid][Username],string);
 		if(strlen(string) <= 68)
 		{
-			if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"(( [Global OOC] %s: %s ))",User[playerid][forumname],string);
+			if(User[playerid][Useradmin] > 0) format(string,sizeof(string),"(( [Global OOC] %s: %s ))",User[playerid][forumname],string);
 			else format(string,sizeof(string),"(( [Global OOC] %s: %s ))",User[playerid][pUsername],string);
 			SendClientMessageToAll(DIRTY_YELLOW, string);				
 		}
@@ -67278,7 +67278,7 @@ CMD:g(playerid,params[])
 				strmid(texts,string,68,129);
 				strins(string, "-", 68, 1);
 				strdel(string, 69, 129);
-				if(User[playerid][Useradmin] != 0) format(string,sizeof(string),"(( [Global OOC] %s: %s...",User[playerid][forumname],string);
+				if(User[playerid][Useradmin] > 0) format(string,sizeof(string),"(( [Global OOC] %s: %s...",User[playerid][forumname],string);
 				else if(User[playerid][Useradmin] == 0) format(string,sizeof(string),"(( [Global OOC] %s: %s...",User[playerid][pUsername],string);
 				SendClientMessageToAll(DIRTY_YELLOW, string);
 				format(string,sizeof(string),"...%s ))",texts);
@@ -68002,7 +68002,7 @@ CMD:rplogs(playerid,params[])
 	if(User[playerid][Logged])
 	{
 		new id = -1;
-		if(!isnull(params) && User[playerid][Useradmin] != 0) 
+		if(!isnull(params) && User[playerid][Useradmin] > 0) 
 			id = strval(params);
 		printf("id %d", id);
 		if(isnull(params))
@@ -68410,7 +68410,7 @@ stock Staff(color,string[]) // colored
 {
 	foreach(Player,i)
 	{
-	    if(User[i][Useradmin] != 0 && !IsStoryteller(i))
+	    if(User[i][Useradmin] > 0 && !IsStoryteller(i))
 	    {
 	        MSG(i,color,string);
 	    }
