@@ -1358,11 +1358,18 @@ CMD:posa(playerid,params[])
 CMD:savepos(playerid,params[])
 {
 	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
+	new comment[24];
+	sscanf(params, "s", comment);
 	new Float:x,Float:y,Float:z;
 	GetPlayerPos(playerid,x,y,z);
 	//printf("{%f,%f,%f},",x,y,z);
 	new entry[256];
-	format(entry, sizeof(entry), "{%f,%f,%f,%d},\r\n",x,y,z,GetPlayerInterior(playerid));
+	if(!isnull(comment)) {
+		format(entry, sizeof(entry), "{%f,%f,%f,%d},\r\n",x,y,z,GetPlayerInterior(playerid));
+	} else {
+		format(entry, sizeof(entry), "{%f,%f,%f,%d}, \/\/ %s\r\n",x,y,z,GetPlayerInterior(playerid), comment);
+	}
+	
 	new File:hFile;
 	hFile = fopen("/Logs/PosInt.log", io_append);
 	fwrite(hFile, entry);
@@ -17890,7 +17897,8 @@ CMD:busroute(playerid,params[])
 			if(User[playerid][uBW][2] > 0) return SFM(playerid,GOLD,"ERROR:"GR" You have to wait for the cooldown; %d minute(s) left.",User[playerid][uBW][2]);
 			if(!IsPlayerInRangeOfPoint(playerid,2,BUS))
 			{
-				MSG(playerid,GOLD,"ERROR:"GR" You are not in range of your job start point at El Corona. It has been pinpointed in your map.");
+				// MSG(playerid,GOLD,"ERROR:"GR" You are not in range of your job start point at El Corona. It has been pinpointed in your map.");
+				MSG(playerid,GOLD,"ERROR:"GR" You are not in range of your job start point at Dillimore. It has been pinpointed in your map.");
 				SetPlayerCheckpoint(playerid,BUS,1);
 				return 1;
 			}
