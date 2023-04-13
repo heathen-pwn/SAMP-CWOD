@@ -60410,6 +60410,7 @@ public RespawnAllCars()
 			if(!IsVehicleOccupied(i))
 			{
 				RespawnVehicle(i);
+				SetVehicleZAngle(i, V[i][vrot]);
 			}	
 	}
 	carrespawn = false;
