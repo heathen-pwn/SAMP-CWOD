@@ -34681,7 +34681,7 @@ public OnGameModeInit()
 	DSRP_UnidentifiedPastebin();
 	DSRP_Park();
 	DSRP_VampMansion();
-	DSRP_DillimoreBar();
+	// DSRP_DillimoreBar();
 	// mappings finished
 
 	new xhour,xmin,xsec;
@@ -37053,7 +37053,7 @@ DSRP_VampMansionRemoveBuild(playerid) {
 	RemoveBuildingForPlayer(playerid, 1440, 202.5469, -33.1250, 1.0547, 0.25);
 }
 // Streamer loads these functions by default w/o need of being called (bar)
-stock DSRP_DillimoreBar() {
+DSRP_DillimoreBar() {
 	//Objects////////////////////////////////////////////////////////////////////////////////////////////////////////
 	new tmpobjid;
 	//native STREAMER_TAG_OBJECT CreateDynamicObjectEx(modelid, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz, Float:streamdistance = STREAMER_OBJECT_SD, Float:drawdistance = STREAMER_OBJECT_DD, worlds[] = { -1 }, interiors[] = { -1 }, players[] = { -1 }, 
@@ -39928,13 +39928,13 @@ public OnPlayerConnect(playerid)
 	 	if(db_num_rows(Result))
 	    {
 	        db_get_field_assoc(Result, "password", User[playerid][Userpass], 129);
-	        Dialog_Show(playerid,dLogin, DIALOG_STYLE_PASSWORD, "Login", "Type in your password below to log in.", "Login", "Leave");
+	        Dialog_Show(playerid,dLogin, DIALOG_STYLE_PASSWORD, "Login", "Type in your password below to log in.", "Login", "Esc");
 	    }
 	    else
 	    {
 			// "Welcome to Final Nights Roleplay,\n\nType in a password below to register an account."
 			format(large_string,sizeof large_string,"Welcome to "SERVERNAME", %s!\nType in a password below to register an account:",User[playerid][Username]);
-	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", large_string, "Register", "Leave");
+	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", large_string, "Register", "Esc");
 			//Type in a password below to register an account.
 	    }
     }
@@ -39989,18 +39989,18 @@ Dialog:dRegister(playerid, response, listitem, inputtext[])
         if(strlen(inputtext) < 4 || isnull(inputtext))
         {
 	        MSG(playerid,GOLD, "ERROR:"GR" Invalid length. Your password must be at least greater than three characters.");
-	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", REGISTER_DIALOG, "Register", "Leave");
+	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", REGISTER_DIALOG, "Register", "Esc");
 	        return 1;
         }
         if(strlen(inputtext) > 41)
         {
   	        MSG(playerid,GOLD, "ERROR:"GR" Invalid length. Your password must be at least greater than three characters and no greater than forty one.");
-	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", REGISTER_DIALOG, "Register", "Leave");
+	        Dialog_Show(playerid,dRegister, DIALOG_STYLE_PASSWORD, "Register", REGISTER_DIALOG, "Register", "Esc");
 	        return 1;
         }
   		MSG(playerid, WHITE, "SERVER: You have successfully registered on our server and have been automatically logged in!");
   		strins(User[playerid][Userpass],inputtext,0);
-  		Dialog_Show(playerid,dGender,DIALOG_STYLE_INPUT,"Sex Selection","Type in your character's sex in the empty field below:\n\nValid values: Male / Female","Input","Leave");
+  		Dialog_Show(playerid,dGender,DIALOG_STYLE_INPUT,"Sex Selection","Type in your character's sex in the empty field below:\n\nValid values: Male / Female","Input","Esc");
 		new ip[18];
 		GetPlayerIp(playerid, ip, sizeof ip);
 		foreach(Player,i)
@@ -40040,7 +40040,7 @@ Dialog:dGender(playerid, response, listitem, inputtext[])
 		
 	    MSG(playerid,WHITE,"SERVER: You have selected the sex: \"Female\"");
 	    User[playerid][uGender] = 1;
-	    Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Display","Leave");
+	    Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Display","Esc");
 		//ShowPlayerDialog(playerid, 0, DIALOG_STYLE_PREVIEW_MODEL, "Skins", large_string, "Select", "Cancel"); 
 		User[playerid][Level] = -1;
 		/*---------------------------------------------------------------*/
@@ -40062,7 +40062,7 @@ Dialog:dGender(playerid, response, listitem, inputtext[])
  		MSG(playerid,WHITE,"SERVER: You have selected the sex: \"Male\"");
    		User[playerid][uGender] = 0;
 		User[playerid][Level] = -1;
-   		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Display","Leave");
+   		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Display","Esc");
 		/*---------------------------------------------------------------*/
 		ShowSkin[playerid] = CreatePlayerTextDraw(playerid,13.333333, 195.633331, "_");
 		PlayerTextDrawBackgroundColor(playerid,ShowSkin[playerid], 116);
@@ -40076,7 +40076,7 @@ Dialog:dGender(playerid, response, listitem, inputtext[])
 		SetupPlayer(playerid);
    		return 1;
    	}
-    Dialog_Show(playerid,dGender,DIALOG_STYLE_INPUT,"Sex Selection","Type in your character's sex in the empty field below:\n\nValid values: Male / Female","Input","Leave");
+    Dialog_Show(playerid,dGender,DIALOG_STYLE_INPUT,"Sex Selection","Type in your character's sex in the empty field below:\n\nValid values: Male / Female","Input","Esc");
 	return 1;
 }
 
@@ -40089,7 +40089,7 @@ Dialog:dSkin(playerid, response, listitem, inputtext[])
 	if(!IsNumeric(inputtext))
 	{
 		MSG(playerid,GOLD,"ERROR:"GR" Insert a numeric value.");
-		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Leave");
+		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Esc");
 		return 1;
 	}
 	skin = strval(inputtext);
@@ -40102,7 +40102,7 @@ Dialog:dSkin(playerid, response, listitem, inputtext[])
 		else
 		{
 			MSG(playerid,GOLD,"ERROR:"GR" Invalid skin ID.");
-			Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Leave");
+			Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Esc");
 			return 1;
 		}
 
@@ -40110,7 +40110,7 @@ Dialog:dSkin(playerid, response, listitem, inputtext[])
 	if(CopSkin(skin) || MedicSkin(skin))
 	{
 		MSG(playerid,GOLD,"ERROR:"GR" Specified skin is reserved to a faction.");
-		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Leave");
+		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Esc");
 		return 1;		
 	}
 	User[playerid][uSkin] = skin;
@@ -40128,7 +40128,7 @@ Dialog:dSpawnPointConfirmSkin(playerid, response, listitem, inputtext[])
 	if(!response)
 	{
 		format(large_string, 256, "Select a skin before you spawn, the skin will be displayed to you for confirmation.\nGTA:SA skin IDs are from 1 to 311.\nCustom skin IDs range from %d to %d.", CUSTOM_SKIN_START, CUSTOM_SKIN_END);
-		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Leave");
+		Dialog_Show(playerid,dSkin,DIALOG_STYLE_INPUT,"Skin Selection",large_string,"Select","Esc");
 		User[playerid][gVar] = -10000;
 		PlayerTextDrawHide(playerid, ShowSkin[playerid]);
 		TextDrawHideForPlayer(playerid, ShowFrame);
@@ -40136,8 +40136,8 @@ Dialog:dSpawnPointConfirmSkin(playerid, response, listitem, inputtext[])
 		return 1;
 	}
 
-	//Dialog_Show(playerid,dSpawnPoint,DIALOG_STYLE_LIST,"Spawn Point Selection","Market Station\nUnity Station","Input","Leave");
-	Dialog_Show(playerid,dServerInfo,DIALOG_STYLE_MSGBOX,"Server Information",""SERVERNAME" is a roleplaying setting based off the Classic World of Darkness universe. It represents a crossover of the notable games.\nVampire: The Masquerade and Werewolf: The Apocalypse, the two game settings are carried cooperatively and an experience is created-\n-where the specified game settings can be reciprocally played to full extent.\n\nCredits: \n• "MAR"Vampire: The Masquerade"D", Onyx Path Publishing\n• "WR"Werewolf: The Apocalypse"D", Onyx Path Publishing\n• "MAGE"Mage: The Ascension"D", Onyx Path Publishing\n• "HUNTER"Hunter: The Reckoning"D", Onyx Path Publishing\n• "DEMON"Demon: The Fallen"D", Onyx Path Publishing\n• "CHANGELING"Changeling: The Dreaming"D", Onyx Path Publishing\n• Troika Games for VtM:B models.\n• Blizzard Entertainment for World of Warcraft Models.","Continue","Leave");
+	//Dialog_Show(playerid,dSpawnPoint,DIALOG_STYLE_LIST,"Spawn Point Selection","Market Station\nUnity Station","Input","Esc");
+	Dialog_Show(playerid,dServerInfo,DIALOG_STYLE_MSGBOX,"Server Information",""SERVERNAME" is a roleplaying setting based off the Classic World of Darkness universe. It represents a crossover of the notable games.\nVampire: The Masquerade and Werewolf: The Apocalypse, the two game settings are carried cooperatively and an experience is created-\n-where the specified game settings can be reciprocally played to full extent.\n\nCredits: \n• "MAR"Vampire: The Masquerade"D", Onyx Path Publishing\n• "WR"Werewolf: The Apocalypse"D", Onyx Path Publishing\n• "MAGE"Mage: The Ascension"D", Onyx Path Publishing\n• "HUNTER"Hunter: The Reckoning"D", Onyx Path Publishing\n• "DEMON"Demon: The Fallen"D", Onyx Path Publishing\n• "CHANGELING"Changeling: The Dreaming"D", Onyx Path Publishing\n• Troika Games for VtM:B models.\n• Blizzard Entertainment for World of Warcraft Models.","Continue","Esc");
 	MSG(playerid,WHITE,"SERVER: You have confirmed your skin selection. Type (/fix) if the display persists.");
 	PlayerTextDrawHide(playerid,ShowSkin[playerid]);
 	TextDrawHideForPlayer(playerid, ShowFrame);
@@ -40149,33 +40149,33 @@ Dialog:dServerInfo(playerid, response, listitem, inputtext[])
 	if(response)
 	{
 		Dialog_Show(playerid,dWODInfo,DIALOG_STYLE_MSGBOX,"Classic World of Darkness",
-		"Sometimes also referred to as 'Original World of Darkness' or 'Old World of Darkness'. The original World of Darkness line was created in 1991 with the release of Vampire: The Masquerade.\nSupport for it ended in 2004 with the release of Time of Judgment. The theme of the Classic World of Darkness is described as 'Gothic-Punk' by the developers.\n\nThe World of Darkness resembles the contemporary world, but it is darker, more devious and more conspiratorial. The dichotomy between rich and poor, influential and weak, powerful-\n-and powerless is much more pronounced than in the real world. Decadence, cynicism and corruption are common. Humans are unwitting victims or pawns of vast secret organizations-\n-of supernatural creatures. Vampires and werewolves struggle with internal factionalism and against other species in secret wars of intrigue for control of reality. The battles in these-\n-wars may last centuries, beyond the realization or comprehension of ordinary humans. This status quo is recently threatened by the rise of a global Technocratic cabal (and/or an animistic-\n-spirit of stasis and control) intent on monopolizing the power of belief and destroying all traditional supernatural societies. The mystical abilities of these non-human entities and their-\n-ability to alter reality at will are restricted by the rise of reason and disbelief in the supernatural and they are forced to rely on more mundane methods in their struggles for supremacy.","Continue","Leave");//\nThe dichotomy between rich and poor, influential and weak,","Continue","Leave");
+		"Sometimes also referred to as 'Original World of Darkness' or 'Old World of Darkness'. The original World of Darkness line was created in 1991 with the release of Vampire: The Masquerade.\nSupport for it ended in 2004 with the release of Time of Judgment. The theme of the Classic World of Darkness is described as 'Gothic-Punk' by the developers.\n\nThe World of Darkness resembles the contemporary world, but it is darker, more devious and more conspiratorial. The dichotomy between rich and poor, influential and weak, powerful-\n-and powerless is much more pronounced than in the real world. Decadence, cynicism and corruption are common. Humans are unwitting victims or pawns of vast secret organizations-\n-of supernatural creatures. Vampires and werewolves struggle with internal factionalism and against other species in secret wars of intrigue for control of reality. The battles in these-\n-wars may last centuries, beyond the realization or comprehension of ordinary humans. This status quo is recently threatened by the rise of a global Technocratic cabal (and/or an animistic-\n-spirit of stasis and control) intent on monopolizing the power of belief and destroying all traditional supernatural societies. The mystical abilities of these non-human entities and their-\n-ability to alter reality at will are restricted by the rise of reason and disbelief in the supernatural and they are forced to rely on more mundane methods in their struggles for supremacy.","Continue","Esc");//\nThe dichotomy between rich and poor, influential and weak,","Continue","Esc");
 	}
 	else Kick(playerid);
 }
 Dialog:dWODInfo(playerid, response, listitem, inputtext[])
 {
 	if(response)
-		Dialog_Show(playerid,dWODInfoVamp,DIALOG_STYLE_MSGBOX,"Vampire","In Vampire, players assume the personas of vampires: the immortal bloodsuckers of the horror genre and guide these characters through a world virtually identical to our own.\nBut these aren't quite the vampires you might know from Dracula or Twilight. The vampires that exist now, or Kindred, or Cainites, as they commonly call themselves are both-\n-similar to and different from what we might expect. In many ways, vampires resemble the familiar monsters of myth, cinema, folklore, and fiction. However, as many an intrepid-\n-vampire-hunter has learned to his sorrow - not all of the stories about vampires are true. ","Continue","Leave");
+		Dialog_Show(playerid,dWODInfoVamp,DIALOG_STYLE_MSGBOX,"Vampire","In Vampire, players assume the personas of vampires: the immortal bloodsuckers of the horror genre and guide these characters through a world virtually identical to our own.\nBut these aren't quite the vampires you might know from Dracula or Twilight. The vampires that exist now, or Kindred, or Cainites, as they commonly call themselves are both-\n-similar to and different from what we might expect. In many ways, vampires resemble the familiar monsters of myth, cinema, folklore, and fiction. However, as many an intrepid-\n-vampire-hunter has learned to his sorrow - not all of the stories about vampires are true. ","Continue","Esc");
 	else Kick(playerid);
 }
 Dialog:dWODInfoVamp(playerid, response, listitem, inputtext[])
 {
 	if(response) 	
-		Dialog_Show(playerid,dWODInfoWerewolf,DIALOG_STYLE_MSGBOX,"Werewolf","Werewolves are creatures caught between worlds:\nThey are both human and wolf, yet not truly either one. They're modern monsters with primal souls, each one a beast of flesh with a heart of spirit.\nWerewolves are sufficiently like us that in their human forms, they seem as mortal as the rest of us; no stronger, no faster, no more invulnerable.\nWhen the change comes over them, however, they become true monsters: strong enough to smash down doors and claw apart metal, swift-\n-enough to run down any human and even able to shrug off bullets.","Continue","Leave");
+		Dialog_Show(playerid,dWODInfoWerewolf,DIALOG_STYLE_MSGBOX,"Werewolf","Werewolves are creatures caught between worlds:\nThey are both human and wolf, yet not truly either one. They're modern monsters with primal souls, each one a beast of flesh with a heart of spirit.\nWerewolves are sufficiently like us that in their human forms, they seem as mortal as the rest of us; no stronger, no faster, no more invulnerable.\nWhen the change comes over them, however, they become true monsters: strong enough to smash down doors and claw apart metal, swift-\n-enough to run down any human and even able to shrug off bullets.","Continue","Esc");
 	else Kick(playerid);
 }
 Dialog:dWODInfoWerewolf(playerid, response, listitem, inputtext[])
 {
 	if(response)
-		Dialog_Show(playerid,dWODChooseRaceIntro,DIALOG_STYLE_MSGBOX,"Racial Introduction","First and foremost, everybody is allowed to create a realistic character from their own imagination which goes in accord with the game setting.\nWe wish to create an environment where everyone can play a role of their choosing, a role which they personally enjoy playing. It is important-\n-to mention that all three races (Human, Vampire and Werewolf) equally indulge their part in the game and the presence of all three races enacts-\n-a major role in shaping the game. In other words, race diversity is key -- we theoretically aim to achieve diversity and entail equal amount of-\n-players in each race; doing such will boost the roleplaying experience for everybody in the game. So know that, whatever role you intend to pl-\n-ay in the server -- your role is important and will drastically affect the entire course of the game.","Continue","Leave");
+		Dialog_Show(playerid,dWODChooseRaceIntro,DIALOG_STYLE_MSGBOX,"Racial Introduction","First and foremost, everybody is allowed to create a realistic character from their own imagination which goes in accord with the game setting.\nWe wish to create an environment where everyone can play a role of their choosing, a role which they personally enjoy playing. It is important-\n-to mention that all three races (Human, Vampire and Werewolf) equally indulge their part in the game and the presence of all three races enacts-\n-a major role in shaping the game. In other words, race diversity is key -- we theoretically aim to achieve diversity and entail equal amount of-\n-players in each race; doing such will boost the roleplaying experience for everybody in the game. So know that, whatever role you intend to pl-\n-ay in the server -- your role is important and will drastically affect the entire course of the game.","Continue","Esc");
 	else Kick(playerid);
 }
 Dialog:dWODChooseRaceIntro(playerid, response, listitem, inputtext[])
 {
 	if(response)
-		Dialog_Show(playerid,dWODChooseRaceFinal,DIALOG_STYLE_LIST,"Choose a Splat","Human","Choose","Leave");
-		// Dialog_Show(playerid,dWODChooseRaceFinal,DIALOG_STYLE_LIST,"Choose a Splat","Human\nVampire (Vampire: The Masquerade)\nWerewolf (Werewolf: The Apocalypse)\nMage (Mage: The Ascension)\nHunter (Hunter: The Reckoning)\nDemon (Demon: The Fallen)\nChangeling (Changeling: The Dreaming)","Choose","Leave");
+		// Dialog_Show(playerid,dWODChooseRaceFinal,DIALOG_STYLE_LIST,"Choose a Splat","Human","Choose","Esc");
+		Dialog_Show(playerid,dWODChooseRaceFinal,DIALOG_STYLE_LIST,"Choose a Splat","Human\nVampire (Vampire: The Masquerade)\nWerewolf (Werewolf: The Apocalypse)\nMage (Mage: The Ascension)\nHunter (Hunter: The Reckoning)\nDemon (Demon: The Fallen)\nChangeling (Changeling: The Dreaming)","Choose","Esc");
 	else Kick(playerid);
 }
 Dialog:dWODChooseRaceFinal(playerid, response, listitem, inputtext[])
@@ -40221,7 +40221,7 @@ Dialog:dWODChooseRaceFinal(playerid, response, listitem, inputtext[])
 				MSG(playerid,WHITE,"SERVER: Congratulations! You are now a "CHANGELING"Changeling"W".");				
 			}
 		}
-		Dialog_Show(playerid,dSpawnPoint,DIALOG_STYLE_LIST,"Spawn Point Selection",""SPAWNPOINTNAME" Motel\n"SPAWNPOINT2NAME" Entrance","Input","Leave");
+		Dialog_Show(playerid,dSpawnPoint,DIALOG_STYLE_LIST,"Spawn Point Selection",""SPAWNPOINTNAME" Motel\n"SPAWNPOINT2NAME" Entrance","Input","Esc");
 	}
 	else Kick(playerid);
 }
@@ -40469,7 +40469,7 @@ Dialog:dLogin(playerid, response, listitem, inputtext[]) // JOBCD ISNT BEING LOA
 	if (strcmp(inputtext, User[playerid][Userpass]))
 	{ // if the password is incorrect
 		MSG(playerid,GOLD, "ERROR:"GR" Incorrect password.");
-		Dialog_Show(playerid,dLogin, DIALOG_STYLE_PASSWORD, "Login", "Type in your password below to log in.", "Login", "Leave");
+		Dialog_Show(playerid,dLogin, DIALOG_STYLE_PASSWORD, "Login", "Type in your password below to log in.", "Login", "Esc");
         new File:pos= fopen("Logs/incorrect_attempts.txt", io_append);
         format(large_string, 256, "[%s][%s][atmpt] %s: %s\r\n", PasteDate(),PasteTime(), sendername(playerid),inputtext);
         fwrite(pos, large_string);
