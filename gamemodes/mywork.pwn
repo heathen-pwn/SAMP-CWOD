@@ -18243,7 +18243,7 @@ Dialog:dPlayerLabelList(playerid, response, listitem, inputtext[])
 				print(label);
 				new hex = HexToInt(color);
 				printf("hex %d", hex);
-				if(hex != 0) PlayerTextDrawColor(playerid, tLabel[playerid], WHITE);
+				if(hex != 0) PlayerTextDrawColor(playerid, tLabel[playerid], hex);
 			}
 			for(new i = 0; i < sizeof label; i++) if(label[i] == '*') label[i] = '`';
 			format(label, sizeof(label)-1, "%s", label);
@@ -41664,7 +41664,7 @@ stock SetupPlayer(playerid)
 	tLabel[playerid] = CreatePlayerTextDraw(playerid, 75.000000, 310.000000, "test");
 	PlayerTextDrawFont(playerid, tLabel[playerid], 1);
 	PlayerTextDrawLetterSize(playerid, tLabel[playerid], 0.2, 0.5);
-	PlayerTextDrawTextSize(playerid, tLabel[playerid], 17.000000, 80.00000); // xy inverted, x is width
+	PlayerTextDrawTextSize(playerid, tLabel[playerid], 17.000000, 120.00000); // xy inverted, x is width
 	PlayerTextDrawSetOutline(playerid, tLabel[playerid], 1);
 	PlayerTextDrawSetShadow(playerid, tLabel[playerid], 1);
 	PlayerTextDrawAlignment(playerid, tLabel[playerid], 2); // center
