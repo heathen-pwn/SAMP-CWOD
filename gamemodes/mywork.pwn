@@ -17728,12 +17728,13 @@ CMD:hud(playerid, params[])
 		{
 			User[playerid][showhud] = true;
 			TextDrawShowForPlayer(playerid, serverhud);
+			PlayerTextDrawShow(playerid, tHLevel[playerid]);
 			if(User[playerid][Userrace] != 1)
 			{
 				ShowPlayerProgressBar(playerid, bHunger);
 				ShowPlayerProgressBar(playerid, bThirst);
 				ShowPlayerProgressBar(playerid, bHealth);
-				PlayerTextDrawShow(playerid, tHLevel[playerid]);
+				
 			}
 			MSG(playerid, GOLD, "Info:"GR" Hud enabled.");
 			if(hud == 0)	
@@ -17756,7 +17757,6 @@ CMD:hud(playerid, params[])
 				HidePlayerProgressBar(playerid, bThirst);
 				HidePlayerProgressBar(playerid, bHunger);
 				HidePlayerProgressBar(playerid, bHealth);
-				PlayerTextDrawHide(playerid, tHLevel[playerid]);
 			}
 			if(hud == 1)
 			{
@@ -17767,6 +17767,7 @@ CMD:hud(playerid, params[])
 				SetPVarInt(playerid, "inventoryHud", 0);	
 			}
 			TextDrawHideForPlayer(playerid, serverhud);
+			PlayerTextDrawHide(playerid, tHLevel[playerid]);
 			MSG(playerid, GOLD, "Info:"GR" Hud disabled.");
 		}
 		return 1;
@@ -18282,7 +18283,7 @@ Dialog:dPlayerLabelCreate(playerid, response, listitem, inputtext[])
 		new id = GetPVarInt(playerid, "pLabelPlayer");
 		if(strlen(inputtext) > 64)
 				return MSG(playerid, GOLD, "ERROR:"GR" Label cannot exceed 64 characters.");
-		new query[124];
+		new query[124+64];
 		format(query,sizeof query,"SELECT labelid FROM plabels WHERE userid = %d ORDER BY labelid DESC",User[id][UserID]);
 		new DBResult: Result = db_query(Database, query);
 		new slot = 0;
@@ -41660,10 +41661,10 @@ stock SetupPlayer(playerid)
 	PlayerTextDrawFont(playerid, vfuel[playerid], 2);
 	PlayerTextDrawSetProportional(playerid, vfuel[playerid], 1);
 	/*---------------------------------------------------------------*/
-	tLabel[playerid] = CreatePlayerTextDraw(playerid, 75.000000, 321.000000, "test");
+	tLabel[playerid] = CreatePlayerTextDraw(playerid, 75.000000, 310.000000, "test");
 	PlayerTextDrawFont(playerid, tLabel[playerid], 1);
-	PlayerTextDrawLetterSize(playerid, tLabel[playerid], 0.249999, 0.599996);
-	PlayerTextDrawTextSize(playerid, tLabel[playerid], 17.000000, 396.500000);
+	PlayerTextDrawLetterSize(playerid, tLabel[playerid], 0.2, 0.5);
+	PlayerTextDrawTextSize(playerid, tLabel[playerid], 17.000000, 80.00000); // xy inverted, x is width
 	PlayerTextDrawSetOutline(playerid, tLabel[playerid], 1);
 	PlayerTextDrawSetShadow(playerid, tLabel[playerid], 1);
 	PlayerTextDrawAlignment(playerid, tLabel[playerid], 2); // center
@@ -41707,7 +41708,7 @@ stock SetupPlayer(playerid)
 
 	inventory_header[playerid] = CreatePlayerTextDraw(playerid, headerx, headery, FillNameForSetup(playerid, 99));
 	PlayerTextDrawFont(playerid, inventory_header[playerid], INVENTORY_HEADER_FONT);
-	PlayerTextDrawLetterSize(playerid, inventory_header[playerid], 0.2, 0.85);
+	PlayerTextDrawLetterSize(playerid, inventory_header[playerid], 0.2, 1);
 	PlayerTextDrawTextSize(playerid, inventory_header[playerid], 11.000000, 80.00000); // perfectly aligned;  y, x; inverted bc of center alignment
 	PlayerTextDrawSetOutline(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetShadow(playerid, inventory_header[playerid], 0);
@@ -50935,7 +50936,7 @@ CMD:giverpitem(playerid, params[])
 		//UpdateItem(playerid, slot, itemid, itemname[], value, condition = 100, bool:mergable = false, bool:fakeitem = false)
 		if(isnull(User[playerid][forumname])) return MSG(playerid, GOLD, "ERROR:"GR" Set up your (/forumname) before using this command.");
 		new target, name[MAX_ITEM_NAME], value;
-		if(sscanf(params, "us[16]i", target, name, value)) return MSG(playerid, GOLD, "SYNTAX:"GR" /giverpitem [playerid/PartOfName] [roleplayitemname] [value]");
+		if(sscanf(params, "us[30]i", target, name, value)) return MSG(playerid, GOLD, "SYNTAX:"GR" /giverpitem [playerid/PartOfName] [roleplayitemname] [value]");
 		if(strlen(name) > MAX_ITEM_NAME) return MSG(playerid, GOLD, "ERROR:"GR" Max character limit is 30.");
 		if(User[target][Logged] == false) return MSG(playerid, GOLD, "ERROR:"GR" Invalid player specified.");
 		new bool:merge = false;
