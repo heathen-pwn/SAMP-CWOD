@@ -200,8 +200,8 @@ Garage
 #define MAX_TREES 75
 
 #define ITEMS 32
-#define MAX_INVENTORY 10
-#define MAX_ITEM_NAME 16
+#define MAX_INVENTORY 20
+#define MAX_ITEM_NAME 30
 
 #define MAX_HOUSE_INVENTORY 30
 #define MAX_NPC_TRAITS 300
@@ -383,7 +383,7 @@ new moon_age[10];
 new DB:Database;
 new Text:inventory_box;
 new PlayerText:inventory_header[MAX_PLAYERS];
-new PlayerText:invslot[MAX_PLAYERS][10];
+new PlayerText:invslot[MAX_PLAYERS][MAX_INVENTORY];
 new PlayerText:tLabel[MAX_PLAYERS];
 new PlayerText:tHLevel[MAX_PLAYERS];
 
@@ -1367,7 +1367,7 @@ CMD:savepos(playerid,params[])
 	if(!isnull(comment)) {
 		format(entry, sizeof(entry), "{%f,%f,%f,%d},\r\n",x,y,z,GetPlayerInterior(playerid));
 	} else {
-		format(entry, sizeof(entry), "{%f,%f,%f,%d}, \/\/ %s\r\n",x,y,z,GetPlayerInterior(playerid), comment);
+		format(entry, sizeof(entry), "{%f,%f,%f,%d}, // %s\r\n",x,y,z,GetPlayerInterior(playerid), comment);
 	}
 	
 	new File:hFile;
@@ -21755,9 +21755,14 @@ public OnGameModeInit()
 	// TextDrawBoxColor(inventory_box, 94);
 	// TextDrawUseBox(inventory_box, 1);
 	// TextDrawSetProportional(inventory_box, 1);
-	inventory_box = TextDrawCreate(584, 282.000000, "_");
+	const Float:box_headerx = 584.00000;
+	const Float:box_headery = 170.00000;
+	new Float:box_size = MAX_INVENTORY*1.4;
+	inventory_box = TextDrawCreate(box_headerx, box_headery, "_");
+	// inventory_box = TextDrawCreate(584, 170.000000, "_");
 	TextDrawTextSize(inventory_box, 1, 108.000000);
-	TextDrawLetterSize(inventory_box, 1, 14.5);
+	TextDrawLetterSize(inventory_box, 1, box_size);
+	// TextDrawLetterSize(inventory_box, 1, 14.5);
 	// TextDrawLetterSize(inventory_box, 1, 2.5);
 	// Y+1.5 per slot (default 1 + 1.5 per slot) (this needs to be recalculated)
 	TextDrawSetOutline(inventory_box, 1);
@@ -41655,13 +41660,13 @@ stock SetupPlayer(playerid)
 	PlayerTextDrawFont(playerid, vfuel[playerid], 2);
 	PlayerTextDrawSetProportional(playerid, vfuel[playerid], 1);
 	/*---------------------------------------------------------------*/
-	tLabel[playerid] = CreatePlayerTextDraw(playerid, 49.000000, 321.000000, "test");
+	tLabel[playerid] = CreatePlayerTextDraw(playerid, 75.000000, 321.000000, "test");
 	PlayerTextDrawFont(playerid, tLabel[playerid], 1);
 	PlayerTextDrawLetterSize(playerid, tLabel[playerid], 0.249999, 0.599996);
-	PlayerTextDrawTextSize(playerid, tLabel[playerid], 396.500000, 17.000000);
+	PlayerTextDrawTextSize(playerid, tLabel[playerid], 17.000000, 396.500000);
 	PlayerTextDrawSetOutline(playerid, tLabel[playerid], 1);
 	PlayerTextDrawSetShadow(playerid, tLabel[playerid], 1);
-	PlayerTextDrawAlignment(playerid, tLabel[playerid], 1);
+	PlayerTextDrawAlignment(playerid, tLabel[playerid], 2); // center
 	PlayerTextDrawColor(playerid, tLabel[playerid], -1);
 	PlayerTextDrawBackgroundColor(playerid, tLabel[playerid], 255);
 	PlayerTextDrawBoxColor(playerid, tLabel[playerid], 50);
@@ -41687,176 +41692,209 @@ stock SetupPlayer(playerid)
 	User[playerid][showhud] = true;
 	/*---------------------------------------------------------------*/
 
-	// here you can actually make the inventory slots dynamic, 
+	// here you can actually make the inventory slots dynamic, (done)
 	// how? by having a variable that, and then you loop against that variable and create as many textdraws as needed
 	// for position you either do it mathematically or with a switch()
 
-	#define INVENTORY_HEADER_FONT 2
-	#define INVENTORY_HEADER_ALIGNMENT 1
+	// #define INVENTORY_HEADER_FONT 2
+	#define INVENTORY_HEADER_FONT 1
+	#define INVENTORY_HEADER_ALIGNMENT 2
 	#define SLOT_BOXCOLOR 66
 	#define HEADER_BOXCOLOR 66
 
-	inventory_header[playerid] = CreatePlayerTextDraw(playerid, 534.000000, 286.000000, FillNameForSetup(playerid, 99));
+	const Float:headerx = 580.00000; 
+	const Float:headery = 175.00000; // change this if inventory gets bigger/smaller
+
+	inventory_header[playerid] = CreatePlayerTextDraw(playerid, headerx, headery, FillNameForSetup(playerid, 99));
 	PlayerTextDrawFont(playerid, inventory_header[playerid], INVENTORY_HEADER_FONT);
-	PlayerTextDrawLetterSize(playerid, inventory_header[playerid], 0.179166, 1.049999);
-	PlayerTextDrawTextSize(playerid, inventory_header[playerid], 636.500000, 11.000000);//635.000000, 12.000000);
+	PlayerTextDrawLetterSize(playerid, inventory_header[playerid], 0.2, 0.85);
+	PlayerTextDrawTextSize(playerid, inventory_header[playerid], 11.000000, 80.00000); // perfectly aligned;  y, x; inverted bc of center alignment
 	PlayerTextDrawSetOutline(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetShadow(playerid, inventory_header[playerid], 0);
 	PlayerTextDrawAlignment(playerid, inventory_header[playerid], INVENTORY_HEADER_ALIGNMENT);
-	PlayerTextDrawColor(playerid, inventory_header[playerid], -1);
-	PlayerTextDrawBackgroundColor(playerid, inventory_header[playerid], 255);
+	// PlayerTextDrawColor(playerid, inventory_header[playerid], 0x4CA64CFF); 
+	PlayerTextDrawColor(playerid, inventory_header[playerid], -1); 
+	PlayerTextDrawBackgroundColor(playerid, inventory_header[playerid], 255); 
 	PlayerTextDrawBoxColor(playerid, inventory_header[playerid], HEADER_BOXCOLOR);
 	PlayerTextDrawUseBox(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetProportional(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetSelectable(playerid, inventory_header[playerid], 0);
 
-	// invslot[playerid][0] = CreatePlayerTextDraw(playerid, 534.000000, 301.000000, FillNameForSetup(playerid, 0));
-	invslot[playerid][0] = CreatePlayerTextDraw(playerid, 534.000000000, 301.000000, FillNameForSetup(playerid, 0));
-	PlayerTextDrawFont(playerid, invslot[playerid][0], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][0], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][0], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][0], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][0], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][0], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][0], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][0], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][0], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][0], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][0], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][0], 1);
 
-	invslot[playerid][1] = CreatePlayerTextDraw(playerid, 534.000000, 312.000000, FillNameForSetup(playerid, 1));
-	PlayerTextDrawFont(playerid, invslot[playerid][1], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][1], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][1], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][1], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][1], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][1], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][1], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][1], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][1], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][1], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][1], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][1], 0);
-
-	invslot[playerid][2] = CreatePlayerTextDraw(playerid, 534.000000, 323.000000, FillNameForSetup(playerid, 2));
-	PlayerTextDrawFont(playerid, invslot[playerid][2], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][2], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][2], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][2], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][2], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][2], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][2], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][2], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][2], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][2], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][2], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][2], 1);
-
-	invslot[playerid][3] = CreatePlayerTextDraw(playerid, 534.000000, 334.000000, FillNameForSetup(playerid, 3));
-	PlayerTextDrawFont(playerid, invslot[playerid][3], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][3], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][3], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][3], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][3], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][3], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][3], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][3], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][3], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][3], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][3], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][3], 1);
-
-	invslot[playerid][4] = CreatePlayerTextDraw(playerid, 534.000000, 345.000000, FillNameForSetup(playerid, 4));
-	PlayerTextDrawFont(playerid, invslot[playerid][4], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][4], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][4], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][4], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][4], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][4], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][4], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][4], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][4], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][4], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][4], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][4], 1);
-
-	invslot[playerid][5] = CreatePlayerTextDraw(playerid, 534.000000, 356.000000, FillNameForSetup(playerid, 5));
-	PlayerTextDrawFont(playerid, invslot[playerid][5], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][5], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][5], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][5], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][5], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][5], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][5], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][5], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][5], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][5], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][5], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][5], 1);
-
-	invslot[playerid][6] = CreatePlayerTextDraw(playerid, 534.000000, 367.000000, FillNameForSetup(playerid, 6));
-	PlayerTextDrawFont(playerid, invslot[playerid][6], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][6], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][6], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][6], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][6], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][6], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][6], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][6], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][6], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][6], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][6], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][6], 1);
-
-	invslot[playerid][7] = CreatePlayerTextDraw(playerid, 534.000000, 378.000000, FillNameForSetup(playerid, 7));
-	PlayerTextDrawFont(playerid, invslot[playerid][7], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][7], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][7], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][7], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][7], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][7], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][7], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][7], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][7], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][7], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][7], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][7], 1);
-
-	invslot[playerid][8] = CreatePlayerTextDraw(playerid, 534.000000, 389.000000, FillNameForSetup(playerid, 8));
-	PlayerTextDrawFont(playerid, invslot[playerid][8], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][8], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][8], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][8], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][8], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][8], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][8], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][8], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][8], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][8], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][8], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][8], 1);
-
-	invslot[playerid][9] = CreatePlayerTextDraw(playerid, 534.000000, 400.000000, FillNameForSetup(playerid, 9));
-	PlayerTextDrawFont(playerid, invslot[playerid][9], 1);
-	PlayerTextDrawLetterSize(playerid, invslot[playerid][9], 0.212500, 0.750000);
-	PlayerTextDrawTextSize(playerid, invslot[playerid][9], 636.500000, 11.000000);//634.500000, 11.000000);
-	PlayerTextDrawSetOutline(playerid, invslot[playerid][9], 1);
-	PlayerTextDrawSetShadow(playerid, invslot[playerid][9], 0);
-	PlayerTextDrawAlignment(playerid, invslot[playerid][9], 1);
-	PlayerTextDrawColor(playerid, invslot[playerid][9], -1);
-	PlayerTextDrawBackgroundColor(playerid, invslot[playerid][9], 255);
-	PlayerTextDrawBoxColor(playerid, invslot[playerid][9], SLOT_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, invslot[playerid][9], 1);
-	PlayerTextDrawSetProportional(playerid, invslot[playerid][9], 1);
-	PlayerTextDrawSetSelectable(playerid, invslot[playerid][9], 1);	
-	
+	for(new curslot = 0; curslot < MAX_INVENTORY; curslot++)
+	{
+		// PlayerTextDrawShow(playerid, invslot[playerid][curslot]);
+		const Float:x = 534.00000;
+		new Float:starty = 195.00000;
+		new Float:cury = starty+(11*curslot);
+		if(curslot == 0) cury = starty;
+		invslot[playerid][curslot] = CreatePlayerTextDraw(playerid, x, cury, FillNameForSetup(playerid, curslot));
+		PlayerTextDrawFont(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawLetterSize(playerid, invslot[playerid][curslot], 0.2, 0.65); // width, height
+		// PlayerTextDrawLetterSize(playerid, invslot[playerid][curslot], 0.212500, 0.750000);
+		PlayerTextDrawTextSize(playerid, invslot[playerid][curslot], 636.500000, 11.000000);//634.500000, 11.000000);
+		PlayerTextDrawSetOutline(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawSetShadow(playerid, invslot[playerid][curslot], 0);
+		PlayerTextDrawAlignment(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawColor(playerid, invslot[playerid][curslot], -1);
+		PlayerTextDrawBackgroundColor(playerid, invslot[playerid][curslot], 255);
+		PlayerTextDrawBoxColor(playerid, invslot[playerid][curslot], SLOT_BOXCOLOR);
+		PlayerTextDrawUseBox(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawSetProportional(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawSetSelectable(playerid, invslot[playerid][curslot], 1);
+	}
 	TextDrawShowForPlayer(playerid, inventory_box);
 	PlayerTextDrawShow(playerid, inventory_header[playerid]);
 	for(new inventory_loop = 0; inventory_loop < MAX_INVENTORY; inventory_loop++)
 		PlayerTextDrawShow(playerid, invslot[playerid][inventory_loop]);
 
 	SetPVarInt(playerid, "inventoryHud", 1);
+
+
+
+	// commented out 10 invslot starts here
+	// invslot[playerid][0] = CreatePlayerTextDraw(playerid, 534.000000000, 301.000000, FillNameForSetup(playerid, 0));
+	// PlayerTextDrawFont(playerid, invslot[playerid][0], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][0], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][0], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][0], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][0], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][0], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][0], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][0], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][0], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][0], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][0], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][0], 1);
+
+	// invslot[playerid][1] = CreatePlayerTextDraw(playerid, 534.000000, 312.000000, FillNameForSetup(playerid, 1));
+	// PlayerTextDrawFont(playerid, invslot[playerid][1], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][1], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][1], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][1], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][1], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][1], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][1], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][1], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][1], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][1], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][1], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][1], 0);
+
+	// invslot[playerid][2] = CreatePlayerTextDraw(playerid, 534.000000, 323.000000, FillNameForSetup(playerid, 2));
+	// PlayerTextDrawFont(playerid, invslot[playerid][2], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][2], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][2], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][2], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][2], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][2], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][2], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][2], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][2], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][2], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][2], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][2], 1);
+
+	// invslot[playerid][3] = CreatePlayerTextDraw(playerid, 534.000000, 334.000000, FillNameForSetup(playerid, 3));
+	// PlayerTextDrawFont(playerid, invslot[playerid][3], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][3], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][3], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][3], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][3], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][3], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][3], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][3], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][3], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][3], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][3], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][3], 1);
+
+	// invslot[playerid][4] = CreatePlayerTextDraw(playerid, 534.000000, 345.000000, FillNameForSetup(playerid, 4));
+	// PlayerTextDrawFont(playerid, invslot[playerid][4], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][4], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][4], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][4], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][4], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][4], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][4], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][4], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][4], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][4], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][4], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][4], 1);
+
+	// invslot[playerid][5] = CreatePlayerTextDraw(playerid, 534.000000, 356.000000, FillNameForSetup(playerid, 5));
+	// PlayerTextDrawFont(playerid, invslot[playerid][5], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][5], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][5], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][5], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][5], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][5], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][5], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][5], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][5], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][5], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][5], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][5], 1);
+
+	// invslot[playerid][6] = CreatePlayerTextDraw(playerid, 534.000000, 367.000000, FillNameForSetup(playerid, 6));
+	// PlayerTextDrawFont(playerid, invslot[playerid][6], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][6], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][6], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][6], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][6], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][6], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][6], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][6], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][6], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][6], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][6], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][6], 1);
+
+	// invslot[playerid][7] = CreatePlayerTextDraw(playerid, 534.000000, 378.000000, FillNameForSetup(playerid, 7));
+	// PlayerTextDrawFont(playerid, invslot[playerid][7], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][7], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][7], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][7], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][7], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][7], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][7], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][7], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][7], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][7], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][7], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][7], 1);
+
+	// invslot[playerid][8] = CreatePlayerTextDraw(playerid, 534.000000, 389.000000, FillNameForSetup(playerid, 8));
+	// PlayerTextDrawFont(playerid, invslot[playerid][8], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][8], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][8], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][8], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][8], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][8], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][8], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][8], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][8], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][8], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][8], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][8], 1);
+
+	// invslot[playerid][9] = CreatePlayerTextDraw(playerid, 534.000000, 400.000000, FillNameForSetup(playerid, 9));
+	// PlayerTextDrawFont(playerid, invslot[playerid][9], 1);
+	// PlayerTextDrawLetterSize(playerid, invslot[playerid][9], 0.212500, 0.750000);
+	// PlayerTextDrawTextSize(playerid, invslot[playerid][9], 636.500000, 11.000000);//634.500000, 11.000000);
+	// PlayerTextDrawSetOutline(playerid, invslot[playerid][9], 1);
+	// PlayerTextDrawSetShadow(playerid, invslot[playerid][9], 0);
+	// PlayerTextDrawAlignment(playerid, invslot[playerid][9], 1);
+	// PlayerTextDrawColor(playerid, invslot[playerid][9], -1);
+	// PlayerTextDrawBackgroundColor(playerid, invslot[playerid][9], 255);
+	// PlayerTextDrawBoxColor(playerid, invslot[playerid][9], SLOT_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, invslot[playerid][9], 1);
+	// PlayerTextDrawSetProportional(playerid, invslot[playerid][9], 1);
+	// PlayerTextDrawSetSelectable(playerid, invslot[playerid][9], 1);	
+
+	// commented out 10 slots inv finishes here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 
 	/*new cs_modifier[64];
@@ -50898,7 +50936,7 @@ CMD:giverpitem(playerid, params[])
 		if(isnull(User[playerid][forumname])) return MSG(playerid, GOLD, "ERROR:"GR" Set up your (/forumname) before using this command.");
 		new target, name[MAX_ITEM_NAME], value;
 		if(sscanf(params, "us[16]i", target, name, value)) return MSG(playerid, GOLD, "SYNTAX:"GR" /giverpitem [playerid/PartOfName] [roleplayitemname] [value]");
-		if(strlen(name) > 16) return MSG(playerid, GOLD, "ERROR:"GR" Max character limit is 16.");
+		if(strlen(name) > MAX_ITEM_NAME) return MSG(playerid, GOLD, "ERROR:"GR" Max character limit is 30.");
 		if(User[target][Logged] == false) return MSG(playerid, GOLD, "ERROR:"GR" Invalid player specified.");
 		new bool:merge = false;
 		if(value > 1) merge = true;
