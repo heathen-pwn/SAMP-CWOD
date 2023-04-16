@@ -18241,9 +18241,10 @@ Dialog:dPlayerLabelList(playerid, response, listitem, inputtext[])
 				print(color);
 				strdel(label, first_bracket,  second_bracket+1);
 				print(label);
-				new hex = HexToInt(color);
-				printf("hex %d", hex);
-				if(hex != 0) PlayerTextDrawColor(playerid, tLabel[playerid], hex);
+				new scolor[24];
+				format(scolor, sizeof scolor, "0x%sFF", color); // scrubby way of doing it
+				new icolor = HexToInt(scolor);
+				if(icolor != 0) PlayerTextDrawColor(playerid, tLabel[playerid], icolor);
 			}
 			for(new i = 0; i < sizeof label; i++) if(label[i] == '*') label[i] = '`';
 			format(label, sizeof(label)-1, "%s", label);
