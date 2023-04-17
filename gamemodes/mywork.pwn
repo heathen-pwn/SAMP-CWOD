@@ -173,7 +173,7 @@ Garage
 #undef MAX_VEHICLES
 // Main Server Definitions
 #define SERVERNAME "Dillimore Stories"
-#define GAMEMODENAME "DS:RP v1.2.3"
+#define GAMEMODENAME "DS:RP v1.3.0"
 #define HUNTING_LOC_NAME "DILLIMORE"
 #define MAX_PLAYERS 30
 #define MAX_VEHICLES 1000
@@ -381,11 +381,16 @@ new moon_phase[64];
 new moon_age[10];
 
 new DB:Database;
-new Text:inventory_box;
-new PlayerText:inventory_header[MAX_PLAYERS];
-new PlayerText:invslot[MAX_PLAYERS][MAX_INVENTORY];
 new PlayerText:tLabel[MAX_PLAYERS];
 new PlayerText:tHLevel[MAX_PLAYERS];
+
+// --
+new PlayerText:invslot[MAX_PLAYERS][MAX_INVENTORY];
+new Text:inventory_box;
+new PlayerText:inventory_header[MAX_PLAYERS];
+// const Float:invslot_posX = 534.00000;
+const Float:invslot_posX = 503.00000;
+
 
 new Text:serverhud;
 new PlayerText:deathtext[MAX_PLAYERS];
@@ -454,6 +459,7 @@ new Float:zones_points_0[] =
 	2354.0, -649.0, 250.0
 };
 new BusinessID[MAX_PLAYERS]; // ASSOCIATED WITH /business buy
+
 /*--------------------------------------------------------------*/
 // Color definitions
 #define COLOR_LOGGED 0xd9d9d900//0xFFFFFF00
@@ -2764,7 +2770,7 @@ stock FoodDrink(playerid, item, slot)
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseThirst(playerid, 20);
 				gIncreaseHP(playerid, 10);
-				GameTextForPlayer(playerid, "~g~-20 Thirst, +10 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+20 H2O~n~+10 HP", 2500, 1);
 				print("G HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "VENDING", "VEND_Drink_P", 4.1, 0, 0, 0, 0, 0, 1);
 				if(User[playerid][Userrace] != 1)
@@ -2783,7 +2789,7 @@ stock FoodDrink(playerid, item, slot)
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseThirst(playerid, 10);
 				gIncreaseHP(playerid, 10);
-				GameTextForPlayer(playerid, "~g~-10 Thirst, +10 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+10 H2O~n~+10 HP", 2500, 1);
 				print("F HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "VENDING", "VEND_Drink_P", 4.1, 0, 0, 0, 0, 0, 1);
 				if(User[playerid][Userrace] != 1)
@@ -2802,7 +2808,7 @@ stock FoodDrink(playerid, item, slot)
 				gIncreaseHunger(playerid, 10);
 				gIncreaseThirst(playerid, 10);
 				gIncreaseHP(playerid, 2);
-				GameTextForPlayer(playerid, "~g~-10 Hunger/Thirst, +2 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+10 Food/H2O~n~+2 HP", 2500, 1);
 				print("E HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "FOOD", "EAT_Pizza", 4.1, 0, 0, 0, 0, 0, 1);	
 				if(User[playerid][Userrace] != 1)
@@ -2821,7 +2827,7 @@ stock FoodDrink(playerid, item, slot)
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseThirst(playerid, 15);
 				gIncreaseHP(playerid, 10);
-				GameTextForPlayer(playerid, "~g~-15 Thirst, +10 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+15 H2O~n~+10 HP", 2500, 1);
 				print("D HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "VENDING", "VEND_Drink_P", 4.1, 0, 0, 0, 0, 0, 1);
 				if(User[playerid][Userrace] != 1)
@@ -2838,7 +2844,7 @@ stock FoodDrink(playerid, item, slot)
 				PlayerActionMessageBubble(playerid, "drinks their Alcoholic Beverage.");
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseThirst(playerid, 5);
-				GameTextForPlayer(playerid, "~g~-5 Thirst", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+5 H2O", 2500, 1);
 				print("C HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "VENDING", "VEND_Drink_P", 4.1, 0, 0, 0, 0, 0, 1);
 				if(User[playerid][Userrace] != 1)
@@ -2856,7 +2862,7 @@ stock FoodDrink(playerid, item, slot)
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseHunger(playerid, 5);
 				gIncreaseHP(playerid, 10);
-				GameTextForPlayer(playerid, "~g~-5 Hunger, +10 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+5 Food~n~+10 HP", 2500, 1);
 				print("B HERE!");SetPVarInt(playerid, "tConsume", 1);
 				//ApplyAnim(playerid, "EAT", "EAT_Pizza", 4.1, 0, 0, 0, 0, 0, 1);
 				if(User[playerid][Userrace] != 1)
@@ -2874,7 +2880,7 @@ stock FoodDrink(playerid, item, slot)
 				UpdateItem(playerid, slot, UserItem[playerid][slot][Item], UserItem[playerid][slot][ItemName], -1, 100, true);
 				gIncreaseHunger(playerid, 30);
 				gIncreaseHP(playerid, 20);
-				GameTextForPlayer(playerid, "~g~-30 Hunger, +20 HP", 2500, 1);
+				GameTextForPlayer(playerid, "~g~+30 Food~n~+20 HP", 2500, 1);
 				print("A HERE!");SetPVarInt(playerid, "tConsume", 1);
 				ApplyAnim(playerid, "FOOD", "EAT_Burger", 3.0, 0, 0, 0, 0, 0);
 				if(User[playerid][Userrace] != 1)
@@ -18227,7 +18233,7 @@ Dialog:dPlayerLabelList(playerid, response, listitem, inputtext[])
 			strcat(label, slabel);
 			print(label);
 
-			SFM(playerid, GOLD, "Label:"GR" ` %s"GR" ` enabled.", slabel);
+			SFM(playerid, GRAD4, "Label:"GR" ` %s"GR" ` enabled.", slabel);
 			
 			format(slabel, sizeof label, "%s"W"\n%s", slabel, sendernameEx(playerid));
 			UpdateDynamic3DTextLabelText(User[playerid][UserTag], SOLIDWHITE, slabel);
@@ -21757,7 +21763,7 @@ public OnGameModeInit()
 	// TextDrawBoxColor(inventory_box, 94);
 	// TextDrawUseBox(inventory_box, 1);
 	// TextDrawSetProportional(inventory_box, 1);
-	const Float:box_headerx = 584.00000;
+	new Float:box_headerx = invslot_posX+50.00000;
 	const Float:box_headery = 170.00000;
 	new Float:box_size = MAX_INVENTORY*1.4;
 	inventory_box = TextDrawCreate(box_headerx, box_headery, "_");
@@ -21773,7 +21779,7 @@ public OnGameModeInit()
 	TextDrawBackgroundColor(inventory_box, -1);
 	TextDrawBoxColor(inventory_box, 94);
 	TextDrawUseBox(inventory_box, 1);
-	TextDrawSetProportional(inventory_box, 1);
+	TextDrawSetProportional(inventory_box, 0);
 	/*
 	TextDrawShowForPlayer(playerid, csback);
 	TextDrawShowForPlayer(playerid, cshead);
@@ -41228,7 +41234,7 @@ CMD:i(playerid, params[])
 	}
 	sscanf(params, "s[16]iiu", option, input, value, target);
 	if(strlen(option) > 16) return MSG(playerid, GOLD, "ERROR:"GR" Input option is too long.");	
-	if(!strcmp(option, "merge", true))
+	if(!strcmp(option, "merge", true)) // merging vension (6) with empty slot spawns venison
 	{
 		if(input == INVALID_PLAYER_ID) return MSG(playerid, GOLD, "SYNTAX:"GR" /(i)nventory merge [slot] [slot]");
 		if(value == INVALID_PLAYER_ID) return MSG(playerid, GOLD, "SYNTAX: Please specify the slot you want to be merged. (/i merge slot1 slot2)");
@@ -41704,7 +41710,8 @@ stock SetupPlayer(playerid)
 	#define SLOT_BOXCOLOR 66
 	#define HEADER_BOXCOLOR 66
 
-	const Float:headerx = 580.00000; 
+	// const Float:headerx = 580.00000; 
+	new Float:headerx = invslot_posX+46.00000; 
 	const Float:headery = 175.00000; // change this if inventory gets bigger/smaller
 
 	inventory_header[playerid] = CreatePlayerTextDraw(playerid, headerx, headery, FillNameForSetup(playerid, 99));
@@ -41717,8 +41724,8 @@ stock SetupPlayer(playerid)
 	// PlayerTextDrawColor(playerid, inventory_header[playerid], 0x4CA64CFF); 
 	PlayerTextDrawColor(playerid, inventory_header[playerid], -1); 
 	PlayerTextDrawBackgroundColor(playerid, inventory_header[playerid], 255); 
-	PlayerTextDrawBoxColor(playerid, inventory_header[playerid], HEADER_BOXCOLOR);
-	PlayerTextDrawUseBox(playerid, inventory_header[playerid], 1);
+	// PlayerTextDrawBoxColor(playerid, inventory_header[playerid], HEADER_BOXCOLOR);
+	// PlayerTextDrawUseBox(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetProportional(playerid, inventory_header[playerid], 1);
 	PlayerTextDrawSetSelectable(playerid, inventory_header[playerid], 0);
 
@@ -41726,7 +41733,7 @@ stock SetupPlayer(playerid)
 	for(new curslot = 0; curslot < MAX_INVENTORY; curslot++)
 	{
 		// PlayerTextDrawShow(playerid, invslot[playerid][curslot]);
-		const Float:x = 534.00000;
+		const Float:x = invslot_posX;
 		new Float:starty = 195.00000;
 		new Float:cury = starty+(11*curslot);
 		if(curslot == 0) cury = starty;
@@ -41734,7 +41741,8 @@ stock SetupPlayer(playerid)
 		PlayerTextDrawFont(playerid, invslot[playerid][curslot], 1);
 		PlayerTextDrawLetterSize(playerid, invslot[playerid][curslot], 0.2, 0.65); // width, height
 		// PlayerTextDrawLetterSize(playerid, invslot[playerid][curslot], 0.212500, 0.750000);
-		PlayerTextDrawTextSize(playerid, invslot[playerid][curslot], 636.500000, 11.000000);//634.500000, 11.000000);
+		// PlayerTextDrawTextSize(playerid, invslot[playerid][curslot], 600.500, 11.000); 636.500000, 11.000000);
+		PlayerTextDrawTextSize(playerid, invslot[playerid][curslot], invslot_posX+97.5, 11.000); 
 		PlayerTextDrawSetOutline(playerid, invslot[playerid][curslot], 1);
 		PlayerTextDrawSetShadow(playerid, invslot[playerid][curslot], 0);
 		PlayerTextDrawAlignment(playerid, invslot[playerid][curslot], 1);
@@ -41743,7 +41751,7 @@ stock SetupPlayer(playerid)
 		PlayerTextDrawBoxColor(playerid, invslot[playerid][curslot], SLOT_BOXCOLOR);
 		PlayerTextDrawUseBox(playerid, invslot[playerid][curslot], 1);
 		PlayerTextDrawSetProportional(playerid, invslot[playerid][curslot], 1);
-		PlayerTextDrawSetSelectable(playerid, invslot[playerid][curslot], 1);
+		PlayerTextDrawSetSelectable(playerid, invslot[playerid][curslot], 0);
 	}
 	TextDrawShowForPlayer(playerid, inventory_box);
 	PlayerTextDrawShow(playerid, inventory_header[playerid]);
