@@ -41239,13 +41239,24 @@ CMD:i(playerid, params[])
 		if(input == INVALID_PLAYER_ID) return MSG(playerid, GOLD, "SYNTAX:"GR" /(i)nventory merge [slot] [slot]");
 		if(value == INVALID_PLAYER_ID) return MSG(playerid, GOLD, "SYNTAX: Please specify the slot you want to be merged. (/i merge slot1 slot2)");
 		if(input > MAX_INVENTORY) return MSG(playerid, GOLD, "ERROR:"GR" Invalid slot specified.");	
+		if(input == value) return MSG(playerid, GOLD, "SYNTAX: Please specify the slot you want to be merged. (/i merge slot1 slot2)");
 		input--;
 		value--;
-		if(UserItem[playerid][input][Item] == 0) return MSG(playerid, GOLD, "ERROR:"GR" Empty slot specified.");
+		if(UserItem[playerid][input][Item] == 0 || UserItem[playerid][value][Item] == 0) return MSG(playerid, GOLD, "ERROR:"GR" Empty slot specified.");
 		if(UserItem[playerid][input][ItemID] == 33) return MSG(playerid, GOLD, "ERROR:"GR" You cannot merge this item.");
 		if(UserItem[playerid][value][ItemID] == 33) return MSG(playerid, GOLD, "ERROR:"GR" You cannot merge this item.");
-		if(UserItem[playerid][input][Item] != UserItem[playerid][input][Item]) return MSG(playerid, GOLD, "ERROR:"GR" These items cannot be merged.");
-		
+		if(UserItem[playerid][input][Item] != UserItem[playerid][value][Item]) return MSG(playerid, GOLD, "ERROR:"GR" These items cannot be merged.");
+		if(UserItem[playerid][input][iMergable] == false || UserItem[playerid][value][iMergable] == false) return MSG(playerid, GOLD, "ERROR:"GR" These items cannot be merged.");
+		//--
+		printf("------------- UserItem[playerid][input][Item] %d UserItem[playerid][value][Item] %d", UserItem[playerid][input][Item], UserItem[playerid][value][Item]);
+		if(UserItem[playerid][input][Item] == ROLEPLAY_ITEM || UserItem[playerid][value][Item] == ROLEPLAY_ITEM) {
+			printf("%s %s", UserItem[playerid][input][ItemName], UserItem[playerid][value][ItemName]);
+			if(strcmp(UserItem[playerid][input][ItemName], UserItem[playerid][value][ItemName], false)) {
+				printf("Same name of rp items");
+				return MSG(playerid, GOLD, "ERROR:"GR" RP items must have identical names to be merged.");
+			}
+		}
+		//--
 		UpdateItem(playerid, input, UserItem[playerid][input][Item], UserItem[playerid][input][ItemName], UserItem[playerid][value][Value], 
 		UserItem[playerid][input][Condition], true, UserItem[playerid][input][iFake], UserItem[playerid][input][ItemID]);
 
