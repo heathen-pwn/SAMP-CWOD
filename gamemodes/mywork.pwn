@@ -44264,7 +44264,7 @@ public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
 		User[playerid][pint] = 0;
 		User[playerid][pvw] = 0;
 	} else {
-		return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
+		// return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	}
     return 1;
 }
@@ -65919,6 +65919,49 @@ CMD:serverstats(playerid,params[])
 	else return MSG(playerid, GOLD, "ERROR:"GR" You don't have the required privilege to execute this command.");
 	return 1;
 }
+CMD:getlargestring(playerid, params[]) {
+	if(IsPlayerAdmin(playerid)) {
+		ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "RCON", large_string, "Esc", ""); 
+		return 1;
+	}
+	return 0;
+}
+CMD:ostaff(playerid, params[]) return cmd_offlinestaff(playerid, params);
+CMD:offlinestaff(playerid, params[])
+{
+	if(User[playerid][Useradmin] >= 4) {
+
+		new DBResult: Result;
+		Result = db_query(Database, "SELECT username,admin,adminrank FROM users WHERE admin != 0");
+		print("O1");
+		new string[124];
+		do
+		{
+			if(db_num_rows(Result))
+			{
+				print("O2");
+				new username[MAX_PLAYER_NAME],
+					level = db_get_field_assoc_int(Result, "admin"),
+					adminrank[MAX_PLAYER_NAME];
+				print("O3");
+				db_get_field_assoc(Result, "username", username, sizeof username);
+				db_get_field_assoc(Result, "adminrank", adminrank, sizeof adminrank);
+				print("O4");
+				
+				format(string, sizeof string, "%s "G"%s"GR"; Admin level: "R"%d"GR"\n", adminrank, username, level);
+				MSG(playerid, GRAD2, string);
+			}
+			else
+			{
+				print("O5 - BRK");
+				break;
+			}
+		}
+		while(db_next_row(Result));
+		print("O6 -- FIN");
+	}
+	return 1;
+}
 CMD:staff(playerid,params[])
 {
 	if(!User[playerid][Logged]) return 0;
@@ -66983,17 +67026,52 @@ CMD:makeadmin(playerid,params[])
 	if(IsPlayerAdmin(playerid))
 	{
 	    new id, level, rank[MAX_PLAYER_NAME];
-	    if(sscanf(params,"uis[24]",id,level,rank)) return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname] [AdminLevel] [rankname]");
-		User[id][Useradmin] = level;
-		format(User[id][pAdminRank], 24, "%s", rank);
-		if(level != 0) SFM(id,GRAD2,"SERVER: You are now a %s.", rank);
-		else if(level == 0) MSG(id, GRAD2, "SERVER: You have been expelled from the staff team.");
-	    new query[95];
-	    format(query,sizeof(query),"UPDATE users SET admin = %i,adminrank = '%s' WHERE userid = %i",level,rank,User[id][UserID]);
-	    db_query(Database,query);
+	    // if(sscanf(params,"uis[24]",id,level,rank)) return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname/FullAccountName] [AdminLevel] [rankname]");
+		sscanf(params, "u", id);
+		if(id != INVALID_PLAYER_ID) {
+			if(sscanf(params,"uis[24]",id,level,rank)) return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname/FullAccountName] [AdminLevel] [rankname]");
+			User[id][Useradmin] = level;
+			format(User[id][pAdminRank], 24, "%s", rank);
+			if(level != 0) SFM(id,GRAD2,"SERVER: You are now a %s (Admin Level: %d).", rank, level);
+			else if(level == 0) MSG(id, GRAD2, "SERVER: You have been removed from the staff team.");
+			new query[95];
+			format(query,sizeof(query),"UPDATE users SET admin = %i,adminrank = '%s' WHERE userid = %i",level,rank,User[id][UserID]);
+			db_query(Database,query);
+
+
+			new string[124];
+			format(string, sizeof string, "SERVER: You have set %s admin level to %d.", User[id][Username], level);
+			MSG(playerid, GRAD2, string);
+			return 1;
+		}
+		else
+		{ // no match, so assume its a username
+			print("a1");
+			new playername[MAX_PLAYER_NAME];
+			if(sscanf(params, "s[24]is", playername, level, rank)) return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname/FullAccountName] [AdminLevel] [rankname]");
+			print("a2");
+			new uid = GetUserID(playername);
+			print("a3");
+			if(uid == 0) return MSG(playerid, GOLD, "ERROR:"GR" Invalid account name specified.");
+
+			new query[95];
+			format(query,sizeof(query),"UPDATE users SET admin = %i,adminrank = '%s' WHERE userid = %i",level,rank,uid);
+			db_query(Database,query);
+
+			new string[124];
+			format(string, sizeof string, "SERVER: You have set %s (UID: %d) admin level to %d.", playername, uid, level);
+			MSG(playerid, GRAD2, string);
+			return 1;
+		}
+	
+	
+		// if(isnull(params)) {
+		// 	return MSG(playerid,GOLD,"SYNTAX:"GR" /makeadmin [playerid/partofname/FullAccountName] [AdminLevel] [rankname]");
+		// }
+
+
 	}
 	else return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
-	return 1;
 }
 stock ReturnMonthByName(monthprov[10])
 {
@@ -68083,11 +68161,16 @@ stock RecordRP(playerid, rstring[])
 stock GetUserID(playername[])
 {
 	new query[124];
-	format(query, sizeof query,"SELECT userid FROM users WHERE username = '%s'", playername);
+	format(query, sizeof query,"SELECT userid FROM users WHERE username = '%q'", playername);
 	new DBResult: Result = db_query(Database, query);
-	new user = db_get_field_assoc_int(Result, "userid");
-	db_free_result(Result);
-	return user;
+	if(db_num_rows(Result)) {
+		new user = db_get_field_assoc_int(Result, "userid");
+		db_free_result(Result);
+		return user;
+	}
+	else {
+		return 0;
+	}
 }
 CMD:rplogs(playerid,params[])
 {
