@@ -1365,30 +1365,61 @@ CMD:savepos(playerid,params[])
 {
 	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
 	new comment[24];
-	sscanf(params, "s", comment);
+	sscanf(params, "s[24]", comment);
 	new Float:x,Float:y,Float:z;
 	GetPlayerPos(playerid,x,y,z);
 	//printf("{%f,%f,%f},",x,y,z);
 	new entry[256];
-	if(!isnull(comment)) {
+	if(isnull(comment)) {
 		format(entry, sizeof(entry), "{%f,%f,%f,%d},\r\n",x,y,z,GetPlayerInterior(playerid));
 	} else {
 		format(entry, sizeof(entry), "{%f,%f,%f,%d}, // %s\r\n",x,y,z,GetPlayerInterior(playerid), comment);
 	}
-	
+	print(comment);
+	print(entry);
 	new File:hFile;
 	hFile = fopen("/Logs/PosInt.log", io_append);
 	fwrite(hFile, entry);
 	fclose(hFile);
-	MSG(playerid,-1,"!");
+	
+	format(entry, sizeof entry, "Saved your position with the comment %s", comment);
+	MSG(playerid, -1, entry);
 	return 1;
 }
+CMD:readfile(playerid, params[]) {
+	if(!IsPlayerAdmin(playerid)) return MSG(playerid, GOLD, "ERROR:"GR" This is an RCON command.");
+	new path[124];
+	if(sscanf(params, "s[124]", path)) return MSG(playerid, GOLD, "SYNTAX: /readfile [scriptfiles:pathtofile]");
+	if(strfind(path, "incorrect_attempts", true) != -1) return MSG(playerid, GOLD, "ERROR:"GR" This file does not exist.");
 
+	//native fread(File: handle, string[], size = sizeof string, bool: pack = false);
+	//native File:fopen(const name[], filemode: mode = io_readwrite);
+	
+	new File:handle = fopen(path, io_read);
+	new buf[124];
+	large_string[0] = EOS;
+	if(handle)
+	{
+		// fread(handle, large_string, sizeof large_string);
+		while(fread(handle, buf)) {
+			format(large_string, sizeof large_string, "%s%s", large_string, buf);
+		}
+		Dialog_Show(playerid,dReadFile,DIALOG_STYLE_MSGBOX,path, large_string,"Close","");
+		fclose(handle);
+		return 1;
+	}
+	else 
+	{
+		MSG(playerid, GOLD, "ERROR:"GR" This file does not exist.");
+		return 1;
+	}
+
+}
 main()
 {
 	print("\n------------------------------------------");
 	print("\tCopyright 2017-2022 \
-	\n\tAli Al-Izaybawee (Darko/Heathen) \
+	\n\tAli Al-Izaybawee (a.k.a Darko/Heathen) \
 	\n\t Final Nights Roleplay \
 	\n\tScripting since 10/08/2017");
 	print("--------------------------------------------\n");
